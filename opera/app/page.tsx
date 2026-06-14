@@ -5,12 +5,17 @@ import OperaFooter from '@/app/components/shared/OperaFooter'
 import PersonaBubble from '@/app/components/shared/PersonaBubble'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { createClient } from '@/lib/supabase/server'
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const supabase = await createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  const navVariant = session ? 'authed' : 'guest'
+
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f5]">
       {/* 1. Top Nav */}
-      <OperaNav variant="guest" />
+      <OperaNav variant={navVariant} />
 
       {/* 2. Hero Band */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
