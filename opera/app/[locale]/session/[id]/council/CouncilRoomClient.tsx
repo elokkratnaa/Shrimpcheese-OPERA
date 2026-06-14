@@ -1,0 +1,423 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useParams, useRouter } from "next/navigation";
+import OperaNav from "@/app/components/shared/OperaNav";
+import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { PERSONAS } from "@/lib/personas";
+
+interface DebateUtterance {
+  debate_id: string;
+  persona_name: string;
+  message_content: string;
+  turn_sequence: number;
+  round_number?: number;
+}
+
+interface SessionData {
+  session_id: string;
+  current_status: string;
+  category?: string;
+  rounds?: number;
+  detected_biases: {
+    core_decision_node?: string;
+    suggested_persona_archetypes?: string[];
+  } | null;
+}
+
+const PERSONA_COLORS = ["#f59e0b", "#0d9488", "#8b5cf6", "#cc785c"];
+
+export default function CouncilRoomClient({ initialSession }: { initialSession: SessionData }) {
+  const router = useRouter();
+  const params = useParams();
+  const id = params?.id as string;
+  const t = useTranslations("Council");
+
+  const [session, setSession] = useState<SessionData>(initialSession);
+  const [debates, setDebates] = useState<DebateUtterance[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [roundCompleteEvent, setRoundCompleteEvent] = useState<{ round: number; total: number } | null>(null);
+  const [rebuttalTarget, setRebuttalTarget] = useState("Semua (Squad)");
+  const [rebuttalContent, setRebuttalContent] = useState("");
+  const [isSubmittingRebuttal, setIsSubmittingRebuttal] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const uniquePersonas = useMemo(() => {
+    const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
+    const fromBiases = (session?.detected_biases?.suggested_persona_archetypes || [])
+      .map(key => PERSONAS[key as keyof typeof PERSONAS]?.name || key);
+    // Combine and deduplicate
+    return Array.from(new Set([...fromDebates, ...fromBiases]));
+  }, [debates, session]);
+
+  const getPersonaColor = (name: string) => {
+    const index = uniquePersonas.indexOf(name);
+    return PERSONA_COLORS[index % PERSONA_COLORS.length] || PERSONA_COLORS[0];
+  };
+
+  useEffect(() => {
+    async function loadInitialData() {
+      try {
+        const debatesRes = await fetch(`/api/sessions/${id}/council`, { cache: "no-store" });
+        if (debatesRes.ok) {
+          const debatesData = await debatesRes.json();
+          setDebates(debatesData);
+        }
+      } catch (err) {
+        console.error("Failed to load council data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadInitialData();
+  }, [id]);
+
+  // SSE logic
+  useEffect(() => {
+    if (!id || !session || session.current_status === "completed") return;
+
+    let aborted = false;
+    const controller = new AbortController();
+
+    async function startStream() {
+      setIsStreaming(true);
+      try {
+        const response = await fetch(`/api/sessions/${id}/stream`, {
+          signal: controller.signal,
+        });
+        if (!response.body) return;
+
+        await consumeSSE(response, (event) => {
+          if (aborted) return;
+
+          if (event.type === "turn") {
+            setDebates(prev => {
+              if (prev.some(d => d.persona_name === event.persona_name && d.message_content === event.message_content && d.round_number === event.round_number)) {
+                return prev;
+              }
+              return [
+                ...prev,
+                {
+                  debate_id: `live-${Date.now()}-${Math.random()}`,
+                  persona_name: event.persona_name,
+                  message_content: event.message_content,
+                  turn_sequence: prev.length + 1,
+                  round_number: event.round_number
+                }
+              ];
+            });
+          } else if (event.type === "round_complete") {
+            setRoundCompleteEvent({ round: event.round, total: event.total });
+          } else if (event.type === "debate_complete") {
+            setSession(prev => prev ? { ...prev, current_status: "completed" } : prev);
+          }
+        });
+      } catch (err) {
+        if (!aborted) console.error("SSE Error:", err);
+      } finally {
+        if (!aborted) setIsStreaming(false);
+      }
+    }
+
+    startStream();
+
+    return () => {
+      aborted = true;
+      controller.abort();
+    };
+  }, [id, session]);
+
+  // Scroll to bottom on new messages
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [debates, isStreaming, roundCompleteEvent]);
+
+  async function consumeSSE(response: Response, onEvent: (data: any) => void) {
+    if (!response.body) return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') return;
+        try {
+          const parsed = JSON.parse(payload);
+          onEvent(parsed);
+        } catch {}
+      }
+    }
+  }
+
+  const handleSendRebuttal = async (skip = false) => {
+    setIsSubmittingRebuttal(true);
+    try {
+      if (!skip) {
+        const res = await fetch(`/api/sessions/${id}/rebuttal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            content: rebuttalContent, 
+            target: rebuttalTarget,
+            round_number: roundCompleteEvent?.round 
+          })
+        });
+        if (!res.ok) throw new Error("Failed to send rebuttal");
+        
+        setDebates(prev => [...prev, {
+          debate_id: `user-${Date.now()}`,
+          persona_name: "Kamu",
+          message_content: rebuttalContent,
+          turn_sequence: (roundCompleteEvent?.round || 0) * 100 + 99,
+          round_number: roundCompleteEvent?.round
+        }]);
+      } else {
+        const res = await fetch(`/api/sessions/${id}/rebuttal`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            content: "(Lanjut tanpa membalas)", 
+            target: "Semua (Squad)",
+            round_number: roundCompleteEvent?.round 
+          })
+        });
+        if (!res.ok) throw new Error("Failed to skip");
+      }
+
+      setRoundCompleteEvent(null);
+      setRebuttalContent("");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSubmittingRebuttal(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+      </div>
+    );
+  }
+
+  const squadName = session?.detected_biases?.core_decision_node || "Council Squad";
+  const personaSubtitle = uniquePersonas.join(", ") + " & Kamu";
+
+  const totalRounds = session?.rounds || 1;
+  const totalExpectedTurns = (uniquePersonas.length || 3) * 3 * totalRounds;
+  const completedTurns = debates.filter(d => !d.debate_id.startsWith('streaming-')).length;
+  const progressPercent = Math.min((completedTurns / totalExpectedTurns) * 100, 100);
+  const isComplete = progressPercent === 100;
+  const categoryLabel = session?.category || "Analisis";
+
+  return (
+    <div className="min-h-screen bg-[#faf9f5] text-[#141413] flex flex-col font-sans">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 bg-[#efe9de]/90 backdrop-blur-[16px] border-b border-[#e6dfd8] px-4 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="flex -space-x-3">
+            {uniquePersonas.slice(0, 3).map((name) => (
+              <div
+                key={name}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#faf9f5]"
+                style={{ backgroundColor: getPersonaColor(name) }}
+              >
+                {name.charAt(0)}
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold leading-none truncate max-w-[200px] text-[#141413]">{squadName}</h1>
+            <p className="text-[11px] text-[#6c6a64] mt-1 truncate max-w-[200px]">{personaSubtitle}</p>
+          </div>
+        </div>
+        {isStreaming && (
+          <div className="flex items-center gap-2 text-[#6c6a64] text-xs italic">
+            <span className="w-2 h-2 rounded-full bg-[#6c6a64] animate-pulse" />
+            <span>{t("typing")}</span>
+          </div>
+        )}
+      </header>
+
+      {/* CHAT AREA */}
+      <main 
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 max-w-2xl mx-auto w-full pb-20"
+      >
+        {debates.map((utterance, idx) => {
+          const color = utterance.persona_name === "Kamu" ? "#cc785c" : getPersonaColor(utterance.persona_name);
+          const lines = utterance.message_content.split("\n").filter(l => l.trim().length > 0);
+          const lastLine = lines.length > 1 ? lines[lines.length - 1] : null;
+          const bodyLines = lastLine ? lines.slice(0, -1) : lines;
+
+          const showRoundDivider = idx === 0 || (utterance.round_number && utterance.round_number !== debates[idx - 1].round_number);
+
+          return (
+            <React.Fragment key={utterance.debate_id}>
+              {showRoundDivider && utterance.round_number && (
+                <div className="flex items-center gap-4 my-4">
+                  <div className="flex-1 h-[1px] bg-[#e6dfd8]" />
+                  <span className="text-[10px] font-bold text-[#6c6a64] uppercase tracking-widest">
+                    — Ronde {utterance.round_number} —
+                  </span>
+                  <div className="flex-1 h-[1px] bg-[#e6dfd8]" />
+                </div>
+              )}
+              <div className={`flex gap-3 ${utterance.persona_name === "Kamu" ? "flex-row-reverse" : ""}`}>
+                <div 
+                  className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: color }}
+                >
+                  {utterance.persona_name.charAt(0)}
+                </div>
+                <div className={`flex flex-col gap-1 max-w-[85%] ${utterance.persona_name === "Kamu" ? "items-end" : ""}`}>
+                  <span className="text-[11px] font-medium" style={{ color }}>
+                    {utterance.persona_name}
+                  </span>
+                  <div className={`bg-[#efe9de] text-[#141413] rounded-2xl p-3 px-4 shadow-sm relative ${utterance.persona_name === "Kamu" ? "border-r-2 border-[#cc785c]" : ""}`}>
+                    <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
+                      {bodyLines.join("\n")}
+                      {lastLine && utterance.persona_name !== "Kamu" && (
+                        <blockquote className="mt-3 border-l-[3px] border-[#6c6a64] bg-white/50 italic text-sm p-2 rounded-r-sm">
+                          {lastLine}
+                        </blockquote>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        })}
+
+        {roundCompleteEvent && (
+          <div className="bg-[#efe9de] border border-[#e6dfd8] rounded-xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
+            <div className="flex flex-col gap-4">
+              <span className="text-xs font-bold tracking-widest text-[#6c6a64] uppercase">
+                {t("target")}
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {["Semua (Squad)", ...uniquePersonas].map(p => (
+                  <button
+                    key={p}
+                    onClick={() => setRebuttalTarget(p)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+                      rebuttalTarget === p ? "bg-[#cc785c] text-white" : "bg-white border border-[#e6dfd8] text-[#141413]"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <textarea
+                aria-label={t("rebuttalPlaceholder")}
+                value={rebuttalContent}
+                onChange={(e) => setRebuttalContent(e.target.value)}
+                className="w-full min-h-[100px] bg-white border border-[#e6dfd8] rounded-lg p-3 text-sm text-[#141413] focus:outline-none focus:border-[#cc785c] transition-all resize-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => handleSendRebuttal()}
+                disabled={!rebuttalContent.trim() || isSubmittingRebuttal}
+                className="w-full h-11 bg-[#cc785c] text-white font-bold rounded-lg shadow-lg shadow-[#cc785c]/20 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
+              >
+                {isSubmittingRebuttal ? <Loader2 className="animate-spin mx-auto h-5 w-5 text-white" /> : t("send")}
+              </button>
+              <button
+                onClick={() => handleSendRebuttal(true)}
+                disabled={isSubmittingRebuttal}
+                className="w-full h-11 bg-[#e6dfd8] text-[#141413] font-medium rounded-lg hover:bg-[#dcd6ce] transition-all"
+              >
+                {t("skip", { round: roundCompleteEvent.round + 1 })}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {isStreaming && !roundCompleteEvent && (
+          <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div 
+               className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
+               style={{ backgroundColor: getPersonaColor(uniquePersonas[debates.length % uniquePersonas.length] || "") }}
+             >
+               {(uniquePersonas[debates.length % uniquePersonas.length] || "C").charAt(0)}
+             </div>
+             <div className="flex flex-col gap-1">
+                <p className="text-xs italic text-[#71717a]">lagi mikir</p>
+                <div className="flex gap-1 mt-1 px-1">
+                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce [animation-delay:-0.3s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce [animation-delay:-0.15s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce" />
+                </div>
+             </div>
+          </div>
+        )}
+      </main>
+
+      {/* OVERTHINKING BOTTOM BAR */}
+      <footer className="sticky bottom-0 z-40 bg-[#efe9de] border-t border-[#e6dfd8] px-4 py-3">
+        <div className="max-w-2xl mx-auto flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-bold text-[#cc785c] uppercase tracking-wider">
+                {categoryLabel}
+              </span>
+              <div className="bg-white border border-[#e6dfd8] rounded-full px-3 py-1 text-xs font-medium text-[#141413]">
+                Ronde {Math.min(Math.ceil(completedTurns / (uniquePersonas.length * 3)) || 1, totalRounds)}/{totalRounds}
+              </div>
+            </div>
+            <span className="text-[10px] font-bold text-[#6c6a64] uppercase">
+              {isComplete ? "Analisis Selesai" : `Overthinking: ${Math.round(progressPercent)}%`}
+            </span>
+          </div>
+          
+          <div className="w-full h-1.5 bg-[#e6dfd8] rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-[#cc785c] transition-[width] duration-400 ease"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+        </div>
+      </footer>
+
+      {/* FOOTER ACTION */}
+      <div className="fixed bottom-20 left-0 right-0 p-4 flex justify-center gap-2 z-30">
+        <button
+          onClick={() => router.push(`/session/${id}/verdict?force=true`)}
+          className="bg-white/50 backdrop-blur text-[#6c6a64] text-[10px] font-bold px-3 py-1 rounded-full border border-[#e6dfd8] hover:bg-white"
+        >
+          Force Verdict Access
+        </button>
+      </div>
+
+      {session?.current_status === "completed" && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#faf9f5] to-transparent z-30">
+          <div className="max-w-2xl mx-auto w-full">
+            <button
+              onClick={() => router.push(`/session/${id}/verdict`)}
+              className="w-full h-12 bg-[#cc785c] text-white font-bold rounded-xl shadow-lg shadow-[#cc785c]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            >
+              {t("seeVerdict")}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

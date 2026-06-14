@@ -16,6 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
+import { extractMessageText } from "@/utils/extractMessageText";
 
 interface Message {
   role: "user" | "assistant";
@@ -33,6 +34,34 @@ export default function SoloChatPage() {
   const router = useRouter();
   const supabase = createClient();
   const t = useTranslations("Chat");
+
+  async function consumeSSE(response: Response, onChunk: (text: string) => void) {
+    if (!response.body) return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') return;
+        try {
+          const parsed = JSON.parse(payload);
+          const text =
+            parsed?.choices?.[0]?.delta?.content ??
+            parsed?.content?.[0]?.text ??
+            parsed?.text ??
+            '';
+          if (text) onChunk(text);
+        } catch {}
+      }
+    }
+  }
 
   const ADVISORS: Persona[] = [
     {
@@ -141,26 +170,18 @@ export default function SoloChatPage() {
       // Check if response is streamable or plain json
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("text/event-stream")) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        if (reader) {
-          let chunks = "";
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks += decoder.decode(value);
+        let fullResponse = "";
+        await consumeSSE(response, (text) => {
+          fullResponse += text;
+          setStreamedResponse((prev) => prev + text);
+        });
 
-            // Format stream tokens if needed (e.g. data: {"token": "x"})
-            // For simplicity, let's treat the incoming chunks as progressive text parts
-            setStreamedResponse((prev) => prev + decoder.decode(value));
-          }
-          // After stream completes
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: chunks || streamedResponse },
-          ]);
-          setStreamedResponse("");
-        }
+        // After stream completes
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: fullResponse },
+        ]);
+        setStreamedResponse("");
       } else {
         const data = await response.json();
         setMessages((prev) => [
@@ -266,6 +287,7 @@ export default function SoloChatPage() {
               </div>
             ) : (
               messages.map((msg, index) => {
+                const content = extractMessageText(msg.content);
                 if (msg.role === "user") {
                   return (
                     <div
@@ -273,7 +295,7 @@ export default function SoloChatPage() {
                       className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150"
                     >
                       <div className="bg-[#efe9de] text-[#141413] text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-[#e6dfd8] shadow-sm font-sans">
-                        {msg.content}
+                        {content}
                       </div>
                     </div>
                   );
@@ -282,7 +304,7 @@ export default function SoloChatPage() {
                     <PersonaBubble
                       key={index}
                       persona_name={selectedPersona.name}
-                      message_content={msg.content}
+                      message_content={content}
                       variant={selectedPersona.variant}
                     />
                   );
@@ -294,7 +316,7 @@ export default function SoloChatPage() {
             {streamedResponse && (
               <PersonaBubble
                 persona_name={selectedPersona.name}
-                message_content={streamedResponse}
+                message_content={extractMessageText(streamedResponse)}
                 variant={selectedPersona.variant}
                 isStreaming={true}
               />
