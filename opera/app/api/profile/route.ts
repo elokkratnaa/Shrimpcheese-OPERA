@@ -10,8 +10,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get stats
-    // 1. Total sessions count
     const { count: total_sessions, error: sessionsError } = await supabase
       .from('sessions')
       .select('*', { count: 'exact', head: true })
@@ -21,7 +19,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: sessionsError.message }, { status: 500 })
     }
 
-    // 2. Committed sessions count (verdicts with is_committed = true linked to user's sessions)
     const { count: committed_count, error: committedError } = await supabase
       .from('verdicts')
       .select('*, sessions!inner(user_id)', { count: 'exact', head: true })
@@ -32,7 +29,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: committedError.message }, { status: 500 })
     }
 
-    // 3. Top tag: query verdicts.tags JSONB, aggregate most frequent tag for user
     const { data: verdicts, error: verdictsError } = await supabase
       .from('verdicts')
       .select('tags, sessions!inner(user_id)')
@@ -49,7 +45,6 @@ export async function GET(request: NextRequest) {
         try {
           tags = JSON.parse(tags)
         } catch {
-          // ignore
         }
       }
       if (Array.isArray(tags)) {
@@ -130,7 +125,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 1. Delete all user sessions (CASCADE handles council_debates + verdicts)
     const { error: deleteSessionsError } = await supabase
       .from('sessions')
       .delete()
@@ -140,7 +134,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: deleteSessionsError.message }, { status: 500 })
     }
 
-    // 2. Call supabase.auth.admin.deleteUser(user_id)
     const { error: deleteUserError } = await supabase.auth.admin.deleteUser(user.id)
 
     if (deleteUserError) {

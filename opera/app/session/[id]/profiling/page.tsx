@@ -21,7 +21,6 @@ export default function ProfilingPage() {
   const [messageIndex, setMessageIndex] = useState(0);
   const [authChecking, setAuthChecking] = useState(true);
 
-  // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -34,7 +33,6 @@ export default function ProfilingPage() {
     checkAuth();
   }, [router, supabase]);
 
-  // Cycle status messages every 2s
   useEffect(() => {
     if (authChecking) return;
     const interval = setInterval(() => {
@@ -43,7 +41,6 @@ export default function ProfilingPage() {
     return () => clearInterval(interval);
   }, [authChecking]);
 
-  // Poll session state
   useEffect(() => {
     if (authChecking || !id) return;
 
@@ -51,7 +48,6 @@ export default function ProfilingPage() {
     const startTime = Date.now();
 
     const pollInterval = setInterval(async () => {
-      // 30 seconds timeout
       if (Date.now() - startTime > 30000) {
         clearInterval(pollInterval);
         if (isSubscribed) {
@@ -103,20 +99,14 @@ export default function ProfilingPage() {
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans">
       <OperaNav variant="authed" />
 
-      {/* Centered Profiler Pulse */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
         <div className="flex flex-col items-center justify-center gap-8 max-w-sm text-center">
-          {/* Abstract geometric pulse animation */}
           <div className="relative w-24 h-24 flex items-center justify-center">
-            {/* Outer Ring Pulse */}
             <div className="absolute inset-0 rounded-full border border-[#cc785c] opacity-20 animate-ping duration-1000" />
-            {/* Middle Ring Pulse */}
             <div className="absolute w-16 h-16 rounded-full border border-[#cc785c] opacity-40 animate-pulse" />
-            {/* Center Core dot */}
             <div className="w-6 h-6 rounded-full bg-[#cc785c]" />
           </div>
 
-          {/* Rotating statuses */}
           <div className="h-6 flex items-center justify-center">
             <p className="text-base text-[#6c6a64] font-normal transition-all duration-300 ease-in-out font-sans">
               {STATUS_MESSAGES[messageIndex]}
@@ -125,7 +115,6 @@ export default function ProfilingPage() {
         </div>
       </main>
 
-      {/* Extra layout block matching footer structure */}
       <div className="h-16" />
     </div>
   );

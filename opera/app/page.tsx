@@ -14,12 +14,9 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#faf9f5]">
-      {/* 1. Top Nav */}
       <OperaNav variant={navVariant} />
 
-      {/* 2. Hero Band */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-        {/* Left hero info */}
         <div className="flex flex-col items-start text-left max-w-xl">
           <h1 className="font-heading font-bold text-5xl md:text-6xl text-[#141413] tracking-tight leading-[1.05] mb-6">
             Stop circling. Start deciding.
@@ -34,7 +31,6 @@ export default async function LandingPage() {
           </Link>
         </div>
 
-        {/* Right hero mockup card */}
         <div className="w-full">
           <Card className="bg-[#f5f0e8] border border-[#e6dfd8] rounded-xl p-6 shadow-sm flex flex-col gap-6 ring-0">
             <span className="text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64]">
@@ -61,7 +57,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* 3. How it works */}
       <section className="bg-[#f5f0e8] py-16 px-6 md:px-8 border-y border-[#e6dfd8]">
         <div className="max-w-7xl mx-auto">
           <h2 className="font-heading text-3xl font-semibold text-center text-[#141413] mb-12 tracking-tight">How it works</h2>
@@ -93,7 +88,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* 4. What it feels like */}
       <section className="bg-[#efe9de] py-16 px-6 md:px-8">
         <div className="max-w-7xl mx-auto">
           <h2 className="font-heading text-3xl font-semibold text-center text-[#141413] mb-12 tracking-tight">What it feels like</h2>
@@ -115,7 +109,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* 5. Final CTA band */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-16 w-full">
         <Card className="bg-[#cc785c] text-white rounded-xl p-8 md:p-12 shadow-sm border-transparent flex flex-col md:flex-row items-center justify-between gap-8 ring-0">
           <div className="flex flex-col items-start max-w-xl text-left">
@@ -134,7 +127,6 @@ export default async function LandingPage() {
         </Card>
       </section>
 
-      {/* 6. Footer */}
       <OperaFooter />
     </div>
   )

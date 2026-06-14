@@ -39,7 +39,6 @@ export default function VerdictPage() {
 
   const sseConnected = useRef(false);
 
-  // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -52,7 +51,6 @@ export default function VerdictPage() {
     checkAuth();
   }, [router, supabase]);
 
-  // Load initial verdict and handle streaming logic
   useEffect(() => {
     if (authChecking || !id) return;
 
@@ -66,7 +64,6 @@ export default function VerdictPage() {
           setSummaryText(data.verdict_summary || "");
           setLoading(false);
         } else {
-          // Verdict doesn't exist yet, we start streaming it
           startStreaming();
         }
       } catch (err: unknown) {
@@ -92,7 +89,6 @@ export default function VerdictPage() {
           }
 
           if (parsed.verdict) {
-            // Full verdict parsed and finished
             const fullVerdict = parsed.verdict;
             setVerdict(fullVerdict);
             setIsCommitted(fullVerdict.is_committed);
@@ -153,7 +149,6 @@ export default function VerdictPage() {
     );
   }
 
-  // Parse pro/con matrix elements safely
   const proConMatrix = verdict?.pro_con_matrix || [];
   const recommendation = verdict?.recommendation;
   const nextSteps = verdict?.next_steps || [];
@@ -163,14 +158,12 @@ export default function VerdictPage() {
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
-        {/* Header Title */}
         <div className="flex flex-col gap-2">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
             THE VERDICT
           </span>
         </div>
 
-        {/* Verdict Summary Streaming View */}
         <div className="text-[#3d3d3a] text-[16px] leading-[1.55] whitespace-pre-wrap font-sans">
           {summaryText}
           {isStreaming && (
@@ -178,7 +171,6 @@ export default function VerdictPage() {
           )}
         </div>
 
-        {/* Pro / Con Matrix */}
         {!isStreaming && proConMatrix.length > 0 && (
           <section className="flex flex-col gap-8 border-t border-[#e6dfd8] pt-8">
             <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
@@ -188,12 +180,10 @@ export default function VerdictPage() {
             <div className="flex flex-col gap-8">
               {proConMatrix.map((optionData, idx) => (
                 <div key={idx} className="flex flex-col gap-4">
-                  {/* Option Title */}
                   <h3 className="text-base font-semibold text-[#141413] font-sans">
                     {optionData.option}
                   </h3>
 
-                  {/* Weight bar */}
                   <div className="w-full h-1 bg-[#e6dfd8] rounded-full overflow-hidden">
                     <div
                       className="h-full bg-[#5db8a6] transition-all duration-500"
@@ -201,9 +191,7 @@ export default function VerdictPage() {
                     />
                   </div>
 
-                  {/* Pros & Cons Columns */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-1">
-                    {/* Pros */}
                     <div className="flex flex-col gap-2.5">
                       {optionData.pros.map((pro, pIdx) => (
                         <div key={pIdx} className="flex items-start gap-2 text-sm text-[#3d3d3a] font-sans">
@@ -213,7 +201,6 @@ export default function VerdictPage() {
                       ))}
                     </div>
 
-                    {/* Cons */}
                     <div className="flex flex-col gap-2.5">
                       {optionData.cons.map((con, cIdx) => (
                         <div key={cIdx} className="flex items-start gap-2 text-sm text-[#3d3d3a] font-sans">
@@ -229,7 +216,6 @@ export default function VerdictPage() {
           </section>
         )}
 
-        {/* Recommendation Block */}
         {!isStreaming && recommendation && (
           <section className="bg-[#efe9de] rounded-lg p-8 border border-[#e6dfd8] flex flex-col gap-4">
             <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
@@ -241,7 +227,6 @@ export default function VerdictPage() {
           </section>
         )}
 
-        {/* Next Steps */}
         {!isStreaming && nextSteps.length > 0 && (
           <section className="flex flex-col gap-6">
             <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
@@ -263,7 +248,6 @@ export default function VerdictPage() {
           </section>
         )}
 
-        {/* Commit Action Button Section */}
         {!isStreaming && verdict && (
           <div className="border-t border-[#e6dfd8] pt-8 flex flex-col gap-4">
             {errorMessage && (

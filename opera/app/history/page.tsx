@@ -33,7 +33,6 @@ function HistoryContent() {
   const [activeTag, setActiveTag] = useState<string>("All");
   const [limit, setLimit] = useState(10);
 
-  // Sync active tag filter with URL params
   useEffect(() => {
     const urlTag = searchParams?.get("tag");
     if (urlTag) {
@@ -43,7 +42,6 @@ function HistoryContent() {
     }
   }, [searchParams]);
 
-  // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -56,7 +54,6 @@ function HistoryContent() {
     checkAuth();
   }, [router, supabase]);
 
-  // Fetch all user session verdicts to extract tags and session history
   useEffect(() => {
     if (authChecking) return;
 
@@ -66,7 +63,6 @@ function HistoryContent() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch user sessions and their verdicts
         const { data: rawSessions } = await supabase
           .from("sessions")
           .select(`
@@ -86,7 +82,6 @@ function HistoryContent() {
           const formatted: Session[] = rawSessions.map((s: { session_id: string; raw_mind_dump: string; created_at: string; verdicts?: Array<{ verdict_id: string; is_committed: boolean; tags: unknown }> }) => {
             const verdict = s.verdicts && s.verdicts[0] ? s.verdicts[0] : undefined;
             
-            // Format tags safely
             let tagList: string[] = [];
             if (verdict?.tags) {
               if (Array.isArray(verdict.tags)) {
@@ -95,7 +90,6 @@ function HistoryContent() {
                 try {
                   tagList = JSON.parse(verdict.tags);
                 } catch {
-                  // ignore
                 }
               }
             }
@@ -116,7 +110,6 @@ function HistoryContent() {
 
           setSessions(formatted);
 
-          // Aggregate tags dynamically
           const allTags = new Set<string>();
           formatted.forEach((session) => {
             if (session.verdict?.tags) {
@@ -140,9 +133,8 @@ function HistoryContent() {
 
   const handleTagClick = (tag: string) => {
     setActiveTag(tag);
-    setLimit(10); // Reset page limit when changing filters
+    setLimit(10);
     
-    // Update URL query parameters dynamically without full reload
     const params = new URLSearchParams(window.location.search);
     if (tag === "All") {
       params.delete("tag");
@@ -164,7 +156,6 @@ function HistoryContent() {
     );
   }
 
-  // Client-side filtering
   const filteredSessions = sessions.filter((session) => {
     if (activeTag === "All") return true;
     
@@ -184,13 +175,11 @@ function HistoryContent() {
 
       <main className="flex-1 max-w-[800px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
         
-        {/* Header */}
         <div className="flex flex-col gap-4">
           <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
             Your decisions
           </h1>
 
-          {/* Auto-tag Filter Bar */}
           {tags.length > 0 && (
             <div className="flex flex-wrap gap-2 pt-2">
               <button
@@ -223,14 +212,12 @@ function HistoryContent() {
           )}
         </div>
 
-        {/* Sessions list */}
         {filteredSessions.length > 0 ? (
           <div className="flex flex-col gap-4">
             {visibleSessions.map((session) => (
               <SessionCard key={session.session_id} session={session} />
             ))}
 
-            {/* Load 10 more button */}
             {showLoadMore && (
               <div className="flex justify-center pt-6">
                 <button
@@ -243,7 +230,6 @@ function HistoryContent() {
             )}
           </div>
         ) : (
-          /* Empty State */
           <div className="border border-dashed border-[#e6dfd8] rounded-lg p-16 text-center flex flex-col items-center gap-6 bg-[#f5f0e8]/30 my-8">
             <h3 className="text-[22px] font-normal leading-tight tracking-tight text-[#6c6a64] font-serif">
               Nothing here yet.

@@ -26,7 +26,6 @@ export default function MindDumpPage() {
   const [errorMessage, setErrorMessage] = useState("");
   const [authChecking, setAuthChecking] = useState(true);
 
-  // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -39,7 +38,6 @@ export default function MindDumpPage() {
     checkAuth();
   }, [router, supabase]);
 
-  // Load from localStorage on mount
   useEffect(() => {
     if (authChecking) return;
     const draft = localStorage.getItem("opera_draft");
@@ -48,7 +46,6 @@ export default function MindDumpPage() {
     }
   }, [authChecking]);
 
-  // Debounced autosave
   useEffect(() => {
     if (authChecking) return;
     const timer = setTimeout(() => {
@@ -83,10 +80,8 @@ export default function MindDumpPage() {
 
       const session = await response.json();
       
-      // Clear draft on successful submit
       localStorage.removeItem("opera_draft");
       
-      // Pipeline is complete by the time the API responds, navigate directly to council
       router.push(`/session/${session.session_id}/council`);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -98,7 +93,6 @@ export default function MindDumpPage() {
     }
   };
 
-  const isWarning = mindDump.length >= 3800;
   const isSubmitDisabled = mindDump.length < 50 || isLoading;
 
   if (authChecking) {
@@ -130,18 +124,8 @@ export default function MindDumpPage() {
             placeholder="..."
             minHeight={320}
             maxLength={4000}
-            showCounter={false} // Custom counter rendering below to fit custom warning thresholds
+            showCounter={true}
           />
-          
-          <div className="flex justify-end">
-            <span
-              className={`text-xs font-medium transition-colors ${
-                isWarning ? "text-[#c64545] font-bold" : "text-[#6c6a64]"
-              }`}
-            >
-              {mindDump.length} / 4,000
-            </span>
-          </div>
         </div>
 
         {errorMessage && (

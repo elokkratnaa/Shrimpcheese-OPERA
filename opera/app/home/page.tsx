@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
+import { Badge } from "@/components/ui/badge";
 
-export const revalidate = 0; // equivalent to force-dynamic, cache: 'no-store'
-
+export const revalidate = 0;
 interface DbSession {
   session_id: string;
   raw_mind_dump: string;
@@ -17,7 +17,6 @@ interface DbSession {
 interface DbVerdict {
   verdict_id: string;
   is_committed: boolean;
-  tags?: string[] | null; // JSONB array of auto-tags
 }
 
 export default async function HomeDashboard() {
@@ -31,11 +30,9 @@ export default async function HomeDashboard() {
     redirect("/login");
   }
 
-  // Get user profile name or fall back to email prefix
   const displayName =
     user.user_metadata?.full_name || user.email?.split("@")[0] || "Director";
 
-  // Fetch recent 5 sessions with their verdicts
   const { data: rawSessions } = await supabase
     .from("sessions")
     .select(
@@ -56,7 +53,6 @@ export default async function HomeDashboard() {
 
   const dbSessions = (rawSessions || []) as unknown as DbSession[];
 
-  // Format sessions for SessionCard
   const sessions = dbSessions.map((s) => {
     const verdict = s.verdicts && s.verdicts[0] ? s.verdicts[0] : undefined;
     return {
@@ -67,13 +63,13 @@ export default async function HomeDashboard() {
         ? {
             verdict_id: verdict.verdict_id,
             is_committed: verdict.is_committed,
-            tags: Array.isArray(verdict.tags) ? verdict.tags : [],
+            // tags: Array.isArray(verdict.tags) ? verdict.tags : [],
+            tags: [],
           }
         : undefined,
     };
   });
 
-  // Fetch verdicts through join or filter
   const { data: userVerdicts } = await supabase
     .from("verdicts")
     .select("tags, session_id, sessions!inner(user_id)")
@@ -88,9 +84,7 @@ export default async function HomeDashboard() {
       } else if (typeof v.tags === "string") {
         try {
           tagsList = JSON.parse(v.tags);
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
       tagsList.forEach((tag) => {
         const cleanTag = tag.startsWith("#") ? tag : `#${tag}`;
@@ -99,7 +93,6 @@ export default async function HomeDashboard() {
     });
   }
 
-  // Sort tags by frequency and get unique tag list
   const patterns = Object.keys(tagsMap).sort((a, b) => tagsMap[b] - tagsMap[a]);
 
   return (
@@ -107,9 +100,7 @@ export default async function HomeDashboard() {
       <OperaNav variant="authed" />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:px-8 flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
         <aside className="w-full md:w-70 shrink-0 flex flex-col gap-6">
-          {/* New Session main visual priority */}
           <Link
             href="/dump"
             className="w-full h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md flex items-center justify-center transition-colors shadow-sm cursor-pointer"
@@ -117,7 +108,6 @@ export default async function HomeDashboard() {
             New session
           </Link>
 
-          {/* Solo Chat button */}
           <Link
             href="/chat"
             className="w-full h-12 border border-[#e6dfd8] text-[#141413] bg-[#faf9f5] hover:bg-[#efe9de] font-medium text-sm rounded-md flex items-center justify-center transition-colors cursor-pointer"
@@ -125,7 +115,6 @@ export default async function HomeDashboard() {
             Solo chat
           </Link>
 
-          {/* Navigation Links */}
           <nav className="flex flex-col gap-1.5 mt-2">
             <Link
               href="/home"
@@ -148,16 +137,13 @@ export default async function HomeDashboard() {
           </nav>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 flex flex-col gap-8">
-          {/* Greeting */}
           <div>
             <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
               What's on your mind, {displayName}?
             </h1>
           </div>
 
-          {/* Recent Sessions */}
           <section className="flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
               Recent sessions
@@ -185,7 +171,6 @@ export default async function HomeDashboard() {
             )}
           </section>
 
-          {/* Your Patterns */}
           <section className="flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
               Your patterns
@@ -196,9 +181,14 @@ export default async function HomeDashboard() {
                   <Link
                     key={tag}
                     href={`/history?tag=${encodeURIComponent(tag)}`}
-                    className="bg-[#efe9de] text-[#141413] hover:bg-[#f5f0e8] text-[13px] font-medium px-3 py-1 rounded-full transition-colors cursor-pointer"
+                    className="cursor-pointer"
                   >
-                    {tag}
+                    <Badge
+                      variant="secondary"
+                      className="bg-[#efe9de] text-[#141413] hover:bg-[#e8e0d2] text-[13px] font-medium px-3 py-1 rounded-full transition-colors border-transparent h-auto"
+                    >
+                      {tag}
+                    </Badge>
                   </Link>
                 ))}
               </div>

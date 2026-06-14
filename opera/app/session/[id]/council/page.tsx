@@ -37,7 +37,6 @@ export default function CouncilRoomPage() {
   const [debates, setDebates] = useState<DebateUtterance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -50,7 +49,6 @@ export default function CouncilRoomPage() {
     checkAuth();
   }, [router, supabase]);
 
-  // Initial data load
   useEffect(() => {
     if (authChecking || !id) return;
 
@@ -80,7 +78,6 @@ export default function CouncilRoomPage() {
     loadInitialData();
   }, [id, authChecking]);
 
-  // Polling loop if the status is not completed
   useEffect(() => {
     if (authChecking || !id || !session || session.current_status === "completed" || session.current_status === "failed") {
       return;
@@ -126,7 +123,6 @@ export default function CouncilRoomPage() {
     );
   }
 
-  // Parse contradictions from profiler JSON
   let contradictions: string[] = [];
   let coreDecisionNode = "Analyzing decision...";
   
@@ -143,7 +139,6 @@ export default function CouncilRoomPage() {
     }
   }
 
-  // Map each unique persona to a specific variant (a, b, or c) dynamically
   const uniquePersonas = Array.from(new Set(debates.map((d) => d.persona_name)));
   const getPersonaVariant = (name: string): "a" | "b" | "c" => {
     const index = uniquePersonas.indexOf(name);
@@ -152,17 +147,12 @@ export default function CouncilRoomPage() {
     return "c";
   };
 
-  // Determine if all expected debate messages have arrived
-  const expectedTurnCount = 9; // Stage 2 requires 2-3 personas running a 3-turn async debate (up to 9 expected turns)
-  // Let's assume debate is complete when the session status turns to completed (i.e. Verdict is ready or council phase ends)
-  const isDebateFinished = session?.current_status === "completed" || debates.length >= 6; // Standard minimum count for 2 archetypes
 
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans relative pb-24">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-[800px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
-        {/* Header Section */}
         <div className="flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
             THE COUNCIL ROOM
@@ -171,7 +161,6 @@ export default function CouncilRoomPage() {
             {coreDecisionNode}
           </h1>
 
-          {/* Contradictions list */}
           {contradictions.length > 0 && (
             <div className="flex flex-col gap-3 mt-2">
               {contradictions.map((message, i) => (
@@ -181,7 +170,6 @@ export default function CouncilRoomPage() {
           )}
         </div>
 
-        {/* Scrollable Debate Timeline */}
         <section className="flex flex-col gap-6">
           {debates.map((utterance, index) => {
             const variant = getPersonaVariant(utterance.persona_name);
@@ -203,7 +191,6 @@ export default function CouncilRoomPage() {
             );
           })}
 
-          {/* If still processing and no debates, show minor loading status inside flow */}
           {session?.current_status === "processing" && debates.length === 0 && (
             <div className="flex justify-center items-center py-12 gap-3 text-sm text-[#6c6a64]">
               <Loader2 className="animate-spin h-5 w-5 text-[#cc785c]" />
@@ -213,7 +200,6 @@ export default function CouncilRoomPage() {
         </section>
       </main>
 
-      {/* Bottom Sticky Action Bar */}
       {isDebateFinished && (
         <div className="fixed bottom-0 left-0 right-0 bg-[#f5f0e8] border-t border-[#e6dfd8] py-4 px-6 z-40">
           <div className="max-w-[800px] mx-auto flex justify-end">

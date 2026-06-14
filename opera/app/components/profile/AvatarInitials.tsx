@@ -2,6 +2,8 @@
 
 import React from 'react'
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+
 interface AvatarInitialsProps {
   fullName: string | null
   email: string | null
@@ -31,12 +33,16 @@ export default function AvatarInitials({ fullName, email }: AvatarInitialsProps)
   const initials = deriveInitials(fullName, email)
 
   return (
-    <div
+    <Avatar
       aria-label={`Avatar for ${fullName ?? email ?? 'user'}`}
-      className="flex items-center justify-center w-16 h-16 rounded-full bg-[#efe9de] text-[#141413] select-none"
-      style={{ fontSize: '22px', fontWeight: 500, fontFamily: 'var(--font-manrope), sans-serif', letterSpacing: 0 }}
+      className="w-16 h-16 bg-[#efe9de] border-[#e6dfd8] after:hidden"
     >
-      {initials}
-    </div>
+      <AvatarFallback
+        className="text-[#141413] font-medium font-heading bg-transparent"
+        style={{ fontSize: '22px' }}
+      >
+        {initials}
+      </AvatarFallback>
+    </Avatar>
   )
 }

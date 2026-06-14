@@ -89,14 +89,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8">
-      {/* Top spacing / navigation space placeholder */}
       <div className="flex justify-center">
         <Link href="/" className="text-sm font-medium tracking-normal text-[#141413] hover:text-[#cc785c] transition-colors font-sans">
           OPERA
         </Link>
       </div>
 
-      {/* Centered Login Card */}
       <div className="my-auto sm:mx-auto sm:w-full sm:max-w-[440px]">
         <div className="bg-[#efe9de] py-8 px-6 shadow-sm rounded-lg border border-[#e6dfd8] sm:px-10">
           <div className="mb-8 text-center">
@@ -106,7 +104,6 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-6">
-            {/* Google OAuth Button */}
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
@@ -116,7 +113,6 @@ export default function LoginPage() {
               <span>Continue with Google</span>
             </button>
 
-            {/* Divider */}
             <div className="relative flex items-center justify-center">
               <div className="absolute inset-0 flex items-center" aria-hidden="true">
                 <div className="w-full border-t border-[#e6dfd8]" />
@@ -126,9 +122,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Credentials Fields */}
             <div className="space-y-4">
-              {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
                   Email
@@ -143,7 +137,6 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
@@ -180,14 +173,12 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error Message Display */}
             {(validationError || authError) && (
               <div className="text-xs font-medium text-[#c64545] border-l-2 border-[#c64545] pl-3 py-1 bg-[rgba(198,69,69,0.05)] rounded-r font-sans">
                 {validationError || authError}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               onClick={handleEmailSignIn}
               disabled={isLoading}
@@ -200,7 +191,6 @@ export default function LoginPage() {
               )}
             </button>
 
-            {/* Register Link */}
             <div className="text-center text-sm text-[#3d3d3a] font-sans">
               Don't have an account?{" "}
               <Link href="/register" className="font-semibold text-[#cc785c] hover:text-[#a9583e] transition-colors">
@@ -211,7 +201,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Footer Placeholder for visual centering */}
       <div className="h-4" />
     </div>
   );

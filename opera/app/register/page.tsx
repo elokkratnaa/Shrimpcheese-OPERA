@@ -73,10 +73,8 @@ export default function RegisterPage() {
       if (error) {
         setAuthError(error.message);
       } else if (data?.user?.identities && data.user.identities.length === 0) {
-        // identity already exists
         setAuthError("An account with this email address already exists.");
       } else {
-        // If confirm email is required, a user might not be immediately authed
         const isSessionActive = data.session !== null;
         if (isSessionActive) {
           router.push("/home");
@@ -119,7 +117,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8">
-      {/* Top spacing / navigation space placeholder */}
       <div className="flex justify-center">
         <Link
           href="/"
@@ -129,7 +126,6 @@ export default function RegisterPage() {
         </Link>
       </div>
 
-      {/* Centered Register Card */}
       <div className="my-auto sm:mx-auto sm:w-full sm:max-w-110">
         <div className="bg-[#efe9de] py-8 px-6 shadow-sm rounded-lg border border-[#e6dfd8] sm:px-10">
           <div className="mb-8 text-center">
@@ -139,7 +135,6 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-6">
-            {/* Google OAuth Button */}
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
@@ -149,7 +144,6 @@ export default function RegisterPage() {
               <span>Continue with Google</span>
             </button>
 
-            {/* Divider */}
             <div className="relative flex items-center justify-center">
               <div
                 className="absolute inset-0 flex items-center"
@@ -162,9 +156,7 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Credentials Fields */}
             <div className="space-y-4">
-              {/* Full Name */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
                   Full Name
@@ -179,7 +171,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
                   Email
@@ -194,7 +185,6 @@ export default function RegisterPage() {
                 />
               </div>
 
-              {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
                   Password
@@ -223,21 +213,18 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Error Message Display */}
             {(validationError || authError) && (
               <div className="text-xs font-medium text-[#c64545] border-l-2 border-[#c64545] pl-3 py-1 bg-[rgba(198,69,69,0.05)] rounded-r font-sans">
                 {validationError || authError}
               </div>
             )}
 
-            {/* Success Message Display */}
             {successMessage && (
               <div className="text-xs font-medium text-[#5db872] border-l-2 border-[#5db872] pl-3 py-1 bg-[rgba(93,184,114,0.05)] rounded-r font-sans">
                 {successMessage}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               onClick={handleRegister}
               disabled={isLoading}
@@ -250,7 +237,6 @@ export default function RegisterPage() {
               )}
             </button>
 
-            {/* Sign in Link */}
             <div className="text-center text-sm text-[#3d3d3a] font-sans">
               Already have an account?{" "}
               <Link
@@ -264,7 +250,6 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Footer Placeholder for visual centering */}
       <div className="h-4" />
     </div>
   );
