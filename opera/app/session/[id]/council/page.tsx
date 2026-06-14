@@ -148,6 +148,8 @@ export default function CouncilRoomPage() {
   };
 
 
+  const isDebateFinished = session?.current_status === "completed";
+
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans relative pb-24">
       <OperaNav variant="authed" />
