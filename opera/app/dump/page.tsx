@@ -18,7 +18,9 @@ const LOADING_MESSAGES = [
 export default function MindDumpPage() {
   const router = useRouter();
   const supabase = createClient();
-  const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
 
   const [mindDump, setMindDump] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +30,9 @@ export default function MindDumpPage() {
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
@@ -79,12 +83,13 @@ export default function MindDumpPage() {
       }
 
       const session = await response.json();
-      
+
       localStorage.removeItem("opera_draft");
-      
+
       router.push(`/session/${session.session_id}/council`);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       setErrorMessage(message);
       console.error(err);
     } finally {
@@ -107,7 +112,7 @@ export default function MindDumpPage() {
     <div className="min-h-screen bg-[#faf9f5] flex flex-col font-sans">
       <OperaNav variant="authed" />
 
-      <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-24 md:py-32 flex flex-col gap-8">
+      <main className="flex-1 max-w-180 mx-auto w-full px-4 py-24 md:py-32 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-normal leading-tight tracking-[-0.5px] text-[#141413] font-serif">
             What's going on?

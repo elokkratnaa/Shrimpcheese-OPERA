@@ -7,7 +7,14 @@ import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import { createClient } from "@/lib/supabase/client";
 import { Send, Loader2, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Message {
   role: "user" | "assistant";
@@ -60,7 +67,9 @@ export default function SoloChatPage() {
   // Authenticate user client-side on mount
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
@@ -106,8 +115,11 @@ export default function SoloChatPage() {
     setStreamedResponse("");
 
     try {
-      const conversationHistory = [...messages, { role: "user", content: userMsg }];
-      
+      const conversationHistory = [
+        ...messages,
+        { role: "user", content: userMsg },
+      ];
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -135,7 +147,7 @@ export default function SoloChatPage() {
             const { done, value } = await reader.read();
             if (done) break;
             chunks += decoder.decode(value);
-            
+
             // Format stream tokens if needed (e.g. data: {"token": "x"})
             // For simplicity, let's treat the incoming chunks as progressive text parts
             setStreamedResponse((prev) => prev + decoder.decode(value));
@@ -158,7 +170,11 @@ export default function SoloChatPage() {
       console.error(err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "I apologize, I lost connection to OPERA's orchestrator. Please try again." },
+        {
+          role: "assistant",
+          content:
+            "I apologize, I lost connection to OPERA's orchestrator. Please try again.",
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -186,9 +202,8 @@ export default function SoloChatPage() {
 
       {/* Main Grid View */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-8">
-        
         {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
-        <aside className="w-full md:w-[260px] shrink-0 flex flex-col gap-4">
+        <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
             Choose your advisor
           </span>
@@ -221,12 +236,17 @@ export default function SoloChatPage() {
 
         {/* Right Chat Area Panel */}
         <main className="flex-1 bg-[#efe9de]/30 border border-[#e6dfd8] rounded-lg flex flex-col justify-between overflow-hidden h-[calc(100vh-180px)]">
-          
           {/* Active Chat Header */}
           <div className="bg-[#efe9de] border-b border-[#e6dfd8] py-4 px-6 flex items-center gap-3">
-            <span className={`w-2.5 h-2.5 rounded-full ${
-              selectedPersona.variant === "a" ? "bg-[#5db8a6]" : selectedPersona.variant === "b" ? "bg-[#e8a55a]" : "bg-[#cc785c]"
-            }`} />
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                selectedPersona.variant === "a"
+                  ? "bg-[#5db8a6]"
+                  : selectedPersona.variant === "b"
+                    ? "bg-[#e8a55a]"
+                    : "bg-[#cc785c]"
+              }`}
+            />
             <span className="text-sm font-semibold text-[#141413] font-sans uppercase tracking-[0.5px]">
               {selectedPersona.name}
             </span>
@@ -240,14 +260,18 @@ export default function SoloChatPage() {
                   Consult {selectedPersona.name}
                 </h3>
                 <p className="text-sm text-[#6c6a64] font-sans leading-[1.55]">
-                  Start typing to test ideas, analyze risk, or map fulfillment options directly.
+                  Start typing to test ideas, analyze risk, or map fulfillment
+                  options directly.
                 </p>
               </div>
             ) : (
               messages.map((msg, index) => {
                 if (msg.role === "user") {
                   return (
-                    <div key={index} className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150">
+                    <div
+                      key={index}
+                      className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150"
+                    >
                       <div className="bg-[#efe9de] text-[#141413] text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-[#e6dfd8] shadow-sm font-sans">
                         {msg.content}
                       </div>

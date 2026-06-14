@@ -39,7 +39,9 @@ export default function CouncilRoomPage() {
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
@@ -79,7 +81,13 @@ export default function CouncilRoomPage() {
   }, [id, authChecking]);
 
   useEffect(() => {
-    if (authChecking || !id || !session || session.current_status === "completed" || session.current_status === "failed") {
+    if (
+      authChecking ||
+      !id ||
+      !session ||
+      session.current_status === "completed" ||
+      session.current_status === "failed"
+    ) {
       return;
     }
 
@@ -100,7 +108,10 @@ export default function CouncilRoomPage() {
           setSession(sessionData);
           setDebates(debatesData);
 
-          if (sessionData.current_status === "completed" || sessionData.current_status === "failed") {
+          if (
+            sessionData.current_status === "completed" ||
+            sessionData.current_status === "failed"
+          ) {
             clearInterval(interval);
           }
         }
@@ -125,12 +136,13 @@ export default function CouncilRoomPage() {
 
   let contradictions: string[] = [];
   let coreDecisionNode = "Analyzing decision...";
-  
+
   if (session?.detected_biases) {
-    const biases = typeof session.detected_biases === "string" 
-      ? JSON.parse(session.detected_biases) 
-      : session.detected_biases;
-    
+    const biases =
+      typeof session.detected_biases === "string"
+        ? JSON.parse(session.detected_biases)
+        : session.detected_biases;
+
     if (biases.contradictions && Array.isArray(biases.contradictions)) {
       contradictions = biases.contradictions;
     }
@@ -139,7 +151,9 @@ export default function CouncilRoomPage() {
     }
   }
 
-  const uniquePersonas = Array.from(new Set(debates.map((d) => d.persona_name)));
+  const uniquePersonas = Array.from(
+    new Set(debates.map((d) => d.persona_name)),
+  );
   const getPersonaVariant = (name: string): "a" | "b" | "c" => {
     const index = uniquePersonas.indexOf(name);
     if (index === 0) return "a";
@@ -147,14 +161,13 @@ export default function CouncilRoomPage() {
     return "c";
   };
 
-
   const isDebateFinished = session?.current_status === "completed";
 
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans relative pb-24">
       <OperaNav variant="authed" />
 
-      <main className="flex-1 max-w-[800px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
+      <main className="flex-1 max-w-200 mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
         <div className="flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
             THE COUNCIL ROOM
@@ -204,7 +217,7 @@ export default function CouncilRoomPage() {
 
       {isDebateFinished && (
         <div className="fixed bottom-0 left-0 right-0 bg-[#f5f0e8] border-t border-[#e6dfd8] py-4 px-6 z-40">
-          <div className="max-w-[800px] mx-auto flex justify-end">
+          <div className="max-w-200 mx-auto flex justify-end">
             <button
               onClick={() => router.push(`/session/${id}/verdict`)}
               className="px-8 py-3.5 h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-[#cc785c] focus:ring-offset-2 cursor-pointer font-sans"

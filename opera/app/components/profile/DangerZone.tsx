@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import React, { useState, useRef } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import React, { useState, useRef } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +11,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from '@/components/ui/dialog'
-import { Loader2 } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
 
 /**
  * Danger zone — sign out + account deletion with typed "DELETE" confirmation.
@@ -20,61 +20,64 @@ import { Loader2 } from 'lucide-react'
  * Delete requires user to type "DELETE" in a confirmation dialog before proceeding.
  */
 export default function DangerZone() {
-  const router = useRouter()
-  const supabase = createClient()
+  const router = useRouter();
+  const supabase = createClient();
 
-  const [isSigningOut, setIsSigningOut] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [deleteConfirmInput, setDeleteConfirmInput] = useState('')
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [deleteError, setDeleteError] = useState<string | null>(null)
-  const confirmInputRef = useRef<HTMLInputElement>(null)
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const confirmInputRef = useRef<HTMLInputElement>(null);
 
   const signOut = async () => {
-    setIsSigningOut(true)
+    setIsSigningOut(true);
     try {
-      await supabase.auth.signOut()
-      router.push('/')
+      await supabase.auth.signOut();
+      router.push("/");
     } catch (err: unknown) {
-      console.error('[DangerZone] Sign out failed:', err)
-      setIsSigningOut(false)
+      console.error("[DangerZone] Sign out failed:", err);
+      setIsSigningOut(false);
     }
-  }
+  };
 
   const openDeleteDialog = () => {
-    setDeleteConfirmInput('')
-    setDeleteError(null)
-    setShowDeleteDialog(true)
-    setTimeout(() => confirmInputRef.current?.focus(), 100)
-  }
+    setDeleteConfirmInput("");
+    setDeleteError(null);
+    setShowDeleteDialog(true);
+    setTimeout(() => confirmInputRef.current?.focus(), 100);
+  };
 
   const closeDeleteDialog = () => {
-    setShowDeleteDialog(false)
-    setDeleteConfirmInput('')
-    setDeleteError(null)
-  }
+    setShowDeleteDialog(false);
+    setDeleteConfirmInput("");
+    setDeleteError(null);
+  };
 
   const confirmDeleteAccount = async () => {
-    if (deleteConfirmInput !== 'DELETE') return
-    setIsDeleting(true)
-    setDeleteError(null)
+    if (deleteConfirmInput !== "DELETE") return;
+    setIsDeleting(true);
+    setDeleteError(null);
     try {
-      const res = await fetch('/api/profile', { method: 'DELETE' })
+      const res = await fetch("/api/profile", { method: "DELETE" });
       if (!res.ok) {
-        const body = await res.json().catch(() => ({}))
-        throw new Error((body as { error?: string }).error ?? 'Account deletion failed.')
+        const body = await res.json().catch(() => ({}));
+        throw new Error(
+          (body as { error?: string }).error ?? "Account deletion failed.",
+        );
       }
-      await supabase.auth.signOut()
-      router.push('/')
+      await supabase.auth.signOut();
+      router.push("/");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong. Try again.'
-      setDeleteError(message)
+      const message =
+        err instanceof Error ? err.message : "Something went wrong. Try again.";
+      setDeleteError(message);
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
-  const canConfirmDelete = deleteConfirmInput === 'DELETE'
+  const canConfirmDelete = deleteConfirmInput === "DELETE";
 
   return (
     <>
@@ -102,7 +105,7 @@ export default function DangerZone() {
                 Signing out…
               </span>
             ) : (
-              'Sign out'
+              "Sign out"
             )}
           </Button>
 
@@ -125,7 +128,8 @@ export default function DangerZone() {
               Delete your account?
             </DialogTitle>
             <DialogDescription className="text-sm text-[#3d3d3a] leading-[1.55]">
-              This permanently deletes all your sessions and decisions. This cannot be undone.
+              This permanently deletes all your sessions and decisions. This
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
 
@@ -143,21 +147,26 @@ export default function DangerZone() {
               value={deleteConfirmInput}
               onChange={(e) => setDeleteConfirmInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && canConfirmDelete) confirmDeleteAccount()
+                if (e.key === "Enter" && canConfirmDelete)
+                  confirmDeleteAccount();
               }}
               placeholder="DELETE"
               disabled={isDeleting}
               className="h-10 rounded-md border border-[#e6dfd8] bg-[#faf9f5] text-[#141413] px-3.5 text-sm outline-none focus:border-[#cc785c] focus:ring-2 focus:ring-[#cc785c]/10 transition-colors disabled:opacity-50"
-              aria-describedby={deleteError ? 'delete-error-msg' : undefined}
+              aria-describedby={deleteError ? "delete-error-msg" : undefined}
             />
             {deleteError && (
-              <p id="delete-error-msg" className="text-xs text-[#c64545]" role="alert">
+              <p
+                id="delete-error-msg"
+                className="text-xs text-[#c64545]"
+                role="alert"
+              >
                 {deleteError}
               </p>
             )}
           </div>
 
-          <DialogFooter className="mt-2 flex gap-3 sm:justify-between border-none bg-transparent p-0 -mx-0 -mb-0 rounded-none">
+          <DialogFooter className="mt-2 flex gap-3 sm:justify-between border-none bg-transparent p-0 mx-0 mb-0 rounded-none">
             <Button
               variant="outline"
               onClick={closeDeleteDialog}
@@ -177,12 +186,12 @@ export default function DangerZone() {
                   Deleting…
                 </span>
               ) : (
-                'Delete everything'
+                "Delete everything"
               )}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }

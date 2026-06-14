@@ -44,7 +44,9 @@ function HistoryContent() {
 
   useEffect(() => {
     async function checkAuth() {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
       } else {
@@ -60,12 +62,15 @@ function HistoryContent() {
     async function loadHistory() {
       setLoading(true);
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         const { data: rawSessions } = await supabase
           .from("sessions")
-          .select(`
+          .select(
+            `
             session_id,
             raw_mind_dump,
             created_at,
@@ -74,39 +79,51 @@ function HistoryContent() {
               is_committed,
               tags
             )
-          `)
+          `,
+          )
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (rawSessions) {
-          const formatted: Session[] = rawSessions.map((s: { session_id: string; raw_mind_dump: string; created_at: string; verdicts?: Array<{ verdict_id: string; is_committed: boolean; tags: unknown }> }) => {
-            const verdict = s.verdicts && s.verdicts[0] ? s.verdicts[0] : undefined;
-            
-            let tagList: string[] = [];
-            if (verdict?.tags) {
-              if (Array.isArray(verdict.tags)) {
-                tagList = verdict.tags;
-              } else if (typeof verdict.tags === "string") {
-                try {
-                  tagList = JSON.parse(verdict.tags);
-                } catch {
+          const formatted: Session[] = rawSessions.map(
+            (s: {
+              session_id: string;
+              raw_mind_dump: string;
+              created_at: string;
+              verdicts?: Array<{
+                verdict_id: string;
+                is_committed: boolean;
+                tags: unknown;
+              }>;
+            }) => {
+              const verdict =
+                s.verdicts && s.verdicts[0] ? s.verdicts[0] : undefined;
+
+              let tagList: string[] = [];
+              if (verdict?.tags) {
+                if (Array.isArray(verdict.tags)) {
+                  tagList = verdict.tags;
+                } else if (typeof verdict.tags === "string") {
+                  try {
+                    tagList = JSON.parse(verdict.tags);
+                  } catch {}
                 }
               }
-            }
 
-            return {
-              session_id: s.session_id,
-              raw_mind_dump: s.raw_mind_dump,
-              created_at: s.created_at,
-              verdict: verdict
-                ? {
-                    verdict_id: verdict.verdict_id,
-                    is_committed: verdict.is_committed,
-                    tags: tagList,
-                  }
-                : undefined,
-            };
-          });
+              return {
+                session_id: s.session_id,
+                raw_mind_dump: s.raw_mind_dump,
+                created_at: s.created_at,
+                verdict: verdict
+                  ? {
+                      verdict_id: verdict.verdict_id,
+                      is_committed: verdict.is_committed,
+                      tags: tagList,
+                    }
+                  : undefined,
+              };
+            },
+          );
 
           setSessions(formatted);
 
@@ -134,7 +151,7 @@ function HistoryContent() {
   const handleTagClick = (tag: string) => {
     setActiveTag(tag);
     setLimit(10);
-    
+
     const params = new URLSearchParams(window.location.search);
     if (tag === "All") {
       params.delete("tag");
@@ -158,7 +175,7 @@ function HistoryContent() {
 
   const filteredSessions = sessions.filter((session) => {
     if (activeTag === "All") return true;
-    
+
     const sessionTags = session.verdict?.tags || [];
     return sessionTags.some((tag) => {
       const cleanTag = tag.startsWith("#") ? tag : `#${tag}`;
@@ -173,8 +190,7 @@ function HistoryContent() {
     <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans pb-16">
       <OperaNav variant="authed" />
 
-      <main className="flex-1 max-w-[800px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
-        
+      <main className="flex-1 max-w-200 mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
             Your decisions
@@ -249,11 +265,13 @@ function HistoryContent() {
 
 export default function HistoryPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
-        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+          <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+        </div>
+      }
+    >
       <HistoryContent />
     </Suspense>
   );
