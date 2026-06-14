@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { runProfiler } from '@/services/ProfilerService'
+import { checkInputSafety } from '@/services/SafetyService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const { raw_mind_dump } = body
+    const { raw_mind_dump, rounds = 1, category, emotional_state, selected_personas } = body
 
     if (!raw_mind_dump || typeof raw_mind_dump !== 'string' || raw_mind_dump.trim().length === 0) {
       return NextResponse.json({ error: 'raw_mind_dump cannot be empty' }, { status: 400 })
@@ -33,11 +34,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'raw_mind_dump exceeds 4000 characters limit' }, { status: 400 })
     }
 
+    // Safety check
+    const isSafe = await checkInputSafety(raw_mind_dump)
+    if (!isSafe) {
+      return NextResponse.json({ error: 'Input is not safe.' }, { status: 400 })
+    }
+
     const { data: newSession, error } = await supabase
       .from('sessions')
       .insert({
         user_id: user.id,
         raw_mind_dump,
+        rounds,
+        category,
+        emotional_state,
         current_status: 'ingested'
       })
       .select('session_id')
@@ -47,9 +57,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error?.message || 'Failed to create session' }, { status: 500 })
     }
 
-    // Run the full pipeline inline — awaited so the client can navigate directly to /council
-    // when this responds. The profiling page will see `completed` status immediately.
-    await runProfiler(newSession.session_id, accessToken)
+    // Pass selected_personas to runProfiler
+    await runProfiler(newSession.session_id, accessToken, selected_personas)
 
     return NextResponse.json({ session_id: newSession.session_id }, { status: 201 })
   } catch (err: unknown) {

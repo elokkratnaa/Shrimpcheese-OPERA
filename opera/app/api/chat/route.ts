@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { streamGroq } from '@/lib/groq'
 import { personas } from '@/lib/personas'
+import { checkInputSafety } from '@/services/SafetyService'
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +30,12 @@ export async function POST(request: NextRequest) {
       return new Response('message is required', { status: 400 })
     }
 
+    // Safety check
+    const isSafe = await checkInputSafety(message)
+    if (!isSafe) {
+      return new Response('Input is not safe.', { status: 400 })
+    }
+
     const systemPrompt = personas[persona] || `You are ${persona}, a helpful advisor.`
 
     const chatHistory = (history as Array<{ role: string; content: string }> || []).map((msg) => ({
@@ -36,10 +43,16 @@ export async function POST(request: NextRequest) {
       content: msg.content
     }))
 
-    const stream = await streamGroq({
-      system: systemPrompt,
-      messages: [...chatHistory, { role: 'user', content: message }]
-    })
+    let stream;
+    try {
+      stream = await streamGroq({
+        system: systemPrompt,
+        messages: [...chatHistory, { role: 'user', content: message }]
+      })
+    } catch (err) {
+      console.error('[ChatAPI] Streaming failed after all fallbacks:', err);
+      return new Response('AI_FAILED', { status: 503 });
+    }
 
     const encoder = new TextEncoder()
     const customReadable = new ReadableStream({
@@ -48,7 +61,7 @@ export async function POST(request: NextRequest) {
           for await (const chunk of stream) {
             const token = chunk.choices[0]?.delta?.content || ''
             if (token) {
-              controller.enqueue(encoder.encode(`data: ${token}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: token })}\n\n`))
             }
           }
           controller.enqueue(encoder.encode(`data: [DONE]\n\n`))

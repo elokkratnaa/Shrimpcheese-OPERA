@@ -41,15 +41,20 @@ Do not include any chat conversational text or markdown code blocks other than r
  *
  * @param sessionId - The UUID of the session to profile
  * @param accessToken - The user's JWT access token, captured before the request context ended
+ * @param manualPersonas - Optional manually selected persona archetypes
  */
-export async function runProfiler(sessionId: string, accessToken?: string): Promise<void> {
+export async function runProfiler(
+  sessionId: string, 
+  accessToken?: string,
+  manualPersonas?: string[]
+): Promise<void> {
   const supabase = createBackgroundClient(accessToken)
 
   try {
-    // 1. Fetch raw_mind_dump from sessions table
+    // 1. Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
-      .select('raw_mind_dump')
+      .select('raw_mind_dump, rounds, category, emotional_state')
       .eq('session_id', sessionId)
       .single()
 
@@ -59,6 +64,7 @@ export async function runProfiler(sessionId: string, accessToken?: string): Prom
       return
     }
 
+    const contextPrefix = `Category: ${session.category || 'Unspecified'}. Emotional state: ${session.emotional_state || 'Unspecified'}.`
     let rawDump = session.raw_mind_dump
     let attempts = 0
     let success = false
@@ -69,12 +75,13 @@ export async function runProfiler(sessionId: string, accessToken?: string): Prom
       attempts++
       try {
         const resultString = await completeGroq({
-          system: PROFILER_SYSTEM_PROMPT,
+          system: `${contextPrefix}\n\n${PROFILER_SYSTEM_PROMPT}`,
           messages: [{ role: 'user', content: rawDump }]
         })
 
         // Clean JSON from potential markdown wrappers
-        let cleanJsonString = resultString.trim()
+        let cleanJsonString = resultString.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+        
         if (cleanJsonString.startsWith('```json')) {
           cleanJsonString = cleanJsonString.substring(7)
         }
@@ -131,8 +138,13 @@ export async function runProfiler(sessionId: string, accessToken?: string): Prom
       return
     }
 
-    // 6. Spawn the Council Debate
-    await spawnCouncil(sessionId, profilerOutput.suggested_persona_archetypes, accessToken)
+    // 6. Spawn the Council Debate (Backgrounded)
+    const personasToSpawn = (manualPersonas && manualPersonas.length > 0) 
+      ? manualPersonas 
+      : profilerOutput.suggested_persona_archetypes
+
+    spawnCouncil(sessionId, personasToSpawn, session.rounds, accessToken)
+      .catch(err => console.error(`[ProfilerService] Background spawnCouncil failed for session ${sessionId}:`, err))
   } catch (err: unknown) {
     console.error(`[ProfilerService] Unexpected error on session ${sessionId}:`, err)
     await supabase.from('sessions').update({ current_status: 'failed' }).eq('session_id', sessionId)
