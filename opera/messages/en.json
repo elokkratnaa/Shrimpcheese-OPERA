@@ -191,10 +191,41 @@
   "MindDump": {
     "title": "What's going on?",
     "subtitle": "No format needed. Write like you think.",
+    "minCharMessage": "Min. 50 characters",
     "submit": "Start my session",
+    "categories": {
+      "Karir": "Career",
+      "Percintaan": "Romance",
+      "Keluarga": "Family",
+      "Keuangan": "Finance",
+      "Pendidikan": "Education",
+      "Self-Growth": "Self-Growth",
+      "Lainnya": "Other"
+    },
+    "emotions": {
+      "Bingung": "Confused",
+      "Galau": "Anxious",
+      "Panik": "Panicked",
+      "Frustrasi": "Frustrated",
+      "Santai": "Relaxed"
+    },
+    "rounds": "DEBATE ROUNDS:",
+    "overthinking": "REASONING DEPTH:",
+    "overthinkingLabels": {
+      "relaxed": "Relaxed",
+      "warming": "Warming up",
+      "hot": "Getting hot",
+      "overthinking": "OVERTHINKING DETECTED"
+    },
+    "categoryLabel": "WHAT'S THIS ABOUT?",
+    "emotionLabel": "HOW ARE YOU FEELING?",
+    "personaLabel": "CHOOSE YOUR COUNCIL (OPTIONAL):",
+    "gacha": "Gacha Squad",
+    "racik": "Select",
     "errors": {
       "failed": "Failed to start session.",
-      "unexpected": "An unexpected error occurred."
+      "unexpected": "An unexpected error occurred.",
+      "aiFailed": "The AI council is currently unavailable. Please try again later."
     }
   },
   "History": {
@@ -271,19 +302,38 @@
     "analyzing": "Analyzing decision...",
     "preparing": "Personas are preparing to enter the Council Room...",
     "seeVerdict": "See the verdict",
+    "typing": "typing...",
+    "target": "TARGET BALASAN:",
+    "rebuttalPlaceholder": "Write your rebuttal",
+    "send": "Send",
+    "skip": "Continue to Round {round} (Without rebutting)",
     "errors": {
       "failed": "Failed to load council room data"
     }
   },
   "Verdict": {
-    "title": "THE VERDICT",
+    "title": "VERDICT",
     "matrix": "PRO/CON MATRIX",
     "recommendation": "WHAT OPERA RECOMMENDS",
     "nextSteps": "NEXT STEPS",
+    "favouritePersonaLabel": "WHO MAKES THE MOST SENSE?",
+    "undecided": "Undecided",
+    "closingMessage": "CLOSING MESSAGE",
+    "typing": "typing...",
+    "copied": "Copied!",
+    "dilemmaPlaceholder": "Write your new dilemma",
+    "startGibah": "Start Gibah",
+    "newDilemma": "New Dilemma",
+    "copyResult": "Copy Result",
+    "shareResults": "Share Results",
     "errors": {
       "stream": "Failed to stream verdict. Please refresh or try again.",
       "commit": "Failed to commit decision. Please try again.",
       "unexpected": "An error occurred."
     }
+  },
+  "OverthinkingBar": {
+    "label": "Reasoning depth",
+    "complete": "Analysis complete"
   }
 }

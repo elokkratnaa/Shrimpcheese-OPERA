@@ -57,8 +57,6 @@ OPERA replaces steps 2–4 with a single structured session.
 | Validation | Zod |
 | Deploy | Vercel |
 
-> Note: Spec originally called for Redis + BullMQ async queue. Replaced with inline async execution in Next.js route handlers for competition speed. Queue architecture recommended for production.
-
 ---
 
 ## Pages
@@ -72,8 +70,8 @@ OPERA replaces steps 2–4 with a single structured session.
 | `/dump` | Mind Dump input screen | Required |
 | `/session/[id]/profiling` | Profiler loading state | Required |
 | `/session/[id]/council` | Council Room debate timeline | Required |
-| `/session/[id]/verdict` | Verdict + Commit | Required |
-| `/chat` | Solo persona chat (separate mode) | Required |
+| `/session/[id]/verdict` | Verdict + Commit + New Session | Required |
+| `/chat` | Solo persona chat | Required |
 | `/history` | Past sessions list + tag filter | Required |
 | `/profile` | User profile + stats + danger zone | Required |
 | `/error` | Dedicated error page | Guest |
@@ -93,11 +91,6 @@ OPERA replaces steps 2–4 with a single structured session.
 | FR-0.3 | Middleware protects all /home, /dump, /session, /chat, /history, /profile routes |
 | FR-0.4 | Authenticated users hitting /login or /register redirect → /home |
 
-**Acceptance criteria**:
-- Auth state managed by Supabase SSR client — no custom JWT logic
-- Session refreshed on every request via middleware
-- Google OAuth works without additional backend config beyond Supabase dashboard setup
-
 ---
 
 ### Epic 2: The Mind Dump
@@ -110,13 +103,6 @@ OPERA replaces steps 2–4 with a single structured session.
 | FR-1.2 | Minimalist UI — no visual noise during input |
 | FR-1.3 | Debounced draft autosave (500ms) to localStorage key `opera_draft` |
 
-**Acceptance criteria**:
-- User pastes or types stream-of-consciousness with no required format
-- Draft restored from localStorage on mount if exists
-- Character counter visible; warning color at 3,800 chars
-- Submit button disabled until input > 50 chars
-- Button label: "Start my session" — never "Submit"
-
 ---
 
 ### Epic 3: The Profiler & Conflict Detection
@@ -127,36 +113,35 @@ OPERA replaces steps 2–4 with a single structured session.
 |---|---|
 | FR-2.1 | Groq LLM parses input → core decision node, constraints, dependencies |
 | FR-2.2 | Flag explicit + implicit contradictions |
-| FR-2.3 | Generate persona vector JSON: `{ state, intensity, suggested_archetypes }` |
-
-**Acceptance criteria**:
-- Profiler output validates against Zod schema before proceeding
-- Validation fail → session `status = failed` → user sees actionable error via /error
-- Contradiction flags shown as `<ConflictFlag />` components pre-debate
-- Profiler runs inline in POST /api/sessions handler (no queue) — awaited before redirect
+| FR-2.3 | Generate persona vector JSON |
 
 ---
 
-### Epic 4: The Council Room
+### Epic 4: The Council Room (Debate Room Enhancements)
 
-**Goal**: Materialize user's conflict as structured debate between distinct AI archetypes.
+**Goal**: Materialize user's conflict as structured debate between distinct AI archetypes with enhanced interactivity.
 
 | ID | Requirement |
 |---|---|
-| FR-3.1 | Dynamically instantiate 2–3 archetypes from Profiler suggested_archetypes |
-| FR-3.2 | 3-turn debate; each persona challenges others using user constraints as ground truth |
-| FR-3.3 | Render as interactive script timeline — readable, scannable |
+| FR-3.1 | Dynamically instantiate 2–3 archetypes from Profiler |
+| FR-3.2 | Multi-turn debate; persona challenges others |
+| FR-3.3 | Live preview chat panel for ongoing debate |
+| FR-3.4 | Categories + labels per debate context |
+| FR-3.5 | Overthinking bar (visual indicator of reasoning depth) |
+| FR-3.6 | Multiple rounds support |
+| FR-3.7 | Show participating personas list |
+| FR-3.8 | User rate + pick favorite persona |
 
 **Acceptance criteria**:
-- All persona calls per turn run concurrently (Promise.all)
-- turn_sequence column enforces deterministic order
-- No auto-scroll — user reads at own pace
-- Each persona visually distinct via `<PersonaBubble variant />` (teal / amber / coral)
-- Bubbles fade in with staggered CSS animation (150ms delay each)
+- Debate timeline is interactive and displays live updates via SSE
+- Categories/labels clearly visible for debate context
+- Reasoning depth bar visually updates per debate turn
+- Persona list clearly indicates active participants
+- Rating UI allows quick feedback on persona performance
 
 ---
 
-### Epic 5: The Verdict
+### Epic 5: The Verdict Screen
 
 **Goal**: Resolve debate into objective, actionable synthesis.
 
@@ -164,33 +149,19 @@ OPERA replaces steps 2–4 with a single structured session.
 |---|---|
 | FR-4.1 | Synthesize transcript into weighted Pro/Con matrix |
 | FR-4.2 | Output single recommendation + exactly 2 ordered next steps |
-| FR-4.3 | "Commit" CTA marks decision as taken — permanent |
+| FR-4.3 | "Commit" CTA marks decision as taken |
+| FR-4.4 | Start new session input/button |
 
 **Acceptance criteria**:
-- verdict_summary streams via SSE from GET /api/sessions/[id]/stream
-- Pro/Con matrix scannable — not a wall of text
-- Commit button: "Commit to this decision", 48px, coral, full width
-- Post-commit: button replaced by "Decision committed." badge — removed from DOM
-- is_committed = true is permanent — no undo, no edit
+- Verdict synthesis streams via SSE
+- "Commit" button functionality persists
+- "Start new session" input facilitates immediate transition to `/dump`
 
 ---
 
 ### Epic 6: Solo Chat
 
-**Goal**: One-on-one conversation with a single persona outside main pipeline.
-
-| ID | Requirement |
-|---|---|
-| FR-5.1 | User selects one of 3 default personas |
-| FR-5.2 | Freeform chat with selected persona powered by Groq |
-| FR-5.3 | Persona switch mid-chat requires confirmation (clears history) |
-
-**Acceptance criteria**:
-- Chat history kept in React state only — not persisted to DB in V1
-- "This conversation isn't saved" muted caption always visible
-- Persona responses stream via Groq SSE
-- Persona switch confirmation: "Starting a new advisor clears this chat."
-- Send on Enter or icon button (no "Send" text label)
+**Goal**: One-on-one conversation with a single persona.
 
 ---
 
@@ -198,79 +169,20 @@ OPERA replaces steps 2–4 with a single structured session.
 
 **Goal**: Let users review past cognitive patterns and decisions.
 
-| ID | Requirement |
-|---|---|
-| FR-6.1 | Store all sessions: Mind Dump, Profiler output, Debate log, Verdict |
-| FR-6.2 | Filter by auto-generated tags (`#Career`, `#Finance`, `#Relationships`, etc.) |
-
-**Acceptance criteria**:
-- `<SessionCard />` shows: date, truncated dump (100 chars), top tag, committed dot
-- Tag filter instant — no full reload
-- Tags auto-generated by Verdict stage — no manual tag creation in V1
-- "Load 10 more" pagination — never "See more"
-
 ---
 
 ### Epic 8: Profile
 
 **Goal**: User identity, stats, account management.
 
-| ID | Requirement |
-|---|---|
-| FR-7.1 | Display name, email, initials avatar |
-| FR-7.2 | Inline edit for full name |
-| FR-7.3 | Stats: total sessions, committed count, top tag |
-| FR-7.4 | Sign out + account deletion with confirmation |
-
-**Acceptance criteria**:
-- No photo upload in V1 — initials avatar only
-- Delete requires typing "DELETE" to confirm
-- "Sign out" — never "Logout"
-- No password change UI in V1
-
 ---
 
-## Shared Components
+### Epic 9: Bug Fixes
 
-Build once, reuse everywhere. Live in `app/components/shared/`.
-
-| Component | Used On |
-|---|---|
-| `<OperaNav variant="guest|authed" />` | All pages |
-| `<OperaFooter />` | Landing, Error |
-| `<PersonaBubble />` | Council Room, Solo Chat |
-| `<SessionCard />` | Home, History |
-| `<OperaInput />` | Mind Dump, Solo Chat |
-| `<ConflictFlag />` | Council Room |
-| `<CommitButton />` | Verdict |
-
----
-
-## Data Flow (Simplified — No Queue)
-
-```
-[Client — /dump]
-     │ (1) POST /api/sessions { raw_mind_dump }
-     ▼
-[Route Handler]
-     │ (2) Insert session row, status = 'ingested'
-     │ (3) Await runProfiler(session_id) inline
-     │     → Groq call → Zod validate → UPDATE session
-     │ (4) Await spawnCouncil(session_id, archetypes)
-     │     → Promise.all persona turns × 3 → INSERT council_debates
-     │     → UPDATE session status = 'completed'
-     │ (5) Return { session_id }
-     ▼
-[Client navigates → /session/[id]/council]
-     │ (6) GET /api/sessions/[id]/council → debate rows
-     ▼
-[Client navigates → /session/[id]/verdict]
-     │ (7) GET /api/sessions/[id]/stream (SSE)
-     │     → synthesizeVerdict → Groq stream → INSERT verdict
-     ▼
-[Client renders verdict, user commits]
-     │ (8) PATCH /api/verdicts/[id] { is_committed: true }
-```
+| ID | Issue | Fix |
+|---|---|---|
+| B-1.1 | Raw JSON data showing in one-on-one chat | Sanitize UI render logic |
+| B-1.2 | User flow: entry → session → verdict | Enforce strict navigation guardrails |
 
 ---
 
@@ -307,7 +219,7 @@ Build once, reuse everywhere. Live in `app/components/shared/`.
 - Therapist or coach integrations
 - Voice input
 - Mobile native app
-- Multi-language support
+- Multi-language support (Done)
 - User-defined custom personas
 - Password change flow
 - Chat history persistence

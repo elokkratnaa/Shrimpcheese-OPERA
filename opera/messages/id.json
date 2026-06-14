@@ -191,10 +191,41 @@
   "MindDump": {
     "title": "Apa yang sedang terjadi?",
     "subtitle": "Tidak butuh format. Tulis seperti Anda berpikir.",
+    "minCharMessage": "Min. 50 karakter",
     "submit": "Mulai sesi saya",
+    "categories": {
+      "Karir": "Karir",
+      "Percintaan": "Percintaan",
+      "Keluarga": "Keluarga",
+      "Keuangan": "Keuangan",
+      "Pendidikan": "Pendidikan",
+      "Self-Growth": "Pengembangan Diri",
+      "Lainnya": "Lainnya"
+    },
+    "emotions": {
+      "Bingung": "Bingung",
+      "Galau": "Galau",
+      "Panik": "Panik",
+      "Frustrasi": "Frustrasi",
+      "Santai": "Santai"
+    },
+    "rounds": "JUMLAH RONDE DEBAT:",
+    "overthinking": "TINGKAT OVERTHINKING LO:",
+    "overthinkingLabels": {
+      "relaxed": "Santai Aja",
+      "warming": "Mulai Berasap",
+      "hot": "Udah Panas",
+      "overthinking": "OVERTHINKING DETECTED"
+    },
+    "categoryLabel": "INI SOAL APA?",
+    "emotionLabel": "BAGAIMANA PERASAAN LO SAAT INI?",
+    "personaLabel": "PILIH TIM GIBAH-MU (OPSIONAL):",
+    "gacha": "Gacha Squad",
+    "racik": "Racik",
     "errors": {
       "failed": "Gagal memulai sesi.",
-      "unexpected": "Terjadi kesalahan yang tidak terduga."
+      "unexpected": "Terjadi kesalahan yang tidak terduga.",
+      "aiFailed": "Dewan AI saat ini tidak tersedia. Silakan coba lagi nanti."
     }
   },
   "History": {
@@ -271,6 +302,11 @@
     "analyzing": "Menganalisis keputusan...",
     "preparing": "Persona sedang bersiap memasuki Ruang Dewan...",
     "seeVerdict": "Lihat verdict",
+    "typing": "mengetik...",
+    "target": "TARGET BALASAN:",
+    "rebuttalPlaceholder": "Tulis bantahan lo",
+    "send": "Kirim",
+    "skip": "Lanjut Ronde {round} (Tanpa Membalas)",
     "errors": {
       "failed": "Gagal memuat data ruang dewan"
     }
@@ -280,10 +316,25 @@
     "matrix": "MATRIKS PRO/KONTRA",
     "recommendation": "REKOMENDASI OPERA",
     "nextSteps": "LANGKAH SELANJUTNYA",
+    "favouritePersonaLabel": "MENURUT LO, SIAPA YANG PALING MASUK AKAL?",
+    "undecided": "Masih Ragu",
+    "closingMessage": "PESAN PENUTUP",
+    "typing": "mengetik...",
+    "copied": "Tersalin",
+    "dilemmaPlaceholder": "Tulis dilema baru lo",
+    "startGibah": "Mulai Gibah",
+    "newDilemma": "Dilema Baru",
+    "copyResult": "Salin Hasil",
+    "shareResults": "Bagikan Hasil",
+    "soon": "Segera hadir",
     "errors": {
       "stream": "Gagal mengalirkan verdict. Silakan refresh atau coba lagi.",
       "commit": "Gagal berkomitmen pada keputusan. Silakan coba lagi.",
       "unexpected": "Terjadi kesalahan."
     }
+  },
+  "OverthinkingBar": {
+    "label": "Kedalaman penalaran",
+    "complete": "Analisis selesai"
   }
 }
