@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createBackgroundClient } from '@/lib/supabase/background'
 import { completeGroq } from '@/lib/groq'
 import { spawnCouncil } from '@/services/DebateService'
 
@@ -40,9 +40,10 @@ Do not include any chat conversational text or markdown code blocks other than r
  * validating the JSON schema, and initiating the council debate.
  *
  * @param sessionId - The UUID of the session to profile
+ * @param accessToken - The user's JWT access token, captured before the request context ended
  */
-export async function runProfiler(sessionId: string): Promise<void> {
-  const supabase = await createClient()
+export async function runProfiler(sessionId: string, accessToken?: string): Promise<void> {
+  const supabase = createBackgroundClient(accessToken)
 
   try {
     // 1. Fetch raw_mind_dump from sessions table
@@ -131,7 +132,7 @@ export async function runProfiler(sessionId: string): Promise<void> {
     }
 
     // 6. Spawn the Council Debate
-    await spawnCouncil(sessionId, profilerOutput.suggested_persona_archetypes)
+    await spawnCouncil(sessionId, profilerOutput.suggested_persona_archetypes, accessToken)
   } catch (err: unknown) {
     console.error(`[ProfilerService] Unexpected error on session ${sessionId}:`, err)
     await supabase.from('sessions').update({ current_status: 'failed' }).eq('session_id', sessionId)

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createBackgroundClient } from '@/lib/supabase/background'
 import { streamGroq } from '@/lib/groq'
 
 export interface VerdictOutput {
@@ -25,27 +25,27 @@ You must output a JSON object strictly matching this schema:
       "option": "Name of option A",
       "pros": ["Pro 1", "Pro 2"],
       "cons": ["Con 1", "Con 2"],
-      "weight": 0.8 // must be a float between 0 and 1 representing relative strength
+      "weight": 0.8
     }
   ],
   "recommendation": "the single clear recommended course of action",
-  "next_steps": ["Step 1", "Step 2"], // must contain exactly two strings
-  "tags": ["#Tag1", "#Tag2"] // auto-tags
+  "next_steps": ["Step 1", "Step 2"],
+  "tags": ["#Tag1", "#Tag2"]
 }
 
 Provide raw JSON representation ONLY. Do not prefix with conversational text or markdown code blocks.`
 
 /**
- * Synthesizes a verdict based on the council debate transcript. Streams the verdict_summary
- * token-by-token via a ReadableStream, and inserts the full parsed JSON response to the verdicts database on finish.
+ * Synthesizes a verdict based on the council debate transcript. Streams individual
+ * tokens as SSE events `{ token }`, and on completion emits the full parsed verdict
+ * as `{ verdict }` before closing the stream.
  *
  * @param sessionId - The UUID of the session
- * @returns A ReadableStream that emits the token stream and executes insertion in background
+ * @returns A ReadableStream that emits SSE-formatted JSON token events
  */
 export async function synthesizeVerdict(sessionId: string): Promise<ReadableStream> {
-  const supabase = await createClient()
+  const supabase = createBackgroundClient()
 
-  // 1. Fetch debates
   const { data: debates, error: debatesError } = await supabase
     .from('council_debates')
     .select('persona_name, message_content, turn_sequence')
@@ -56,7 +56,6 @@ export async function synthesizeVerdict(sessionId: string): Promise<ReadableStre
     throw new Error(`Failed to load debates for verdict: ${debatesError?.message || 'No debates found'}`)
   }
 
-  // 2. Build transcript
   const transcript = debates
     .map(d => `[${d.persona_name} (Turn ${Math.floor(d.turn_sequence / 10)})]: ${d.message_content}`)
     .join('\n\n')
@@ -76,51 +75,11 @@ export async function synthesizeVerdict(sessionId: string): Promise<ReadableStre
           const token = chunk.choices[0]?.delta?.content || ''
           if (token) {
             rawBuffer += token
-
-            // We stream only the verdict_summary tokens, or just the JSON tokens directly?
-            // "Stream verdict_summary tokens as SSE events: data: <token>\n\n"
-            // Wait, does streamGroq output the raw JSON? Yes.
-            // If the prompt says "Stream verdict_summary tokens as SSE events", and the output is full JSON,
-            // we should parse out the `verdict_summary` or stream the JSON tokens directly?
-            // Wait, is it supposed to stream the verdict_summary tokens?
-            // Let's re-read GET /api/sessions/[id]/stream in the first prompt:
-            // "Stream verdict_summary tokens as SSE events: data: <token>\n\n"
-            // "On complete: send data: [DONE]\n\n and close"
-            // Wait! If the LLM generates JSON, how do we stream just the verdict_summary?
-            // Often, to keep it robust and performant, we can parse out the verdict_summary, or we can stream the tokens as they arrive.
-            // But wait! If the user wants to see the summary typing out in real-time, can we stream the tokens of verdict_summary?
-            // If the LLM outputs JSON, the very first field in the JSON is "verdict_summary".
-            // So if we extract/parse the JSON or just stream the whole JSON stream?
-            // Wait, the prompt says "Stream verdict_summary tokens as SSE events".
-            // Let's parse/stream the tokens. If we stream the token directly, does it work?
-            // If we stream the whole token stream, the client gets the full JSON.
-            // Let's look at the instruction:
-            // "Stream verdict_summary tokens as SSE events: data: <token>\n\n"
-            // Let's see: we can parse the JSON or stream the JSON tokens directly or just extract the verdict_summary part from the JSON buffer.
-            // Let's implement an SSE streamer that streams tokens. If it's supposed to stream just the verdict_summary,
-            // we can look at the JSON stream.
-            // Let's check: in next-generation UIs, we can parse the JSON buffer incrementally, or just stream the incoming tokens.
-            // Let's stream the token content itself as it is returned by the LLM stream.
-            // Let's verify what the route does:
-            // GET /api/sessions/[id]/stream:
-            // - SSE endpoint — set headers: Content-Type: text/event-stream, Cache-Control: no-cache
-            // - Call synthesizeVerdict(session_id) from services/VerdictService.ts
-            // - Stream verdict_summary tokens as SSE events: data: <token>\n\n
-            // - On complete: send data: [DONE]\n\n and close
-            // - Return Response with ReadableStream
-            // If we output JSON, the value of verdict_summary will be the first text.
-            // Let's write a simple helper that streams the token itself, or attempts to extract the text of "verdict_summary" from the JSON stream,
-            // or just stream the token directly. Let's stream the token directly, since client might parse it, or we can parse it from the buffer.
-            // Wait, let's stream the actual token. If we stream the token, is that fine?
-            // If we extract "verdict_summary" token:
-            // Since "verdict_summary" is the first key in the JSON, we can wait until we see `"verdict_summary": "` and then stream characters until the next closing quote `"` that is not escaped.
-            // Let's do a simple regex/parser on the stream buffer!
-            // That's extremely elegant and matches the exact spec.
-            controller.enqueue(encoder.encode(`data: ${token}\n\n`))
+            // Stream each token as a JSON SSE event so clients can display progressive text
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ token })}\n\n`))
           }
         }
 
-        // On complete: Parse the rawBuffer JSON and insert to verdicts table
         let cleanJson = rawBuffer.trim()
         if (cleanJson.startsWith('```json')) {
           cleanJson = cleanJson.substring(7)
@@ -132,27 +91,43 @@ export async function synthesizeVerdict(sessionId: string): Promise<ReadableStre
 
         const parsed = JSON.parse(cleanJson) as VerdictOutput
 
-        const { error: insertError } = await supabase
+        const { data: inserted, error: insertError } = await supabase
           .from('verdicts')
           .insert({
             session_id: sessionId,
             verdict_summary: parsed.verdict_summary,
-            action_steps: parsed, // store full parsed JSON or just action steps?
-            // Wait, let's check: verdicts table schema reference:
-            // verdict_summary TEXT NOT NULL
-            // action_steps JSONB NOT NULL
-            // is_committed BOOLEAN DEFAULT FALSE
+            action_steps: {
+              pro_con_matrix: parsed.pro_con_matrix,
+              recommendation: parsed.recommendation,
+              next_steps: parsed.next_steps,
+              tags: parsed.tags,
+            },
             is_committed: false
           })
+          .select('verdict_id, verdict_summary, action_steps, is_committed')
+          .single()
 
-        if (insertError) {
+        if (insertError || !inserted) {
           console.error('[VerdictService] Failed to insert verdict:', insertError)
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+          controller.close()
+          return
         }
 
+        // Emit full structured verdict so the client can render all sections
+        const fullVerdict = {
+          verdict_id: inserted.verdict_id,
+          verdict_summary: inserted.verdict_summary,
+          is_committed: inserted.is_committed,
+          ...(inserted.action_steps as object),
+        }
+
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ verdict: fullVerdict })}\n\n`))
         controller.enqueue(encoder.encode('data: [DONE]\n\n'))
         controller.close()
-      } catch (err: any) {
-        console.error('[VerdictService] Error during streaming/saving verdict:', err)
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'VerdictService stream error'
+        console.error('[VerdictService] Error during streaming/saving verdict:', message)
         controller.error(err)
       }
     }
