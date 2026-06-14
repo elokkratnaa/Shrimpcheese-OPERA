@@ -39,7 +39,8 @@ export async function GET(
         'Connection': 'keep-alive'
       }
     })
-  } catch (err: any) {
-    return new Response(err.message || 'Internal Server Error', { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return new Response(message, { status: 500 })
   }
 }

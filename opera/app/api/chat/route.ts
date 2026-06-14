@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const systemPrompt = personas[persona] || `You are ${persona}, a helpful advisor.`
 
-    const chatHistory = (history || []).map((msg: any) => ({
+    const chatHistory = (history as Array<{ role: string; content: string }> || []).map((msg) => ({
       role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
       content: msg.content
     }))
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
           }
           controller.enqueue(encoder.encode(`data: [DONE]\n\n`))
           controller.close()
-        } catch (err: any) {
+        } catch (err: unknown) {
           controller.error(err)
         }
       }
@@ -66,7 +66,8 @@ export async function POST(request: NextRequest) {
         'Connection': 'keep-alive'
       }
     })
-  } catch (err: any) {
-    return new Response(err.message || 'Internal Server Error', { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return new Response(message, { status: 500 })
   }
 }

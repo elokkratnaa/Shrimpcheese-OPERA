@@ -43,8 +43,8 @@ export async function GET(request: NextRequest) {
     }
 
     const tagCounts: Record<string, number> = {}
-    verdicts?.forEach((verdict: any) => {
-      let tags = verdict.tags
+    verdicts?.forEach((verdict: { tags: unknown }) => {
+      let tags: unknown = verdict.tags
       if (typeof tags === 'string') {
         try {
           tags = JSON.parse(tags)
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
         }
       }
       if (Array.isArray(tags)) {
-        tags.forEach((tag: string) => {
+        tags.forEach((tag: unknown) => {
           if (typeof tag === 'string') {
             tagCounts[tag] = (tagCounts[tag] || 0) + 1
           }
@@ -78,8 +78,9 @@ export async function GET(request: NextRequest) {
         top_tag
       }
     })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -114,8 +115,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     return NextResponse.json(updatedUser.user)
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -146,7 +148,8 @@ export async function DELETE(request: NextRequest) {
     }
 
     return new Response(null, { status: 204 })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
