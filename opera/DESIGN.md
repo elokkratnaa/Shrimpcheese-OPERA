@@ -50,67 +50,67 @@ colors:
 
 typography:
   display-xl:
-    fontFamily: "Copernicus, Tiempos Headline, serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 64px
     fontWeight: 400
     lineHeight: 1.05
     letterSpacing: -1.5px
   display-lg:
-    fontFamily: "Copernicus, Tiempos Headline, serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 48px
     fontWeight: 400
     lineHeight: 1.1
     letterSpacing: -1px
   display-md:
-    fontFamily: "Copernicus, Tiempos Headline, serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 36px
     fontWeight: 400
     lineHeight: 1.15
     letterSpacing: -0.5px
   display-sm:
-    fontFamily: "Copernicus, Tiempos Headline, serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 28px
     fontWeight: 400
     lineHeight: 1.2
     letterSpacing: -0.3px
   title-lg:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 22px
     fontWeight: 500
     lineHeight: 1.3
     letterSpacing: 0
   title-md:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 18px
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: 0
   title-sm:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Manrope, sans-serif"
     fontSize: 16px
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: 0
   body-md:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 16px
     fontWeight: 400
     lineHeight: 1.55
     letterSpacing: 0
   body-sm:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 14px
     fontWeight: 400
     lineHeight: 1.55
     letterSpacing: 0
   caption:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 13px
     fontWeight: 500
     lineHeight: 1.4
     letterSpacing: 0
   caption-uppercase:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 12px
     fontWeight: 500
     lineHeight: 1.4
@@ -122,13 +122,13 @@ typography:
     lineHeight: 1.6
     letterSpacing: 0
   button:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 14px
     fontWeight: 500
     lineHeight: 1
     letterSpacing: 0
   nav-link:
-    fontFamily: "StyreneB, Inter, sans-serif"
+    fontFamily: "Ubuntu, sans-serif"
     fontSize: 14px
     fontWeight: 500
     lineHeight: 1.4
