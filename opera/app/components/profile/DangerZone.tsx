@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,15 +13,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
-/**
- * Danger zone — sign out + account deletion with typed "DELETE" confirmation.
- * Sign out via supabase.auth.signOut() → redirect /.
- * Delete requires user to type "DELETE" in a confirmation dialog before proceeding.
- */
 export default function DangerZone() {
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations("Profile");
 
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -63,14 +60,14 @@ export default function DangerZone() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(
-          (body as { error?: string }).error ?? "Account deletion failed.",
+          (body as { error?: string }).error ?? t("errors.deleteFailed"),
         );
       }
       await supabase.auth.signOut();
       router.push("/");
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "Something went wrong. Try again.";
+        err instanceof Error ? err.message : t("errors.unexpected");
       setDeleteError(message);
     } finally {
       setIsDeleting(false);
@@ -84,10 +81,10 @@ export default function DangerZone() {
       <div className="pt-8 border-t border-[#e6dfd8] flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <h2 className="text-base font-medium text-[#141413] font-heading">
-            Account
+            {t("account")}
           </h2>
           <p className="text-sm text-[#6c6a64] leading-[1.55]">
-            Manage your session or permanently remove your account.
+            {t("accountSubtitle")}
           </p>
         </div>
 
@@ -102,10 +99,10 @@ export default function DangerZone() {
             {isSigningOut ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Signing out…
+                {t("signingOut")}
               </span>
             ) : (
-              "Sign out"
+              t("signOut")
             )}
           </Button>
 
@@ -115,7 +112,7 @@ export default function DangerZone() {
             onClick={openDeleteDialog}
             className="text-sm font-medium text-[#c64545] hover:text-[#a63535] hover:bg-transparent h-10 px-1 cursor-pointer"
           >
-            Delete my account
+            {t("deleteAccount")}
           </Button>
         </div>
       </div>
@@ -125,11 +122,10 @@ export default function DangerZone() {
         <DialogContent className="bg-[#faf9f5] border-[#e6dfd8] max-w-sm rounded-xl p-8 shadow-lg">
           <DialogHeader className="gap-2">
             <DialogTitle className="text-[22px] font-normal leading-tight text-[#141413] font-serif">
-              Delete your account?
+              {t("deleteTitle")}
             </DialogTitle>
             <DialogDescription className="text-sm text-[#3d3d3a] leading-[1.55]">
-              This permanently deletes all your sessions and decisions. This
-              cannot be undone.
+              {t("deleteDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -138,7 +134,7 @@ export default function DangerZone() {
               htmlFor="delete-confirm-input"
               className="text-[12px] font-medium text-[#6c6a64] uppercase tracking-[1.5px]"
             >
-              Type DELETE to confirm
+              {t("typeDelete")}
             </label>
             <input
               id="delete-confirm-input"
@@ -173,7 +169,7 @@ export default function DangerZone() {
               disabled={isDeleting}
               className="flex-1 h-10 rounded-md border-[#e6dfd8] bg-[#faf9f5] text-[#141413] hover:bg-[#efe9de] text-sm font-medium cursor-pointer"
             >
-              Keep my account
+              {t("keepAccount")}
             </Button>
             <Button
               onClick={confirmDeleteAccount}
@@ -183,10 +179,10 @@ export default function DangerZone() {
               {isDeleting ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Deleting…
+                  {t("deleting")}
                 </span>
               ) : (
-                "Delete everything"
+                t("deleteEverything")
               )}
             </Button>
           </DialogFooter>

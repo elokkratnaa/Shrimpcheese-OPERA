@@ -1,0 +1,289 @@
+{
+  "Nav": {
+    "signIn": "Sign in",
+    "startThinking": "Start thinking",
+    "home": "Home",
+    "history": "History",
+    "chat": "Chat",
+    "profile": "Profile"
+  },
+  "Landing": {
+    "hero": {
+      "beta": "OPERA — BETA",
+      "headline": "Meet your thinking partner.",
+      "cta": "Start your first session",
+      "quote": "OPERA turned my chaotic doubt into a clear decision structure in minutes. Truly revolutionary."
+    },
+    "process": {
+      "title": "The Process",
+      "step1": {
+        "title": "Dump your thoughts",
+        "desc": "Unstructured brain dump."
+      },
+      "step2": {
+        "title": "Watch them debate",
+        "desc": "AI personas challenge options."
+      },
+      "step3": {
+        "title": "Commit to action",
+        "desc": "Clear, finalized verdict."
+      }
+    },
+    "agitation": {
+      "headline": "You already know the answer. You just can't hear it.",
+      "card1": {
+        "label": "browser tabs",
+        "desc": "Reddit threads, TikTok takes, WhatsApp polls"
+      },
+      "card2": {
+        "label": "hours later",
+        "desc": "Same 3 options. More confusion."
+      },
+      "card3": {
+        "label": "Decision fatigue",
+        "desc": "You pick randomly. Or nothing at all."
+      }
+    },
+    "walkthrough": {
+      "label": "WHAT HAPPENS INSIDE",
+      "step1": {
+        "label": "STEP ONE",
+        "title": "You dump everything",
+        "desc": "Externalize the noise. No structure needed, just raw thought.",
+        "placeholder": "I don't know if I should quit my job or..."
+      },
+      "step2": {
+        "label": "STEP TWO",
+        "title": "OPERA reads between the lines",
+        "desc": "We detect contradictions and emotional vectors you might have missed.",
+        "conflict": "Potential Conflict: Optimizing for security while desiring high-risk growth."
+      },
+      "step3": {
+        "label": "STEP THREE",
+        "title": "Your council debates",
+        "desc": "Archetypes tailored to your problem challenge your options from multiple angles.",
+        "stoic": "\"What is the worst case if you stay? Regret is a permanent tax on your peace.\"",
+        "vc": "\"Opportunity cost is higher than the risk of failure here. Scale the upside.\""
+      },
+      "step4": {
+        "label": "STEP FOUR",
+        "title": "You commit with clarity",
+        "desc": "A finalized recommendation and action steps. No more half-measures.",
+        "recommendation": "Recommendation: Proceed with the pivot.",
+        "commit": "Commit to this decision"
+      }
+    },
+    "social": {
+      "label": "WHAT PEOPLE ARE SAYING",
+      "quote1": "I was going in circles for 3 weeks. OPERA surfaced a conflict I hadn't consciously noticed.",
+      "quote2": "The council debate format made me realize I was optimizing for the wrong thing entirely.",
+      "quote3": "Committed to a decision I'd been avoiding for 6 months. In one session."
+    },
+    "faq": {
+      "title": "Before you ask.",
+      "q1": "Is this just another AI chatbot?",
+      "a1": "No. OPERA runs a structured multi-perspective debate, not a single response. Think less ChatGPT, more structured devil's advocate.",
+      "q2": "What kind of decisions does this work for?",
+      "a2": "Career moves, creative direction, financial choices, relationship crossroads. Any decision where you know the options but can't commit.",
+      "q3": "Is my data private?",
+      "a3": "Your mind dumps are yours. We don't train on your sessions."
+    },
+    "cta": {
+      "headline": "Ready to clear the noise?",
+      "button": "Start your session"
+    }
+  },
+  "Auth": {
+    "login": "Sign in to OPERA",
+    "register": "Create my account",
+    "welcome": "Welcome back.",
+    "registerWelcome": "Clear your head.",
+    "google": "Continue with Google",
+    "or": "or",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "forgot": "Forgot password?",
+    "signIn": "Sign in to OPERA",
+    "noAccount": "Don't have an account?",
+    "alreadyAccount": "Already have an account?",
+    "createOne": "Create one",
+    "emailPlaceholder": "name@domain.com",
+    "fullNamePlaceholder": "Alex Mercer",
+    "successCreated": "Account created. Please check your email to verify your registration.",
+    "errors": {
+      "nameRequired": "Full name is required.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordLength": "Password must be at least 8 characters.",
+      "alreadyExists": "An account with this email address already exists.",
+      "unexpected": "An unexpected error occurred. Please try again.",
+      "googleFailed": "Failed to initiate Google registration."
+    }
+  },
+  "Loading": {
+    "reading": "Reading between the lines...",
+    "finding": "Finding the real question...",
+    "assembling": "Assembling your council..."
+  },
+  "Error": {
+    "title": "SOMETHING WENT WRONG",
+    "sub": "Errors like this are logged. If it keeps happening, something's wrong on our end.",
+    "profiler_failed": "OPERA couldn't read your dump. Try again with more detail.",
+    "timeout": "This took too long. The council may be stuck.",
+    "not_found": "This session doesn't exist or isn't yours.",
+    "default": "Something broke backstage.",
+    "tryAgain": "Try again",
+    "goHome": "Go back home",
+    "notFound": {
+      "title": "404 NOT FOUND",
+      "message": "This page doesn't exist.",
+      "sub": "You may have followed a broken link.",
+      "cta": "Take me home"
+    }
+  },
+  "Footer": {
+    "tagline": "Structured decision orchestration.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "copyright": "© 2026 OPERA. All rights reserved.",
+    "links": {
+      "howItWorks": "How It Works",
+      "mindDump": "The Mind Dump",
+      "councilRoom": "Council Room",
+      "verdicts": "Verdicts",
+      "soloChat": "Solo Chat",
+      "about": "About OPERA",
+      "theCouncil": "The Council",
+      "manifesto": "Manifesto",
+      "careers": "Careers",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "security": "Security",
+      "cookie": "Cookie Policy"
+    }
+  },
+  "Dashboard": {
+    "newSession": "New session",
+    "soloChat": "Solo chat",
+    "home": "Home",
+    "history": "History",
+    "profile": "Profile",
+    "greeting": "What's on your mind, {name}?",
+    "recentSessions": "Recent sessions",
+    "patterns": "Your patterns",
+    "emptyTheater": "Your theater is empty. Pour your thoughts out to host your first cognitive debate council.",
+    "startFirst": "Start your first session",
+    "noPatterns": "Commit to decisions to discover tags and track your cognitive patterns."
+  },
+  "Session": {
+    "committed": "Decision Committed",
+    "notCommitted": "Not Committed",
+    "status": "Status"
+  },
+  "CommitButton": {
+    "committed": "Decision committed.",
+    "committing": "Committing...",
+    "commit": "Commit to this decision"
+  },
+  "MindDump": {
+    "title": "What's going on?",
+    "subtitle": "No format needed. Write like you think.",
+    "submit": "Start my session",
+    "errors": {
+      "failed": "Failed to start session.",
+      "unexpected": "An unexpected error occurred."
+    }
+  },
+  "History": {
+    "title": "Your decisions",
+    "all": "All",
+    "loadMore": "Load {count} more",
+    "empty": "Nothing here yet.",
+    "startFirst": "Start your first session"
+  },
+  "Profile": {
+    "title": "Your profile — OPERA",
+    "description": "Manage your OPERA account, review your decision stats, and control your data.",
+    "identity": "Profile identity",
+    "statsLabel": "Decision statistics",
+    "management": "Account management",
+    "sessions": "Sessions",
+    "committed": "Committed",
+    "topPattern": "Top Pattern",
+    "noPattern": "None",
+    "account": "Account",
+    "accountSubtitle": "Manage your session or permanently remove your account.",
+    "signOut": "Sign out",
+    "signingOut": "Signing out…",
+    "deleteAccount": "Delete my account",
+    "deleteTitle": "Delete your account?",
+    "deleteDescription": "This permanently deletes all your sessions and decisions. This cannot be undone.",
+    "typeDelete": "Type DELETE to confirm",
+    "keepAccount": "Keep my account",
+    "deleteEverything": "Delete everything",
+    "deleting": "Deleting…",
+    "namePlaceholder": "Your Name",
+    "save": "Save",
+    "saving": "Saving...",
+    "pressEnter": "Press Enter to save · Esc to cancel",
+    "addName": "Add your name",
+    "editLabel": "Edit your display name",
+    "clickToEdit": "Click to edit your display name",
+    "errors": {
+      "saveFailed": "Could not save — try again.",
+      "deleteFailed": "Account deletion failed.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "Chat": {
+    "title": "Choose your advisor",
+    "consult": "Consult {name}",
+    "intro": "Start typing to test ideas, analyze risk, or map fulfillment options directly.",
+    "notSaved": "This conversation isn't saved.",
+    "switchTitle": "Switch Advisor?",
+    "switchDescription": "Starting a new advisor clears this chat.",
+    "cancel": "Cancel",
+    "clearAndSwitch": "Clear and Switch",
+    "errors": {
+      "failed": "Failed to reach advisor.",
+      "connectionLost": "I apologize, I lost connection to OPERA's orchestrator. Please try again."
+    },
+    "advisors": {
+      "stoic": {
+        "name": "The Pragmatic Stoic",
+        "description": "Risk minimization. Long-term stability."
+      },
+      "vc": {
+        "name": "The Venture Capitalist",
+        "description": "Upside maximization. Opportunity cost."
+      },
+      "hedonist": {
+        "name": "The Creative Hedonist",
+        "description": "Fulfillment, joy, quality of life."
+      }
+    }
+  },
+  "Council": {
+    "title": "THE COUNCIL ROOM",
+    "analyzing": "Analyzing decision...",
+    "preparing": "Personas are preparing to enter the Council Room...",
+    "seeVerdict": "See the verdict",
+    "errors": {
+      "failed": "Failed to load council room data"
+    }
+  },
+  "Verdict": {
+    "title": "THE VERDICT",
+    "matrix": "PRO/CON MATRIX",
+    "recommendation": "WHAT OPERA RECOMMENDS",
+    "nextSteps": "NEXT STEPS",
+    "errors": {
+      "stream": "Failed to stream verdict. Please refresh or try again.",
+      "commit": "Failed to commit decision. Please try again.",
+      "unexpected": "An error occurred."
+    }
+  }
+}

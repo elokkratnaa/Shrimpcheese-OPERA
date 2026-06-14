@@ -1,31 +1,33 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
+import { useTranslations } from "next-intl";
 
 export default function OperaFooter() {
   const currentYear = 2026; // As per specification
+  const t = useTranslations("Footer");
 
   const productLinks = [
-    { label: "How It Works", href: "#how-it-works" },
-    { label: "The Mind Dump", href: "/dump" },
-    { label: "Council Room", href: "/session" },
-    { label: "Verdicts", href: "#" },
-    { label: "Solo Chat", href: "/chat" },
+    { label: t("links.howItWorks"), href: "#how-it-works" },
+    { label: t("links.mindDump"), href: "/dump" },
+    { label: t("links.councilRoom"), href: "/session" },
+    { label: t("links.verdicts"), href: "#" },
+    { label: t("links.soloChat"), href: "/chat" },
   ];
 
   const companyLinks = [
-    { label: "About OPERA", href: "#" },
-    { label: "The Council", href: "#" },
-    { label: "Manifesto", href: "#" },
-    { label: "Careers", href: "#" },
+    { label: t("links.about"), href: "#" },
+    { label: t("links.theCouncil"), href: "#" },
+    { label: t("links.manifesto"), href: "#" },
+    { label: t("links.careers"), href: "#" },
   ];
 
   const legalLinks = [
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms of Service", href: "#" },
-    { label: "Security", href: "#" },
-    { label: "Cookie Policy", href: "#" },
+    { label: t("links.privacy"), href: "#" },
+    { label: t("links.terms"), href: "#" },
+    { label: t("links.security"), href: "#" },
+    { label: t("links.cookie"), href: "#" },
   ];
 
   const linkClass = "text-sm text-on-dark-soft hover:text-on-dark transition-colors duration-200";
@@ -42,13 +44,13 @@ export default function OperaFooter() {
               OPERA
             </span>
             <p className="text-sm text-on-dark-soft leading-relaxed max-w-[200px]">
-              Structured decision orchestration.
+              {t("tagline")}
             </p>
           </div>
 
           {/* Col 2: Product */}
           <div>
-            <span className={titleClass}>Product</span>
+            <span className={titleClass}>{t("product")}</span>
             <ul className="space-y-4">
               {productLinks.map((link) => (
                 <li key={link.label}>
@@ -62,7 +64,7 @@ export default function OperaFooter() {
 
           {/* Col 3: Company */}
           <div>
-            <span className={titleClass}>Company</span>
+            <span className={titleClass}>{t("company")}</span>
             <ul className="space-y-4">
               {companyLinks.map((link) => (
                 <li key={link.label}>
@@ -76,7 +78,7 @@ export default function OperaFooter() {
 
           {/* Col 4: Legal */}
           <div>
-            <span className={titleClass}>Legal</span>
+            <span className={titleClass}>{t("legal")}</span>
             <ul className="space-y-4">
               {legalLinks.map((link) => (
                 <li key={link.label}>
@@ -92,7 +94,7 @@ export default function OperaFooter() {
         {/* Row 2: Copyright */}
         <div className="pt-8 border-t border-surface-dark-elevated flex flex-col md:flex-row justify-between items-start md:items-center">
           <p className="text-sm text-on-dark-soft">
-            © {currentYear} OPERA. All rights reserved.
+            {t("copyright")}
           </p>
           <div className="mt-4 md:mt-0">
             {/* Right side empty as per spec */}

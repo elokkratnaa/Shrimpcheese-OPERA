@@ -1,9 +1,10 @@
 'use client'
 
 import React from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/routing'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useLocale, useTranslations } from 'next-intl'
 
 interface Session {
   session_id: string
@@ -22,8 +23,11 @@ interface SessionCardProps {
 }
 
 export default function SessionCard({ session }: SessionCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("Session");
+
   const dateStr = session.created_at
-    ? new Date(session.created_at).toLocaleDateString('en-US', {
+    ? new Date(session.created_at).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', {
         month: 'short',
         day: 'numeric'
       })
@@ -76,7 +80,7 @@ export default function SessionCard({ session }: SessionCardProps) {
               className={`w-2.5 h-2.5 rounded-full ${
                 session.verdict?.is_committed ? 'bg-[#5db872]' : 'bg-[#8e8b82]'
               }`}
-              title={session.verdict?.is_committed ? 'Decision Committed' : 'Not Committed'}
+              title={session.verdict?.is_committed ? t("committed") : t("notCommitted")}
             />
           </div>
         </CardContent>

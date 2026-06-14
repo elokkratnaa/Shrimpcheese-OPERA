@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import ConflictFlag from "@/app/components/shared/ConflictFlag";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface DebateUtterance {
   debate_id: string;
@@ -31,6 +33,7 @@ export default function CouncilRoomPage() {
   const params = useParams();
   const id = params?.id as string;
   const supabase = createClient();
+  const t = useTranslations("Council");
 
   const [authChecking, setAuthChecking] = useState(true);
   const [session, setSession] = useState<SessionData | null>(null);
@@ -62,7 +65,7 @@ export default function CouncilRoomPage() {
         ]);
 
         if (!sessionRes.ok || !debatesRes.ok) {
-          throw new Error("Failed to load council room data");
+          throw new Error(t("errors.failed"));
         }
 
         const sessionData = await sessionRes.json();
@@ -78,7 +81,7 @@ export default function CouncilRoomPage() {
     }
 
     loadInitialData();
-  }, [id, authChecking]);
+  }, [id, authChecking, t]);
 
   useEffect(() => {
     if (
@@ -135,7 +138,7 @@ export default function CouncilRoomPage() {
   }
 
   let contradictions: string[] = [];
-  let coreDecisionNode = "Analyzing decision...";
+  let coreDecisionNode = t("analyzing");
 
   if (session?.detected_biases) {
     const biases =
@@ -170,7 +173,7 @@ export default function CouncilRoomPage() {
       <main className="flex-1 max-w-200 mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
         <div className="flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-            THE COUNCIL ROOM
+            {t("title")}
           </span>
           <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
             {coreDecisionNode}
@@ -209,7 +212,7 @@ export default function CouncilRoomPage() {
           {session?.current_status === "processing" && debates.length === 0 && (
             <div className="flex justify-center items-center py-12 gap-3 text-sm text-[#6c6a64]">
               <Loader2 className="animate-spin h-5 w-5 text-[#cc785c]" />
-              <span>Personas are preparing to enter the Council Room...</span>
+              <span>{t("preparing")}</span>
             </div>
           )}
         </section>
@@ -222,7 +225,7 @@ export default function CouncilRoomPage() {
               onClick={() => router.push(`/session/${id}/verdict`)}
               className="px-8 py-3.5 h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-[#cc785c] focus:ring-offset-2 cursor-pointer font-sans"
             >
-              See the verdict
+              {t("seeVerdict")}
             </button>
           </div>
         </div>

@@ -2,18 +2,15 @@
 
 import React from 'react'
 import InlineNameEditor from './InlineNameEditor'
+import { useTranslations } from 'next-intl'
 
 interface ProfileNameSaverProps {
   initialName: string
 }
 
-/**
- * Thin client bridge that owns the PATCH /api/profile call for name updates.
- * Exists to keep ProfilePage a pure Server Component while InlineNameEditor
- * needs 'use client' for interactive editing.
- * @param initialName - Server-resolved full_name to hydrate the editor
- */
 export default function ProfileNameSaver({ initialName }: ProfileNameSaverProps) {
+  const t = useTranslations("Profile")
+
   const persistName = async (newName: string) => {
     const res = await fetch('/api/profile', {
       method: 'PATCH',
@@ -23,7 +20,7 @@ export default function ProfileNameSaver({ initialName }: ProfileNameSaverProps)
 
     if (!res.ok) {
       const body = await res.json().catch(() => ({}))
-      throw new Error((body as { error?: string }).error ?? 'Failed to save name.')
+      throw new Error((body as { error?: string }).error ?? t('errors.unexpected'))
     }
   }
 
