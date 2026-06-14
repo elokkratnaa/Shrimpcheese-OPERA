@@ -222,7 +222,6 @@ Output (strict JSON schema):
 
 ## LLM Conventions
 
-- **Model**: `claude-sonnet-4-6` for all agent calls.
 - **Structured output**: always enforce JSON schema. Never parse freeform text for data.
 - **Fallback**: if JSON parse fails, retry once. If retry fails, mark session `failed`, surface error to user. Never silently swallow.
 - **JSON Schema Fallback Rate target**: < 0.5% (see KPIs).
@@ -304,6 +303,5 @@ npm run test
 
 ## References
 
-- See `PRD.md` for feature requirements, epics, and acceptance criteria.
+- See `PRODUCT_SPEC.md` for feature requirements, epics, and acceptance criteria.
 - See `DESIGN.md` for visual/UI tokens — never hardcode colors or spacing outside it.
-- See `docs/ARCHITECTURE.md` for data flow diagrams.
