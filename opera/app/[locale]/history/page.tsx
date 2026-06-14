@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter, Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface Verdict {
   verdict_id: string;
@@ -25,6 +26,7 @@ function HistoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
+  const t = useTranslations("History");
 
   const [authChecking, setAuthChecking] = useState(true);
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -193,7 +195,7 @@ function HistoryContent() {
       <main className="flex-1 max-w-200 mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
         <div className="flex flex-col gap-4">
           <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
-            Your decisions
+            {t("title")}
           </h1>
 
           {tags.length > 0 && (
@@ -206,7 +208,7 @@ function HistoryContent() {
                     : "bg-[#efe9de] text-[#6c6a64] border border-[#e6dfd8] hover:bg-[#e8e0d2]/50"
                 }`}
               >
-                All
+                {t("all")}
               </button>
               {tags.map((tag) => {
                 const isActive = tag.toLowerCase() === activeTag.toLowerCase();
@@ -240,7 +242,7 @@ function HistoryContent() {
                   onClick={handleLoadMore}
                   className="px-6 py-2.5 border border-[#e6dfd8] text-[#141413] hover:bg-[#efe9de] text-sm font-medium rounded-md transition-colors cursor-pointer"
                 >
-                  Load 10 more
+                  {t("loadMore", { count: 10 })}
                 </button>
               </div>
             )}
@@ -248,13 +250,13 @@ function HistoryContent() {
         ) : (
           <div className="border border-dashed border-[#e6dfd8] rounded-lg p-16 text-center flex flex-col items-center gap-6 bg-[#f5f0e8]/30 my-8">
             <h3 className="text-[22px] font-normal leading-tight tracking-tight text-[#6c6a64] font-serif">
-              Nothing here yet.
+              {t("empty")}
             </h3>
             <Link
               href="/dump"
               className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-11 px-6 rounded-md flex items-center justify-center transition-colors cursor-pointer"
             >
-              Start your first session
+              {t("startFirst")}
             </Link>
           </div>
         )}

@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface OperaNavProps {
   variant: "guest" | "authed";
@@ -16,19 +17,24 @@ export default function OperaNav({ variant }: OperaNavProps) {
   const [initials, setInitials] = useState("OP");
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const t = useTranslations("Nav");
 
   useEffect(() => {
     if (variant === "authed") {
       const fetchUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user) {
           const fullName = user.user_metadata?.full_name;
           const email = user.email;
-          
+
           if (fullName && fullName.trim().length > 0) {
             const parts = fullName.trim().split(/\s+/);
             if (parts.length >= 2) {
-              setInitials((parts[0][0] + parts[parts.length - 1][0]).toUpperCase());
+              setInitials(
+                (parts[0][0] + parts[parts.length - 1][0]).toUpperCase(),
+              );
             } else {
               setInitials(parts[0].slice(0, 2).toUpperCase());
             }
@@ -58,18 +64,21 @@ export default function OperaNav({ variant }: OperaNavProps) {
         {/* Desktop navigation */}
         {variant === "guest" ? (
           <div className="hidden md:flex items-center gap-6">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-[#141413] hover:text-[#cc785c] transition-colors"
-            >
-              Sign in
-            </Link>
-            <Button
-              onClick={() => router.push("/dump")}
-              className="bg-[#cc785c] text-white hover:bg-[#a9583e] border-transparent font-medium h-10 px-5 rounded-md cursor-pointer"
-            >
-              Start thinking
-            </Button>
+            <LanguageSwitcher />
+            <div className="flex items-center gap-4">
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[#141413] hover:text-[#cc785c] transition-colors"
+              >
+                {t("signIn")}
+              </Link>
+              <Button
+                onClick={() => router.push("/dump")}
+                className="bg-[#cc785c] text-white hover:bg-[#a9583e] border-transparent font-medium h-10 px-5 rounded-md cursor-pointer"
+              >
+                {t("startThinking")}
+              </Button>
+            </div>
           </div>
         ) : (
           <>
@@ -78,23 +87,24 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 href="/home"
                 className="text-sm font-medium text-[#6c6a64] hover:text-[#141413] transition-colors"
               >
-                Home
+                {t("home")}
               </Link>
               <Link
                 href="/history"
                 className="text-sm font-medium text-[#6c6a64] hover:text-[#141413] transition-colors"
               >
-                History
+                {t("history")}
               </Link>
               <Link
                 href="/chat"
                 className="text-sm font-medium text-[#6c6a64] hover:text-[#141413] transition-colors"
               >
-                Chat
+                {t("chat")}
               </Link>
             </div>
 
-            <div className="hidden md:flex items-center">
+            <div className="hidden md:flex items-center gap-4">
+              <LanguageSwitcher />
               <Avatar
                 onClick={handleAvatarClick}
                 className="cursor-pointer size-9 hover:ring-2 hover:ring-[#cc785c] transition-all bg-[#efe9de] text-[#141413]"
@@ -149,6 +159,9 @@ export default function OperaNav({ variant }: OperaNavProps) {
       {/* Mobile cream sheet menu */}
       {isOpen && (
         <div className="md:hidden fixed inset-0 top-16 z-40 w-full bg-[#faf9f5] border-t border-[#e6dfd8] px-6 py-8 flex flex-col gap-6 animate-in fade-in duration-200">
+          <div className="flex justify-start mb-2">
+            <LanguageSwitcher />
+          </div>
           {variant === "guest" ? (
             <>
               <Link
@@ -156,7 +169,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-[#141413]"
               >
-                Sign in
+                {t("signIn")}
               </Link>
               <Button
                 onClick={() => {
@@ -165,7 +178,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 }}
                 className="bg-[#cc785c] text-white hover:bg-[#a9583e] h-12 w-full text-base font-medium rounded-md cursor-pointer"
               >
-                Start thinking
+                {t("startThinking")}
               </Button>
             </>
           ) : (
@@ -175,21 +188,21 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-[#6c6a64]"
               >
-                Home
+                {t("home")}
               </Link>
               <Link
                 href="/history"
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-[#6c6a64]"
               >
-                History
+                {t("history")}
               </Link>
               <Link
                 href="/chat"
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-[#6c6a64]"
               >
-                Chat
+                {t("chat")}
               </Link>
               <div className="h-px bg-[#e6dfd8] my-2" />
               <Link
@@ -197,7 +210,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-[#141413]"
               >
-                My Profile
+                {t("profile")}
               </Link>
             </>
           )}

@@ -2,18 +2,13 @@
 
 import React, { useState, useRef } from 'react'
 import { Pencil, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 interface InlineNameEditorProps {
   initialName: string
   onSave: (newName: string) => Promise<void>
 }
 
-/**
- * Displays the user's display name with an inline pencil-to-input edit flow.
- * Saves on blur or Enter keypress.
- * @param initialName - Current display name
- * @param onSave - Async persist handler — called with trimmed new name
- */
 export default function InlineNameEditor({ initialName, onSave }: InlineNameEditorProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(initialName)
@@ -21,6 +16,7 @@ export default function InlineNameEditor({ initialName, onSave }: InlineNameEdit
   const [isSaving, setIsSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const t = useTranslations("Profile")
 
   const enterEditMode = () => {
     setDraft(displayName)
@@ -43,7 +39,7 @@ export default function InlineNameEditor({ initialName, onSave }: InlineNameEdit
       setDisplayName(trimmed)
       setIsEditing(false)
     } catch {
-      setSaveError('Could not save — try again.')
+      setSaveError(t('errors.saveFailed'))
     } finally {
       setIsSaving(false)
     }
@@ -74,17 +70,17 @@ export default function InlineNameEditor({ initialName, onSave }: InlineNameEdit
             onKeyDown={handleKeyDown}
             disabled={isSaving}
             maxLength={80}
-            className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif bg-transparent border-b-2 border-[#cc785c] outline-none w-full max-w-xs focus:border-[#a9583e] transition-colors disabled:opacity-50"
-            aria-label="Edit your display name"
+            className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-ink font-serif bg-transparent border-b-2 border-primary outline-none w-full max-w-xs focus:border-primary-active transition-colors disabled:opacity-50"
+            aria-label={t("editLabel")}
           />
           {isSaving && (
-            <Loader2 className="animate-spin h-4 w-4 text-[#cc785c] shrink-0" />
+            <Loader2 className="animate-spin h-4 w-4 text-primary shrink-0" />
           )}
         </div>
         {saveError && (
-          <p className="text-xs text-[#c64545]" role="alert">{saveError}</p>
+          <p className="text-xs text-error" role="alert">{saveError}</p>
         )}
-        <p className="text-xs text-[#6c6a64]">Press Enter to save · Esc to cancel</p>
+        <p className="text-xs text-muted">{t("pressEnter")}</p>
       </div>
     )
   }
@@ -94,15 +90,15 @@ export default function InlineNameEditor({ initialName, onSave }: InlineNameEdit
       id="profile-name-edit-trigger"
       onClick={enterEditMode}
       className="group flex items-center gap-2 cursor-pointer bg-transparent border-none p-0"
-      aria-label="Click to edit your display name"
+      aria-label={t("clickToEdit")}
     >
       <span
-        className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif"
+        className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-ink font-serif"
       >
-        {displayName || 'Add your name'}
+        {displayName || t('addName')}
       </span>
       <Pencil
-        className="h-4 w-4 text-[#6c6a64] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1"
+        className="h-4 w-4 text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1"
         aria-hidden="true"
       />
     </button>

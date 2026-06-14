@@ -1,9 +1,10 @@
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import OperaFooter from "@/app/components/shared/OperaFooter";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
+import { getTranslations } from "next-intl/server";
 import {
   Accordion,
   AccordionContent,
@@ -17,6 +18,7 @@ export default async function LandingPage() {
     data: { session },
   } = await supabase.auth.getSession();
   const navVariant = session ? "authed" : "guest";
+  const t = await getTranslations("Landing");
 
   return (
     <div className="min-h-screen bg-[#faf9f5] flex flex-col font-sans">
@@ -35,16 +37,14 @@ export default async function LandingPage() {
 
         <div className="relative z-10 lg:col-span-6 flex flex-col items-start text-left">
           <span className="text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] mb-2">
-            OPERA
+            {t("hero.beta")}
           </span>
-          <h1 className="text-[64px] font-normal leading-[1.05] tracking-[-1.5px] text-[#11110d] font-serif mb-8">
-            Meet your
-            <br />
-            thinking partner.
+          <h1 className="text-[64px] font-normal leading-[1.05] tracking-[-1.5px] text-[#11110d] font-serif mb-8 whitespace-pre-line">
+            {t("hero.headline")}
           </h1>
           <Link href="/register">
             <Button className="bg-[#cc785c] hover:bg-[#a9583e] text-white rounded-md h-12 px-8 text-[14px] font-medium cursor-pointer">
-              Start your first session
+              {t("hero.cta")}
             </Button>
           </Link>
         </div>
@@ -58,8 +58,7 @@ export default async function LandingPage() {
           {/* Quote Card */}
           <div className="absolute -bottom-8 -right-8 w-80 bg-[#181715] text-[#faf9f5] rounded-lg p-6 shadow-md z-20">
             <p className="italic text-[16px] leading-[1.55] mb-4">
-              "OPERA turned my chaotic doubt into a clear decision structure in
-              minutes. Truly revolutionary."
+              "{t("hero.quote")}"
             </p>
             <span className="block text-[13px] font-medium text-[#a09d96]">
               ~ Alex P., Director
@@ -72,17 +71,17 @@ export default async function LandingPage() {
       <section className="bg-[#efe9de] py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] text-center mb-16">
-            The Process
+            {t("process.title")}
           </h2>
 
           <div className="space-y-16">
             {[
-              { title: "Dump your thoughts", desc: "Unstructured brain dump." },
+              { title: t("process.step1.title"), desc: t("process.step1.desc") },
               {
-                title: "Watch them debate",
-                desc: "AI personas challenge options.",
+                title: t("process.step2.title"),
+                desc: t("process.step2.desc"),
               },
-              { title: "Commit to action", desc: "Clear, finalized verdict." },
+              { title: t("process.step3.title"), desc: t("process.step3.desc") },
             ].map((step, i) => (
               <div key={i} className="relative flex items-center gap-8">
                 <span className="absolute -left-12 -top-6 text-[96px] font-normal text-[#141413] opacity-[0.08] select-none font-serif">
@@ -104,7 +103,7 @@ export default async function LandingPage() {
       <section className="bg-[#faf9f5] py-24 px-6 relative overflow-hidden">
         <div className="max-w-5xl mx-auto relative z-10 text-center">
           <h2 className="text-[36px] font-normal leading-[1.15] tracking-[-0.5px] text-[#141413] font-serif mb-16">
-            You already know the answer. You just can't hear it.
+            {t("agitation.headline")}
           </h2>
 
           <div className="relative">
@@ -115,18 +114,18 @@ export default async function LandingPage() {
               {[
                 {
                   num: "47",
-                  label: "browser tabs",
-                  desc: "Reddit threads, TikTok takes, WhatsApp polls",
+                  label: t("agitation.card1.label"),
+                  desc: t("agitation.card1.desc"),
                 },
                 {
                   num: "72",
-                  label: "hours later",
-                  desc: "Same 3 options. More confusion.",
+                  label: t("agitation.card2.label"),
+                  desc: t("agitation.card2.desc"),
                 },
                 {
                   num: "DF",
-                  label: "Decision fatigue",
-                  desc: "You pick randomly. Or nothing at all.",
+                  label: t("agitation.card3.label"),
+                  desc: t("agitation.card3.desc"),
                 },
               ].map((card, i) => (
                 <div
@@ -155,7 +154,7 @@ export default async function LandingPage() {
       <section className="bg-[#efe9de] py-24 px-6">
         <div className="max-w-6xl mx-auto">
           <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] text-center mb-16">
-            WHAT HAPPENS INSIDE
+            {t("walkthrough.label")}
           </span>
 
           <div className="space-y-32">
@@ -164,7 +163,7 @@ export default async function LandingPage() {
               <div className="order-2 md:order-1">
                 <div className="bg-[#f5f0e8] border border-[#e6dfd8] rounded-lg p-8 shadow-sm">
                   <div className="h-40 w-full text-[#6c6a64] text-[16px] font-sans">
-                    I don't know if I should quit my job or...
+                    {t("walkthrough.step1.placeholder")}
                   </div>
                 </div>
               </div>
@@ -173,13 +172,13 @@ export default async function LandingPage() {
                   01
                 </span>
                 <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] mb-4">
-                  STEP ONE
+                  {t("walkthrough.step1.label")}
                 </span>
                 <h3 className="text-[28px] font-normal text-[#141413] font-serif mb-4">
-                  You dump everything
+                  {t("walkthrough.step1.title")}
                 </h3>
                 <p className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                  Externalize the noise. No structure needed, just raw thought.
+                  {t("walkthrough.step1.desc")}
                 </p>
               </div>
             </div>
@@ -191,14 +190,13 @@ export default async function LandingPage() {
                   02
                 </span>
                 <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] mb-4">
-                  STEP TWO
+                  {t("walkthrough.step2.label")}
                 </span>
                 <h3 className="text-[28px] font-normal text-[#141413] font-serif mb-4">
-                  OPERA reads between the lines
+                  {t("walkthrough.step2.title")}
                 </h3>
                 <p className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                  We detect contradictions and emotional vectors you might have
-                  missed.
+                  {t("walkthrough.step2.desc")}
                 </p>
               </div>
               <div>
@@ -215,8 +213,7 @@ export default async function LandingPage() {
                       </svg>
                     </span>
                     <p className="text-[#3d3d3a] text-sm font-medium">
-                      Potential Conflict: Optimizing for security while desiring
-                      high-risk growth.
+                      {t("walkthrough.step2.conflict")}
                     </p>
                   </div>
                 </div>
@@ -231,8 +228,7 @@ export default async function LandingPage() {
                     THE STOIC
                   </span>
                   <p className="text-[#3d3d3a] text-[15px]">
-                    "What is the worst case if you stay? Regret is a permanent
-                    tax on your peace."
+                    {t("walkthrough.step3.stoic")}
                   </p>
                 </div>
                 <div className="bg-[rgba(232,165,90,0.10)] border border-[rgba(232,165,90,0.20)] rounded-lg p-6 ml-8">
@@ -240,8 +236,7 @@ export default async function LandingPage() {
                     THE VENTURE CAPITALIST
                   </span>
                   <p className="text-[#3d3d3a] text-[15px]">
-                    "Opportunity cost is higher than the risk of failure here.
-                    Scale the upside."
+                    {t("walkthrough.step3.vc")}
                   </p>
                 </div>
               </div>
@@ -250,14 +245,13 @@ export default async function LandingPage() {
                   03
                 </span>
                 <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] mb-4">
-                  STEP THREE
+                  {t("walkthrough.step3.label")}
                 </span>
                 <h3 className="text-[28px] font-normal text-[#141413] font-serif mb-4">
-                  Your council debates
+                  {t("walkthrough.step3.title")}
                 </h3>
                 <p className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                  Archetypes tailored to your problem challenge your options
-                  from multiple angles.
+                  {t("walkthrough.step3.desc")}
                 </p>
               </div>
             </div>
@@ -269,26 +263,25 @@ export default async function LandingPage() {
                   04
                 </span>
                 <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] mb-4">
-                  STEP FOUR
+                  {t("walkthrough.step4.label")}
                 </span>
                 <h3 className="text-[28px] font-normal text-[#141413] font-serif mb-4">
-                  You commit with clarity
+                  {t("walkthrough.step4.title")}
                 </h3>
                 <p className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                  A finalized recommendation and action steps. No more
-                  half-measures.
+                  {t("walkthrough.step4.desc")}
                 </p>
               </div>
               <div>
                 <div className="bg-[#f5f0e8] border border-[#e6dfd8] rounded-lg p-8 shadow-sm text-center">
                   <div className="mb-6 text-[#141413] font-serif text-[20px]">
-                    Recommendation: Proceed with the pivot.
+                    {t("walkthrough.step4.recommendation")}
                   </div>
                   <button
                     disabled
                     className="w-full h-12 bg-[#cc785c] opacity-50 text-white rounded-md font-medium"
                   >
-                    Commit to this decision
+                    {t("walkthrough.step4.commit")}
                   </button>
                 </div>
               </div>
@@ -301,26 +294,23 @@ export default async function LandingPage() {
       <section className="bg-[#faf9f5] py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <span className="block text-[12px] font-medium tracking-[1.5px] uppercase text-[#6c6a64] text-center mb-16">
-            WHAT PEOPLE ARE SAYING
+            {t("social.label")}
           </span>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                quote:
-                  "I was going in circles for 3 weeks. OPERA surfaced a conflict I hadn't consciously noticed.",
+                quote: t("social.quote1"),
                 name: "Farah M.",
                 role: "Product Designer",
               },
               {
-                quote:
-                  "The council debate format made me realize I was optimizing for the wrong thing entirely.",
+                quote: t("social.quote2"),
                 name: "Rizky A.",
                 role: "Freelance Dev",
               },
               {
-                quote:
-                  "Committed to a decision I'd been avoiding for 6 months. In one session.",
+                quote: t("social.quote3"),
                 name: "Dana K.",
                 role: "Grad Student",
               },
@@ -350,36 +340,32 @@ export default async function LandingPage() {
       <section className="bg-[#f5f0e8] py-20 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-[28px] font-normal text-[#141413] font-serif mb-12 text-center">
-            Before you ask.
+            {t("faq.title")}
           </h2>
 
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
               <AccordionTrigger className="text-[18px] font-medium text-[#141413]">
-                Is this just another AI chatbot?
+                {t("faq.q1")}
               </AccordionTrigger>
               <AccordionContent className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                No. OPERA runs a structured multi-perspective debate, not a
-                single response. Think less ChatGPT, more structured devil's
-                advocate.
+                {t("faq.a1")}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-2">
               <AccordionTrigger className="text-[18px] font-medium text-[#141413]">
-                What kind of decisions does this work for?
+                {t("faq.q2")}
               </AccordionTrigger>
               <AccordionContent className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                Career moves, creative direction, financial choices,
-                relationship crossroads. Any decision where you know the options
-                but can't commit.
+                {t("faq.a2")}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="item-3">
               <AccordionTrigger className="text-[18px] font-medium text-[#141413]">
-                Is my data private?
+                {t("faq.q3")}
               </AccordionTrigger>
               <AccordionContent className="text-[#3d3d3a] text-[16px] leading-[1.55]">
-                Your mind dumps are yours. We don't train on your sessions.
+                {t("faq.a3")}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -390,11 +376,11 @@ export default async function LandingPage() {
       <section className="max-w-7xl mx-auto px-6 py-24 w-full">
         <div className="bg-[#cc785c] text-white rounded-lg p-16 text-center">
           <h2 className="text-[28px] font-normal leading-[1.2] tracking-[-0.3px] mb-8 font-serif">
-            Ready to clear the noise?
+            {t("cta.headline")}
           </h2>
           <Link href="/register">
             <Button className="bg-[#faf9f5] hover:bg-[#f5f0e8] text-[#cc785c] rounded-md h-12 px-8 text-[14px] font-medium cursor-pointer">
-              Start your session
+              {t("cta.button")}
             </Button>
           </Link>
         </div>

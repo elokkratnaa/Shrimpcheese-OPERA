@@ -1,12 +1,18 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import createMiddleware from 'next-intl/middleware'
+import { routing } from './i18n/routing'
+import { NextRequest, NextResponse } from 'next/server'
+
+const intlMiddleware = createMiddleware(routing)
 
 const PROTECTED_ROUTES = ['/home', '/dump', '/session', '/chat', '/history', '/profile']
 const AUTH_ROUTES = ['/login', '/register']
 
 export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+  // 1. Run next-intl middleware
+  const response = intlMiddleware(request)
 
+  // 2. Run Supabase session logic
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -17,39 +23,52 @@ export async function middleware(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            response.cookies.set(name, value, options)
           )
         },
       },
     }
   )
 
-  // Refresh session — must not be removed
   const { data: { user } } = await supabase.auth.getUser()
 
+  // Locale-aware route checking
   const pathname = request.nextUrl.pathname
-  const isProtected = PROTECTED_ROUTES.some(route => pathname.startsWith(route))
-  const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route))
+  
+  // Strip locale prefix if present for route matching
+  const segments = pathname.split('/')
+  const hasLocale = routing.locales.includes(segments[1] as any)
+  const pathnameWithoutLocale = hasLocale ? `/${segments.slice(2).join('/')}` : pathname
+
+  const isProtected = PROTECTED_ROUTES.some(route => pathnameWithoutLocale.startsWith(route))
+  const isAuthRoute = AUTH_ROUTES.some(route => pathnameWithoutLocale.startsWith(route))
 
   if (isProtected && !user) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/login'
+    // Prepend locale if detected in the original request
+    const prefix = hasLocale ? `/${segments[1]}` : ''
+    redirectUrl.pathname = `${prefix}/login`
     return NextResponse.redirect(redirectUrl)
   }
 
   if (isAuthRoute && user) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/home'
+    const prefix = hasLocale ? `/${segments[1]}` : ''
+    redirectUrl.pathname = `${prefix}/home`
     return NextResponse.redirect(redirectUrl)
   }
 
-  return supabaseResponse
+  return response
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // Match all pathnames except for
+    // - /api (API routes)
+    // - /_next (Next.js internals)
+    // - /_proxy, /_auth, /_static, /_vercel (Vercel internals)
+    // - all root files (e.g. /favicon.ico, /robots.txt, etc.)
+    '/((?!api|_next|_proxy|_auth|_static|_vercel|favicon.ico|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

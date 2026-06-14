@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import CommitButton from "@/app/components/shared/CommitButton";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ProConOption {
   option: string;
@@ -28,6 +30,7 @@ export default function VerdictPage() {
   const params = useParams();
   const id = params?.id as string;
   const supabase = createClient();
+  const t = useTranslations("Verdict");
 
   const [authChecking, setAuthChecking] = useState(true);
   const [verdict, setVerdict] = useState<VerdictData | null>(null);
@@ -105,7 +108,7 @@ export default function VerdictPage() {
         console.error("SSE stream error:", err);
         setIsStreaming(false);
         eventSource.close();
-        setErrorMessage("Failed to stream verdict. Please refresh or try again.");
+        setErrorMessage(t("errors.stream"));
       };
 
       return () => {
@@ -114,7 +117,7 @@ export default function VerdictPage() {
     }
 
     loadVerdict();
-  }, [id, authChecking]);
+  }, [id, authChecking, t]);
 
   const handleCommit = async () => {
     if (!verdict) return;
@@ -130,12 +133,12 @@ export default function VerdictPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to commit decision. Please try again.");
+        throw new Error(t("errors.commit"));
       }
 
       setIsCommitted(true);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "An error occurred.";
+      const message = err instanceof Error ? err.message : t("errors.unexpected");
       setErrorMessage(message);
       console.error(err);
     }
@@ -160,7 +163,7 @@ export default function VerdictPage() {
       <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
         <div className="flex flex-col gap-2">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-            THE VERDICT
+            {t("title")}
           </span>
         </div>
 
@@ -174,7 +177,7 @@ export default function VerdictPage() {
         {!isStreaming && proConMatrix.length > 0 && (
           <section className="flex flex-col gap-8 border-t border-[#e6dfd8] pt-8">
             <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-              PRO/CON MATRIX
+              {t("matrix")}
             </h2>
 
             <div className="flex flex-col gap-8">
@@ -219,7 +222,7 @@ export default function VerdictPage() {
         {!isStreaming && recommendation && (
           <section className="bg-[#efe9de] rounded-lg p-8 border border-[#e6dfd8] flex flex-col gap-4">
             <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-              WHAT OPERA RECOMMENDS
+              {t("recommendation")}
             </span>
             <p className="text-[22px] font-normal leading-tight tracking-normal text-[#141413] font-serif">
               {recommendation}
@@ -230,7 +233,7 @@ export default function VerdictPage() {
         {!isStreaming && nextSteps.length > 0 && (
           <section className="flex flex-col gap-6">
             <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-              NEXT STEPS
+              {t("nextSteps")}
             </h2>
 
             <div className="flex flex-col gap-6">

@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations("Auth");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,17 +24,17 @@ export default function LoginPage() {
     setAuthError("");
 
     if (!email) {
-      setValidationError("Email is required.");
+      setValidationError(t("errors.emailRequired"));
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setValidationError("Please enter a valid email address.");
+      setValidationError(t("errors.emailInvalid"));
       return false;
     }
 
     if (!password) {
-      setValidationError("Password is required.");
+      setValidationError(t("errors.passwordRequired"));
       return false;
     }
 
@@ -59,7 +60,7 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (err: unknown) {
-      setAuthError("An unexpected error occurred. Please try again.");
+      setAuthError(t("errors.unexpected"));
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -81,7 +82,7 @@ export default function LoginPage() {
         setIsLoading(false);
       }
     } catch (err: unknown) {
-      setAuthError("Failed to initiate Google sign in.");
+      setAuthError(t("errors.googleFailed"));
       console.error(err);
       setIsLoading(false);
     }
@@ -99,7 +100,7 @@ export default function LoginPage() {
         <div className="bg-[#efe9de] py-8 px-6 shadow-sm rounded-lg border border-[#e6dfd8] sm:px-10">
           <div className="mb-8 text-center">
             <h2 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
-              Welcome back.
+              {t("welcome")}
             </h2>
           </div>
 
@@ -110,7 +111,7 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-3 px-5 py-3 h-10 border border-[#e6dfd8] rounded-md bg-[#faf9f5] text-sm font-medium text-[#141413] hover:bg-[#efe9de] focus:outline-none focus:ring-2 focus:ring-[#cc785c] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer font-sans"
             >
               <SiGoogle className="h-4 w-4 text-[#4285F4]" />
-              <span>Continue with Google</span>
+              <span>{t("google")}</span>
             </button>
 
             <div className="relative flex items-center justify-center">
@@ -118,20 +119,20 @@ export default function LoginPage() {
                 <div className="w-full border-t border-[#e6dfd8]" />
               </div>
               <div className="relative bg-[#efe9de] px-4 text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                or
+                {t("or")}
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                  Email
+                  {t("email")}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@domain.com"
+                  placeholder={t("emailPlaceholder")}
                   disabled={isLoading}
                   className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] px-3.5 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
                 />
@@ -140,13 +141,13 @@ export default function LoginPage() {
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between items-center">
                   <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                    Password
+                    {t("password")}
                   </label>
                   <Link
                     href="/forgot-password"
                     className="text-xs font-medium text-[#6c6a64] hover:text-[#141413] transition-colors font-sans"
                   >
-                    Forgot password?
+                    {t("forgot")}
                   </Link>
                 </div>
                 <div className="relative">
@@ -187,14 +188,14 @@ export default function LoginPage() {
               {isLoading ? (
                 <Loader2 className="animate-spin h-5 w-5 text-current" />
               ) : (
-                "Sign in to OPERA"
+                t("signIn")
               )}
             </button>
 
             <div className="text-center text-sm text-[#3d3d3a] font-sans">
-              Don't have an account?{" "}
+              {t("noAccount")}{" "}
               <Link href="/register" className="font-semibold text-[#cc785c] hover:text-[#a9583e] transition-colors">
-                Create one
+                {t("createOne")}
               </Link>
             </div>
           </div>
@@ -205,4 +206,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

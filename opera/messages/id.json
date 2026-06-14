@@ -1,0 +1,289 @@
+{
+  "Nav": {
+    "signIn": "Masuk",
+    "startThinking": "Mulai berpikir",
+    "home": "Beranda",
+    "history": "Riwayat",
+    "chat": "Obrolan",
+    "profile": "Profil"
+  },
+  "Landing": {
+    "hero": {
+      "beta": "OPERA — BETA",
+      "headline": "Berhenti berputar. Mulai memutuskan.",
+      "cta": "Mulai sesi pertama saya",
+      "quote": "OPERA mengubah keraguan kacau saya menjadi struktur keputusan yang jelas dalam hitungan menit. Benar-benar revolusioner."
+    },
+    "process": {
+      "title": "Prosesnya",
+      "step1": {
+        "title": "Tumpahkan pikiran Anda",
+        "desc": "Mind dump yang tidak terstruktur."
+      },
+      "step2": {
+        "title": "Saksikan mereka berdebat",
+        "desc": "Persona AI menantang pilihan Anda."
+      },
+      "step3": {
+        "title": "Berkomitmen pada tindakan",
+        "desc": "Verdict akhir yang jelas."
+      }
+    },
+    "agitation": {
+      "headline": "Anda sudah tahu jawabannya. Anda hanya tidak bisa mendengarnya.",
+      "card1": {
+        "label": "tab browser",
+        "desc": "Thread Reddit, opini TikTok, polling WhatsApp"
+      },
+      "card2": {
+        "label": "72 jam kemudian",
+        "desc": "3 pilihan yang sama. Makin bingung."
+      },
+      "card3": {
+        "label": "Kelelahan keputusan",
+        "desc": "Anda memilih asal-asalan. Atau tidak sama sekali."
+      }
+    },
+    "walkthrough": {
+      "label": "APA YANG TERJADI DI DALAM",
+      "step1": {
+        "label": "TAHAP PERTAMA",
+        "title": "Anda menumpahkan segalanya",
+        "desc": "Keluarkan semua kebisingan. Tidak butuh struktur, cukup pikiran mentah Anda.",
+        "placeholder": "Saya tidak tahu apakah saya harus berhenti dari pekerjaan saya atau..."
+      },
+      "step2": {
+        "label": "TAHAP KEDUA",
+        "title": "OPERA membaca di antara baris",
+        "desc": "Kami mendeteksi kontradiksi dan vektor emosional yang mungkin Anda lewatkan.",
+        "conflict": "Potensi Konflik: Mengoptimalkan keamanan sambil menginginkan pertumbuhan berisiko tinggi."
+      },
+      "step3": {
+        "label": "TAHAP KETIGA",
+        "title": "Dewan Anda berdebat",
+        "desc": "Arketipe yang disesuaikan dengan masalah Anda menantang pilihan Anda dari berbagai sudut pandang.",
+        "stoic": "\"Apa kemungkinan terburuk jika Anda bertahan? Penyesalan adalah pajak permanen bagi ketenangan Anda.\"",
+        "vc": "\"Biaya peluang lebih tinggi daripada risiko kegagalan di sini. Tingkatkan potensi keuntungannya.\""
+      },
+      "step4": {
+        "label": "TAHAP KEEMPAT",
+        "title": "Anda berkomitmen dengan kejelasan",
+        "desc": "Rekomendasi final dan langkah tindakan. Tidak ada lagi keraguan setengah hati.",
+        "recommendation": "Rekomendasi: Lanjutkan dengan pivot.",
+        "commit": "Berkomitmen pada keputusan ini"
+      }
+    },
+    "social": {
+      "label": "APA KATA MEREKA",
+      "quote1": "Saya berputar-putar selama 3 minggu. OPERA memunculkan konflik yang tidak saya sadari secara sadar.",
+      "quote2": "Format debat dewan membuat saya menyadari bahwa saya mengoptimalkan hal yang salah sepenuhnya.",
+      "quote3": "Berkomitmen pada keputusan yang telah saya hindari selama 6 bulan. Dalam satu sesi."
+    },
+    "faq": {
+      "title": "Sebelum Anda bertanya.",
+      "q1": "Apakah ini hanya chatbot AI biasa?",
+      "a1": "Bukan. OPERA menjalankan debat multi-perspektif yang terstruktur, bukan sekadar jawaban tunggal. Bayangkan lebih seperti devil's advocate yang terstruktur, bukan sekadar ChatGPT.",
+      "q2": "Keputusan seperti apa yang cocok untuk ini?",
+      "a2": "Langkah karir, arah kreatif, pilihan finansial, persimpangan hubungan. Keputusan apa pun di mana Anda tahu pilihannya tapi tidak bisa berkomitmen.",
+      "q3": "Apakah data saya pribadi?",
+      "a3": "Mind dump Anda adalah milik Anda. Kami tidak melatih model kami menggunakan sesi Anda."
+    },
+    "cta": {
+      "headline": "Siap menjernihkan pikiran?",
+      "button": "Mulai sesi Anda"
+    }
+  },
+  "Auth": {
+    "login": "Masuk ke OPERA",
+    "register": "Buat akun saya",
+    "welcome": "Selamat datang kembali.",
+    "registerWelcome": "Jernihkan pikiran Anda.",
+    "google": "Lanjutkan dengan Google",
+    "or": "atau",
+    "email": "Email",
+    "password": "Kata Sandi",
+    "fullName": "Nama Lengkap",
+    "forgot": "Lupa kata sandi?",
+    "signIn": "Masuk ke OPERA",
+    "noAccount": "Belum punya akun?",
+    "alreadyAccount": "Sudah punya akun?",
+    "createOne": "Buat akun",
+    "emailPlaceholder": "nama@domain.com",
+    "fullNamePlaceholder": "Alex Mercer",
+    "successCreated": "Akun berhasil dibuat. Silakan periksa email Anda untuk memverifikasi pendaftaran.",
+    "errors": {
+      "nameRequired": "Nama lengkap wajib diisi.",
+      "emailRequired": "Email wajib diisi.",
+      "emailInvalid": "Masukkan alamat email yang valid.",
+      "passwordRequired": "Kata sandi wajib diisi.",
+      "passwordLength": "Kata sandi minimal 8 karakter.",
+      "alreadyExists": "Akun dengan email ini sudah terdaftar.",
+      "unexpected": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
+      "googleFailed": "Gagal memulai pendaftaran dengan Google."
+    }
+  },
+  "Loading": {
+    "reading": "Membaca di antara baris...",
+    "finding": "Menemukan pertanyaan sesungguhnya...",
+    "assembling": "Merakit dewan Anda..."
+  },
+  "Error": {
+    "title": "ADA YANG SALAH",
+    "sub": "Kesalahan seperti ini dicatat. Jika terus terjadi, ada masalah di pihak kami.",
+    "profiler_failed": "OPERA tidak bisa membaca mind dump Anda. Coba lagi dengan lebih detail.",
+    "timeout": "Ini memakan waktu terlalu lama. Dewan mungkin macet.",
+    "not_found": "Sesi ini tidak ada atau bukan milik Anda.",
+    "default": "Ada yang rusak di balik layar.",
+    "tryAgain": "Coba lagi",
+    "goHome": "Kembali ke beranda",
+    "notFound": {
+      "title": "404 TIDAK DITEMUKAN",
+      "message": "Halaman ini tidak ada.",
+      "sub": "Anda mungkin mengikuti tautan yang rusak.",
+      "cta": "Bawa saya pulang"
+    }
+  },
+  "Footer": {
+    "tagline": "Orkestrasi keputusan terstruktur.",
+    "product": "Produk",
+    "company": "Perusahaan",
+    "legal": "Hukum",
+    "copyright": "© 2026 OPERA. Hak cipta dilindungi undang-undang.",
+    "links": {
+      "howItWorks": "Cara Kerja",
+      "mindDump": "The Mind Dump",
+      "councilRoom": "Council Room",
+      "verdicts": "Verdicts",
+      "soloChat": "Solo Chat",
+      "about": "Tentang OPERA",
+      "theCouncil": "The Council",
+      "manifesto": "Manifesto",
+      "careers": "Karir",
+      "privacy": "Kebijakan Privasi",
+      "terms": "Ketentuan Layanan",
+      "security": "Keamanan",
+      "cookie": "Kebijakan Cookie"
+    }
+  },
+  "Dashboard": {
+    "newSession": "Sesi baru",
+    "soloChat": "Obrolan solo",
+    "home": "Beranda",
+    "history": "Riwayat",
+    "profile": "Profil",
+    "greeting": "Apa yang ada di pikiran Anda, {name}?",
+    "recentSessions": "Sesi terbaru",
+    "patterns": "Pola Anda",
+    "emptyTheater": "Theater Anda kosong. Tumpahkan pikiran Anda untuk mengadakan dewan debat kognitif pertama Anda.",
+    "startFirst": "Mulai sesi pertama saya",
+    "noPatterns": "Berkomitmenlah pada keputusan untuk menemukan tag dan melacak pola kognitif Anda."
+  },
+  "Session": {
+    "committed": "Keputusan Berkomitmen",
+    "notCommitted": "Belum Berkomitmen",
+    "status": "Status"
+  },
+  "CommitButton": {
+    "committed": "Keputusan berkomitmen.",
+    "committing": "Berkomitmen...",
+    "commit": "Berkomitmen pada keputusan ini"
+  },
+  "MindDump": {
+    "title": "Apa yang sedang terjadi?",
+    "subtitle": "Tidak butuh format. Tulis seperti Anda berpikir.",
+    "submit": "Mulai sesi saya",
+    "errors": {
+      "failed": "Gagal memulai sesi.",
+      "unexpected": "Terjadi kesalahan yang tidak terduga."
+    }
+  },
+  "History": {
+    "title": "Keputusan Anda",
+    "all": "Semua",
+    "loadMore": "Muat {count} lagi",
+    "empty": "Belum ada apa-apa di sini.",
+    "startFirst": "Mulai sesi pertama saya"
+  },
+  "Profile": {
+    "title": "Profil Anda — OPERA",
+    "description": "Kelola akun OPERA Anda, tinjau statistik keputusan, and kontrol data Anda.",
+    "identity": "Identitas profil",
+    "statsLabel": "Statistik keputusan",
+    "management": "Manajemen akun",
+    "sessions": "Sesi",
+    "committed": "Berkomitmen",
+    "topPattern": "Pola Teratas",
+    "noPattern": "Tidak ada",
+    "account": "Akun",
+    "accountSubtitle": "Kelola sesi Anda atau hapus akun Anda secara permanen.",
+    "signOut": "Keluar",
+    "signingOut": "Sedang keluar…",
+    "deleteAccount": "Hapus akun saya",
+    "deleteTitle": "Hapus akun Anda?",
+    "deleteDescription": "Ini akan menghapus semua sesi dan keputusan Anda secara permanen. Tindakan ini tidak dapat dibatalkan.",
+    "typeDelete": "Ketik DELETE untuk konfirmasi",
+    "keepAccount": "Simpan akun saya",
+    "deleteEverything": "Hapus semuanya",
+    "deleting": "Menghapus…",
+    "namePlaceholder": "Nama Anda",
+    "save": "Simpan",
+    "saving": "Menyimpan...",
+    "pressEnter": "Tekan Enter untuk simpan · Esc untuk batal",
+    "addName": "Tambah nama Anda",
+    "editLabel": "Ubah nama tampilan Anda",
+    "clickToEdit": "Klik untuk mengubah nama tampilan Anda",
+    "errors": {
+      "saveFailed": "Gagal menyimpan — coba lagi.",
+      "deleteFailed": "Gagal menghapus akun.",
+      "unexpected": "Terjadi kesalahan. Coba lagi."
+    }
+  },
+  "Chat": {
+    "title": "Pilih penasihat Anda",
+    "consult": "Konsultasi dengan {name}",
+    "intro": "Mulai mengetik untuk menguji ide, menganalisis risiko, atau memetakan opsi pemenuhan secara langsung.",
+    "notSaved": "Percakapan ini tidak disimpan.",
+    "switchTitle": "Ganti Penasihat?",
+    "switchDescription": "Memulai penasihat baru akan menghapus obrolan ini.",
+    "cancel": "Batal",
+    "clearAndSwitch": "Hapus dan Ganti",
+    "errors": {
+      "failed": "Gagal menghubungi penasihat.",
+      "connectionLost": "Maaf, saya kehilangan koneksi ke orkestrator OPERA. Silakan coba lagi."
+    },
+    "advisors": {
+      "stoic": {
+        "name": "The Pragmatic Stoic",
+        "description": "Minimalisasi risiko. Stabilitas jangka panjang."
+      },
+      "vc": {
+        "name": "The Venture Capitalist",
+        "description": "Maksimalisasi keuntungan. Biaya peluang."
+      },
+      "hedonist": {
+        "name": "The Creative Hedonist",
+        "description": "Pemenuhan diri, kebahagiaan, kualitas hidup."
+      }
+    }
+  },
+  "Council": {
+    "title": "RUANG DEWAN",
+    "analyzing": "Menganalisis keputusan...",
+    "preparing": "Persona sedang bersiap memasuki Ruang Dewan...",
+    "seeVerdict": "Lihat verdict",
+    "errors": {
+      "failed": "Gagal memuat data ruang dewan"
+    }
+  },
+  "Verdict": {
+    "title": "VERDICT",
+    "matrix": "MATRIKS PRO/KONTRA",
+    "recommendation": "REKOMENDASI OPERA",
+    "nextSteps": "LANGKAH SELANJUTNYA",
+    "errors": {
+      "stream": "Gagal mengalirkan verdict. Silakan refresh atau coba lagi.",
+      "commit": "Gagal berkomitmen pada keputusan. Silakan coba lagi.",
+      "unexpected": "Terjadi kesalahan."
+    }
+  }
+}

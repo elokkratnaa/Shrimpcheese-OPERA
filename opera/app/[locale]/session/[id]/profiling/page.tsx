@@ -1,22 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { createClient } from "@/lib/supabase/client";
-
-const STATUS_MESSAGES = [
-  "Reading between the lines...",
-  "Finding the real question...",
-  "Spotting the contradictions...",
-  "Assembling your council...",
-];
+import { useTranslations } from "next-intl";
 
 export default function ProfilingPage() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
   const supabase = createClient();
+  const t = useTranslations("Loading");
+
+  const STATUS_MESSAGES = [
+    t("reading"),
+    t("finding"),
+    t("assembling"),
+  ];
 
   const [messageIndex, setMessageIndex] = useState(0);
   const [authChecking, setAuthChecking] = useState(true);
@@ -39,7 +41,7 @@ export default function ProfilingPage() {
       setMessageIndex((prevIndex) => (prevIndex + 1) % STATUS_MESSAGES.length);
     }, 2000);
     return () => clearInterval(interval);
-  }, [authChecking]);
+  }, [authChecking, STATUS_MESSAGES.length]);
 
   useEffect(() => {
     if (authChecking || !id) return;

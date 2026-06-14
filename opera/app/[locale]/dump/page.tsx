@@ -1,26 +1,28 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import OperaInput from "@/app/components/shared/OperaInput";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-
-const LOADING_MESSAGES = [
-  "Reading between the lines...",
-  "Finding the real question...",
-  "Spotting the contradictions...",
-  "Assembling your council...",
-  "Preparing the council room...",
-];
+import { useTranslations } from "next-intl";
 
 export default function MindDumpPage() {
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations("MindDump");
+  const tLoading = useTranslations("Loading");
+  
   const loadingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
+
+  const LOADING_MESSAGES = [
+    tLoading("reading"),
+    tLoading("finding"),
+    tLoading("assembling"),
+  ];
 
   const [mindDump, setMindDump] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +81,7 @@ export default function MindDumpPage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Failed to start session.");
+        throw new Error(errorData.error || t("errors.failed"));
       }
 
       const session = await response.json();
@@ -89,7 +91,7 @@ export default function MindDumpPage() {
       router.push(`/session/${session.session_id}/council`);
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "An unexpected error occurred.";
+        err instanceof Error ? err.message : t("errors.unexpected");
       setErrorMessage(message);
       console.error(err);
     } finally {
@@ -115,10 +117,10 @@ export default function MindDumpPage() {
       <main className="flex-1 max-w-180 mx-auto w-full px-4 py-24 md:py-32 flex flex-col gap-8">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-normal leading-tight tracking-[-0.5px] text-[#141413] font-serif">
-            What's going on?
+            {t("title")}
           </h1>
           <p className="text-sm text-[#6c6a64] font-sans">
-            No format needed. Write like you think.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -151,7 +153,7 @@ export default function MindDumpPage() {
                 {LOADING_MESSAGES[loadingMsgIndex]}
               </span>
             ) : (
-              "Start my session"
+              t("submit")
             )}
           </button>
         </div>

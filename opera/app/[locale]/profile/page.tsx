@@ -7,10 +7,16 @@ import AvatarInitials from '@/app/components/profile/AvatarInitials'
 import ProfileStats from '@/app/components/profile/ProfileStats'
 import DangerZone from '@/app/components/profile/DangerZone'
 import ProfileNameSaver from '@/app/components/profile/ProfileNameSaver'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'Your profile — OPERA',
-  description: 'Manage your OPERA account, review your decision stats, and control your data.',
+export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
+  const {locale} = await params;
+  const t = await getTranslations({locale, namespace: 'Profile'});
+ 
+  return {
+    title: t('title'),
+    description: t('description')
+  };
 }
 
 interface ProfileStats {
@@ -19,11 +25,6 @@ interface ProfileStats {
   top_tag: string | null
 }
 
-/**
- * Aggregates the user's most-used tag from their verdict tags.
- * @param verdicts - Array of verdict rows with tags JSONB field
- * @returns The most frequently occurring tag string, or null if none exist
- */
 function extractTopTag(verdicts: Array<{ tags: unknown }>): string | null {
   const tagCounts: Record<string, number> = {}
 
@@ -51,11 +52,6 @@ function extractTopTag(verdicts: Array<{ tags: unknown }>): string | null {
   return topTag
 }
 
-/**
- * Fetches profile stats directly from Supabase — avoids internal HTTP round-trip.
- * @param userId - Authenticated user's UUID
- * @returns Stats object with session counts and top tag
- */
 async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   const supabase = await createClient()
 
@@ -82,17 +78,18 @@ async function fetchProfileStats(userId: string): Promise<ProfileStats> {
   }
 }
 
-/**
- * Profile page — auth required.
- * Fetches user + stats server-side via Supabase directly (no internal HTTP round-trip).
- * Delegates all mutations (name save, sign out, delete) to client sub-components.
- */
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  const t = await getTranslations('Profile')
 
   if (!user) {
-    redirect('/login')
+    redirect(`/${locale}/login`)
   }
 
   const stats = await fetchProfileStats(user.id)
@@ -101,13 +98,13 @@ export default async function ProfilePage() {
   const email: string = user.email ?? ''
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#faf9f5' }}>
+    <div className="min-h-screen flex flex-col bg-canvas">
       <OperaNav variant="authed" />
 
       <main className="flex-1 w-full max-w-[600px] mx-auto px-4 py-12 md:py-16 flex flex-col gap-10">
 
         {/* Identity block */}
-        <section aria-label="Profile identity" className="flex flex-col items-center gap-4 text-center">
+        <section aria-label={t("identity")} className="flex flex-col items-center gap-4 text-center">
           <AvatarInitials fullName={fullName} email={email} />
 
           {/* Inline name editor — client island */}
@@ -115,7 +112,7 @@ export default async function ProfilePage() {
 
           {/* Email — body-md muted */}
           <p
-            className="text-[#6c6a64]"
+            className="text-muted"
             style={{ fontSize: '16px', fontWeight: 400, lineHeight: 1.55 }}
           >
             {email}
@@ -123,7 +120,7 @@ export default async function ProfilePage() {
         </section>
 
         {/* Stats block */}
-        <section aria-label="Decision statistics">
+        <section aria-label={t("statsLabel")}>
           <ProfileStats
             totalSessions={stats.total_sessions}
             committedCount={stats.committed_count}
@@ -132,7 +129,7 @@ export default async function ProfilePage() {
         </section>
 
         {/* Danger zone — client island */}
-        <section aria-label="Account management">
+        <section aria-label={t("management")}>
           <DangerZone />
         </section>
 

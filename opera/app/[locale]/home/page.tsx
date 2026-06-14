@@ -1,10 +1,11 @@
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/routing";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
 import { Badge } from "@/components/ui/badge";
+import { getTranslations } from "next-intl/server";
 
 export const revalidate = 0;
 interface DbSession {
@@ -19,15 +20,21 @@ interface DbVerdict {
   is_committed: boolean;
 }
 
-export default async function HomeDashboard() {
+export default async function HomeDashboard({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params;
   const supabase = await createClient();
+  const t = await getTranslations("Dashboard");
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect(`/${locale}/login`);
   }
 
   const displayName =
@@ -105,14 +112,14 @@ export default async function HomeDashboard() {
             href="/dump"
             className="w-full h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md flex items-center justify-center transition-colors shadow-sm cursor-pointer"
           >
-            New session
+            {t("newSession")}
           </Link>
 
           <Link
             href="/chat"
             className="w-full h-12 border border-[#e6dfd8] text-[#141413] bg-[#faf9f5] hover:bg-[#efe9de] font-medium text-sm rounded-md flex items-center justify-center transition-colors cursor-pointer"
           >
-            Solo chat
+            {t("soloChat")}
           </Link>
 
           <nav className="flex flex-col gap-1.5 mt-2">
@@ -120,19 +127,19 @@ export default async function HomeDashboard() {
               href="/home"
               className="flex items-center h-10 px-4 rounded-md text-[#141413] bg-[#efe9de] font-medium text-sm transition-colors"
             >
-              Home
+              {t("home")}
             </Link>
             <Link
               href="/history"
               className="flex items-center h-10 px-4 rounded-md text-[#6c6a64] hover:text-[#141413] hover:bg-[#f5f0e8] font-medium text-sm transition-colors"
             >
-              History
+              {t("history")}
             </Link>
             <Link
               href="/profile"
               className="flex items-center h-10 px-4 rounded-md text-[#6c6a64] hover:text-[#141413] hover:bg-[#f5f0e8] font-medium text-sm transition-colors"
             >
-              Profile
+              {t("profile")}
             </Link>
           </nav>
         </aside>
@@ -140,13 +147,13 @@ export default async function HomeDashboard() {
         <main className="flex-1 flex flex-col gap-8">
           <div>
             <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
-              What's on your mind, {displayName}?
+              {t("greeting", { name: displayName })}
             </h1>
           </div>
 
           <section className="flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
-              Recent sessions
+              {t("recentSessions")}
             </h2>
 
             {sessions.length > 0 ? (
@@ -158,14 +165,13 @@ export default async function HomeDashboard() {
             ) : (
               <div className="border border-dashed border-[#e6dfd8] rounded-lg p-12 text-center flex flex-col items-center gap-4 bg-[#f5f0e8]/30">
                 <p className="text-[#3d3d3a] text-sm leading-[1.55] max-w-sm">
-                  Your theater is empty. Pour your thoughts out to host your
-                  first cognitive debate council.
+                  {t("emptyTheater")}
                 </p>
                 <Link
                   href="/dump"
                   className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-10 px-5 rounded-md flex items-center justify-center transition-colors cursor-pointer"
                 >
-                  Start your first session
+                  {t("startFirst")}
                 </Link>
               </div>
             )}
@@ -173,7 +179,7 @@ export default async function HomeDashboard() {
 
           <section className="flex flex-col gap-4">
             <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
-              Your patterns
+              {t("patterns")}
             </h2>
             {patterns.length > 0 ? (
               <div className="flex flex-wrap gap-2">
@@ -194,8 +200,7 @@ export default async function HomeDashboard() {
               </div>
             ) : (
               <p className="text-xs text-[#6c6a64] italic">
-                Commit to decisions to discover tags and track your cognitive
-                patterns.
+                {t("noPatterns")}
               </p>
             )}
           </section>

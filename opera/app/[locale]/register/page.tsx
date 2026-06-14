@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Link, useRouter } from "@/i18n/routing";
 import { createClient } from "@/lib/supabase/client";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export default function RegisterPage() {
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations("Auth");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -26,26 +27,26 @@ export default function RegisterPage() {
     setSuccessMessage("");
 
     if (!fullName.trim()) {
-      setValidationError("Full name is required.");
+      setValidationError(t("errors.nameRequired"));
       return false;
     }
 
     if (!email) {
-      setValidationError("Email is required.");
+      setValidationError(t("errors.emailRequired"));
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setValidationError("Please enter a valid email address.");
+      setValidationError(t("errors.emailInvalid"));
       return false;
     }
 
     if (!password) {
-      setValidationError("Password is required.");
+      setValidationError(t("errors.passwordRequired"));
       return false;
     }
     if (password.length < 8) {
-      setValidationError("Password must be at least 8 characters.");
+      setValidationError(t("errors.passwordLength"));
       return false;
     }
 
@@ -73,20 +74,18 @@ export default function RegisterPage() {
       if (error) {
         setAuthError(error.message);
       } else if (data?.user?.identities && data.user.identities.length === 0) {
-        setAuthError("An account with this email address already exists.");
+        setAuthError(t("errors.alreadyExists"));
       } else {
         const isSessionActive = data.session !== null;
         if (isSessionActive) {
           router.push("/home");
           router.refresh();
         } else {
-          setSuccessMessage(
-            "Account created. Please check your email to verify your registration.",
-          );
+          setSuccessMessage(t("successCreated"));
         }
       }
     } catch (err: unknown) {
-      setAuthError("An unexpected error occurred. Please try again.");
+      setAuthError(t("errors.unexpected"));
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -109,7 +108,7 @@ export default function RegisterPage() {
         setIsLoading(false);
       }
     } catch (err: unknown) {
-      setAuthError("Failed to initiate Google registration.");
+      setAuthError(t("errors.googleFailed"));
       console.error(err);
       setIsLoading(false);
     }
@@ -130,7 +129,7 @@ export default function RegisterPage() {
         <div className="bg-[#efe9de] py-8 px-6 shadow-sm rounded-lg border border-[#e6dfd8] sm:px-10">
           <div className="mb-8 text-center">
             <h2 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
-              Clear your head.
+              {t("registerWelcome")}
             </h2>
           </div>
 
@@ -141,7 +140,7 @@ export default function RegisterPage() {
               className="w-full flex items-center justify-center gap-3 px-5 py-3 h-10 border border-[#e6dfd8] rounded-md bg-[#faf9f5] text-sm font-medium text-[#141413] hover:bg-[#efe9de] focus:outline-none focus:ring-2 focus:ring-[#cc785c] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer font-sans"
             >
               <SiGoogle className="h-4 w-4 text-[#4285F4]" />
-              <span>Continue with Google</span>
+              <span>{t("google")}</span>
             </button>
 
             <div className="relative flex items-center justify-center">
@@ -152,20 +151,20 @@ export default function RegisterPage() {
                 <div className="w-full border-t border-[#e6dfd8]" />
               </div>
               <div className="relative bg-[#efe9de] px-4 text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                or
+                {t("or")}
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                  Full Name
+                  {t("fullName")}
                 </label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Alex Mercer"
+                  placeholder={t("fullNamePlaceholder")}
                   disabled={isLoading}
                   className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] px-3.5 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
                 />
@@ -173,13 +172,13 @@ export default function RegisterPage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                  Email
+                  {t("email")}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@domain.com"
+                  placeholder={t("emailPlaceholder")}
                   disabled={isLoading}
                   className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] px-3.5 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
                 />
@@ -187,7 +186,7 @@ export default function RegisterPage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
-                  Password
+                  {t("password")}
                 </label>
                 <div className="relative">
                   <input
@@ -233,17 +232,17 @@ export default function RegisterPage() {
               {isLoading ? (
                 <Loader2 className="animate-spin h-5 w-5 text-current" />
               ) : (
-                "Create my account"
+                t("register")
               )}
             </button>
 
             <div className="text-center text-sm text-[#3d3d3a] font-sans">
-              Already have an account?{" "}
+              {t("alreadyAccount")}{" "}
               <Link
                 href="/login"
                 className="font-semibold text-[#cc785c] hover:text-[#a9583e] transition-colors"
               >
-                Sign in
+                {t("signIn")}
               </Link>
             </div>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +15,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { useTranslations } from "next-intl";
 
 interface Message {
   role: "user" | "assistant";
@@ -28,30 +29,31 @@ interface Persona {
   variant: "a" | "b" | "c";
 }
 
-const ADVISORS: Persona[] = [
-  {
-    id: "Pragmatic Stoic",
-    name: "The Pragmatic Stoic",
-    description: "Risk minimization. Long-term stability.",
-    variant: "a",
-  },
-  {
-    id: "Venture Capitalist",
-    name: "The Venture Capitalist",
-    description: "Upside maximization. Opportunity cost.",
-    variant: "b",
-  },
-  {
-    id: "Creative Hedonist",
-    name: "The Creative Hedonist",
-    description: "Fulfillment, joy, quality of life.",
-    variant: "c",
-  },
-];
-
 export default function SoloChatPage() {
   const router = useRouter();
   const supabase = createClient();
+  const t = useTranslations("Chat");
+
+  const ADVISORS: Persona[] = [
+    {
+      id: "Pragmatic Stoic",
+      name: t("advisors.stoic.name"),
+      description: t("advisors.stoic.description"),
+      variant: "a",
+    },
+    {
+      id: "Venture Capitalist",
+      name: t("advisors.vc.name"),
+      description: t("advisors.vc.description"),
+      variant: "b",
+    },
+    {
+      id: "Creative Hedonist",
+      name: t("advisors.hedonist.name"),
+      description: t("advisors.hedonist.description"),
+      variant: "c",
+    },
+  ];
 
   const [authChecking, setAuthChecking] = useState(true);
   const [selectedPersona, setSelectedPersona] = useState<Persona>(ADVISORS[0]);
@@ -133,7 +135,7 @@ export default function SoloChatPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to reach advisor.");
+        throw new Error(t("errors.failed"));
       }
 
       // Check if response is streamable or plain json
@@ -172,8 +174,7 @@ export default function SoloChatPage() {
         ...prev,
         {
           role: "assistant",
-          content:
-            "I apologize, I lost connection to OPERA's orchestrator. Please try again.",
+          content: t("errors.connectionLost"),
         },
       ]);
     } finally {
@@ -205,7 +206,7 @@ export default function SoloChatPage() {
         {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
         <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
-            Choose your advisor
+            {t("title")}
           </span>
 
           {/* Persona selector list */}
@@ -257,11 +258,10 @@ export default function SoloChatPage() {
             {messages.length === 0 ? (
               <div className="my-auto text-center max-w-sm mx-auto flex flex-col gap-2">
                 <h3 className="text-lg font-normal text-[#141413] font-serif">
-                  Consult {selectedPersona.name}
+                  {t("consult", { name: selectedPersona.name })}
                 </h3>
                 <p className="text-sm text-[#6c6a64] font-sans leading-[1.55]">
-                  Start typing to test ideas, analyze risk, or map fulfillment
-                  options directly.
+                  {t("intro")}
                 </p>
               </div>
             ) : (
@@ -326,7 +326,7 @@ export default function SoloChatPage() {
 
             <div className="flex justify-center">
               <span className="text-[11px] text-[#6c6a64] font-medium font-sans">
-                This conversation isn't saved.
+                {t("notSaved")}
               </span>
             </div>
           </div>
@@ -338,10 +338,10 @@ export default function SoloChatPage() {
         <DialogContent className="bg-[#efe9de] border border-[#e6dfd8] max-w-sm rounded-lg p-6 shadow-md">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold text-[#141413] font-sans">
-              Switch Advisor?
+              {t("switchTitle")}
             </DialogTitle>
             <DialogDescription className="text-sm text-[#6c6a64] mt-2 font-sans">
-              Starting a new advisor clears this chat.
+              {t("switchDescription")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-6 flex justify-end gap-3">
@@ -352,13 +352,13 @@ export default function SoloChatPage() {
               }}
               className="px-4 py-2 border border-[#e6dfd8] text-[#141413] rounded-md text-sm hover:bg-[#e8e0d2]/50 font-sans cursor-pointer"
             >
-              Cancel
+              {t("cancel")}
             </button>
             <button
               onClick={confirmSwitchAdvisor}
               className="px-4 py-2 bg-[#cc785c] hover:bg-[#a9583e] text-white rounded-md text-sm font-sans cursor-pointer"
             >
-              Clear and Switch
+              {t("clearAndSwitch")}
             </button>
           </DialogFooter>
         </DialogContent>
