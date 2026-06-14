@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { completeGroq } from '@/lib/groq'
+import { PERSONAS } from '@/lib/personas'
 
 /**
  * GET /api/verdicts/[id]
@@ -25,7 +27,7 @@ export async function GET(
     // Verify session ownership and fetch verdict in one join
     const { data: verdict, error } = await supabase
       .from('verdicts')
-      .select('verdict_id, verdict_summary, action_steps, is_committed, sessions!inner(user_id)')
+      .select('verdict_id, verdict_summary, action_steps, is_committed, favourite_persona, sessions!inner(user_id)')
       .eq('session_id', id)
       .single()
 
@@ -42,6 +44,7 @@ export async function GET(
       verdict_id: verdict.verdict_id,
       verdict_summary: verdict.verdict_summary,
       is_committed: verdict.is_committed,
+      favourite_persona: verdict.favourite_persona,
       ...(verdict.action_steps as object),
     }
 
@@ -54,7 +57,7 @@ export async function GET(
 
 /**
  * PATCH /api/verdicts/[id]
- * Marks a verdict as committed. Expects body: { is_committed: true }.
+ * Marks a verdict as committed or updates favourite_persona.
  * The id here is the verdict_id (not session_id).
  *
  * @param context.params.id - The verdict UUID
@@ -79,11 +82,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const { is_committed } = body
-
-    if (is_committed !== true) {
-      return NextResponse.json({ error: 'is_committed must be true' }, { status: 400 })
-    }
+    const { is_committed, favourite_persona } = body
 
     const { data: verdict, error: verdictError } = await supabase
       .from('verdicts')
@@ -100,9 +99,13 @@ export async function PATCH(
       return NextResponse.json({ error: 'Verdict not found' }, { status: 404 })
     }
 
+    const updateData: any = {}
+    if (typeof is_committed === 'boolean') updateData.is_committed = is_committed
+    if (typeof favourite_persona === 'string') updateData.favourite_persona = favourite_persona
+
     const { data: updatedVerdict, error: updateError } = await supabase
       .from('verdicts')
-      .update({ is_committed: true })
+      .update(updateData)
       .eq('verdict_id', id)
       .select('*')
       .single()
@@ -111,7 +114,19 @@ export async function PATCH(
       return NextResponse.json({ error: updateError?.message || 'Failed to update verdict' }, { status: 500 })
     }
 
-    return NextResponse.json(updatedVerdict)
+    let closing_message = null
+    if (favourite_persona && favourite_persona !== 'Masih Ragu') {
+      // Find archetype by name
+      const personaEntry = Object.values(PERSONAS).find(p => p.name === favourite_persona)
+      if (personaEntry) {
+        closing_message = await completeGroq({
+          system: personaEntry.systemPrompt,
+          messages: [{ role: 'user', content: 'User picked you as most rational. Give a short closing message in character.' }]
+        })
+      }
+    }
+
+    return NextResponse.json({ ...updatedVerdict, closing_message })
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal Server Error'
     return NextResponse.json({ error: message }, { status: 500 })
