@@ -1,0 +1,271 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { SiGoogle } from "@icons-pack/react-simple-icons";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+
+export default function RegisterPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [validationError, setValidationError] = useState("");
+  const [authError, setAuthError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const validateInputs = (): boolean => {
+    setValidationError("");
+    setAuthError("");
+    setSuccessMessage("");
+
+    if (!fullName.trim()) {
+      setValidationError("Full name is required.");
+      return false;
+    }
+
+    if (!email) {
+      setValidationError("Email is required.");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setValidationError("Please enter a valid email address.");
+      return false;
+    }
+
+    if (!password) {
+      setValidationError("Password is required.");
+      return false;
+    }
+    if (password.length < 8) {
+      setValidationError("Password must be at least 8 characters.");
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateInputs()) return;
+
+    setIsLoading(true);
+    setAuthError("");
+    setSuccessMessage("");
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          },
+        },
+      });
+
+      if (error) {
+        setAuthError(error.message);
+      } else if (data?.user?.identities && data.user.identities.length === 0) {
+        // identity already exists
+        setAuthError("An account with this email address already exists.");
+      } else {
+        // If confirm email is required, a user might not be immediately authed
+        const isSessionActive = data.session !== null;
+        if (isSessionActive) {
+          router.push("/home");
+          router.refresh();
+        } else {
+          setSuccessMessage(
+            "Account created. Please check your email to verify your registration.",
+          );
+        }
+      }
+    } catch (err: unknown) {
+      setAuthError("An unexpected error occurred. Please try again.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthError("");
+    setSuccessMessage("");
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) {
+        setAuthError(error.message);
+        setIsLoading(false);
+      }
+    } catch (err: unknown) {
+      setAuthError("Failed to initiate Google registration.");
+      console.error(err);
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8">
+      {/* Top spacing / navigation space placeholder */}
+      <div className="flex justify-center">
+        <Link
+          href="/"
+          className="text-sm font-medium tracking-normal text-[#141413] hover:text-[#cc785c] transition-colors font-sans"
+        >
+          OPERA
+        </Link>
+      </div>
+
+      {/* Centered Register Card */}
+      <div className="my-auto sm:mx-auto sm:w-full sm:max-w-110">
+        <div className="bg-[#efe9de] py-8 px-6 shadow-sm rounded-lg border border-[#e6dfd8] sm:px-10">
+          <div className="mb-8 text-center">
+            <h2 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
+              Clear your head.
+            </h2>
+          </div>
+
+          <div className="space-y-6">
+            {/* Google OAuth Button */}
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 px-5 py-3 h-10 border border-[#e6dfd8] rounded-md bg-[#faf9f5] text-sm font-medium text-[#141413] hover:bg-[#efe9de] focus:outline-none focus:ring-2 focus:ring-[#cc785c] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer font-sans"
+            >
+              <SiGoogle className="h-4 w-4 text-[#4285F4]" />
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Divider */}
+            <div className="relative flex items-center justify-center">
+              <div
+                className="absolute inset-0 flex items-center"
+                aria-hidden="true"
+              >
+                <div className="w-full border-t border-[#e6dfd8]" />
+              </div>
+              <div className="relative bg-[#efe9de] px-4 text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
+                or
+              </div>
+            </div>
+
+            {/* Credentials Fields */}
+            <div className="space-y-4">
+              {/* Full Name */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Alex Mercer"
+                  disabled={isLoading}
+                  className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] px-3.5 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@domain.com"
+                  disabled={isLoading}
+                  className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] px-3.5 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-[#6c6a64] uppercase tracking-[1.5px] font-sans">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={isLoading}
+                    className="w-full bg-[#faf9f5] text-[#141413] text-base leading-[1.55] pl-3.5 pr-10 py-2.5 h-10 border border-[#e6dfd8] rounded-md focus:border-[#cc785c] focus:outline-none focus:ring-3 focus:ring-[rgba(204,120,92,0.12)] transition-all disabled:opacity-50 md:text-sm font-sans"
+                  />
+                  <button
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#6c6a64] hover:text-[#141413] focus:outline-none transition-colors cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Error Message Display */}
+            {(validationError || authError) && (
+              <div className="text-xs font-medium text-[#c64545] border-l-2 border-[#c64545] pl-3 py-1 bg-[rgba(198,69,69,0.05)] rounded-r font-sans">
+                {validationError || authError}
+              </div>
+            )}
+
+            {/* Success Message Display */}
+            {successMessage && (
+              <div className="text-xs font-medium text-[#5db872] border-l-2 border-[#5db872] pl-3 py-1 bg-[rgba(93,184,114,0.05)] rounded-r font-sans">
+                {successMessage}
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <button
+              onClick={handleRegister}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center px-8 py-3.5 h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-[#cc785c] focus:ring-offset-2 disabled:bg-[#e6dfd8] disabled:text-[#6c6a64] disabled:cursor-not-allowed cursor-pointer font-sans"
+            >
+              {isLoading ? (
+                <Loader2 className="animate-spin h-5 w-5 text-current" />
+              ) : (
+                "Create my account"
+              )}
+            </button>
+
+            {/* Sign in Link */}
+            <div className="text-center text-sm text-[#3d3d3a] font-sans">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-semibold text-[#cc785c] hover:text-[#a9583e] transition-colors"
+              >
+                Sign in
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Placeholder for visual centering */}
+      <div className="h-4" />
+    </div>
+  );
+}
