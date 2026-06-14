@@ -30,21 +30,7 @@ export async function GET(
       return new Response('Session not found', { status: 404 })
     }
 
-    const encoder = new TextEncoder()
-    const customReadable = new ReadableStream({
-      async start(controller) {
-        try {
-          const generator = synthesizeVerdict(id)
-          for await (const token of generator) {
-            controller.enqueue(encoder.encode(`data: ${token}\n\n`))
-          }
-          controller.enqueue(encoder.encode(`data: [DONE]\n\n`))
-          controller.close()
-        } catch (err: any) {
-          controller.error(err)
-        }
-      }
-    })
+    const customReadable = await synthesizeVerdict(id)
 
     return new Response(customReadable, {
       headers: {
