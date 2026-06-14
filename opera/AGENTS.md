@@ -124,21 +124,18 @@ Verdict         — synthesis output; holds pro/con matrix + action_steps + is_c
 ### Schema Reference
 
 ```sql
-CREATE TABLE users (
-  user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  email VARCHAR(255) UNIQUE NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
+-- Use Supabase Auth's built-in users table. 
+-- No custom public.users table needed for V1.
 
 CREATE TABLE sessions (
   session_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   raw_mind_dump TEXT NOT NULL,
   detected_biases JSONB,
   current_status VARCHAR(50) DEFAULT 'ingested', -- ingested | processing | completed | failed
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
-
+```
 CREATE TABLE council_debates (
   debate_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID REFERENCES sessions(session_id) ON DELETE CASCADE,
