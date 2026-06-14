@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createBackgroundClient } from '@/lib/supabase/background'
 import { completeGroq } from '@/lib/groq'
 import { PERSONAS } from '@/lib/personas'
 
@@ -8,9 +8,10 @@ import { PERSONAS } from '@/lib/personas'
  *
  * @param sessionId - The session UUID
  * @param archetypes - Array of archetypes selected for this session (e.g. ['pragmatic-stoic', 'venture-capitalist'])
+ * @param accessToken - The user's JWT access token for authenticating the background Supabase client
  */
-export async function spawnCouncil(sessionId: string, archetypes: string[]): Promise<void> {
-  const supabase = await createClient()
+export async function spawnCouncil(sessionId: string, archetypes: string[], accessToken?: string): Promise<void> {
+  const supabase = createBackgroundClient(accessToken)
 
   try {
     // 1. Map archetypes to actual PERSONAS configs
@@ -33,7 +34,7 @@ export async function spawnCouncil(sessionId: string, archetypes: string[]): Pro
       throw new Error(`Failed to load session biases: ${fetchError?.message}`)
     }
 
-    const biases = session.detected_biases as any
+    const biases = session.detected_biases as { core_decision_node?: string; constraints?: string[] } | null
     const coreDecision = biases?.core_decision_node || 'The main decision'
     const constraints = Array.isArray(biases?.constraints) ? biases.constraints.join(', ') : 'none'
 

@@ -11,6 +11,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Capture the access token while we're still inside the request context
+    // so the downstream service clients can authorize against RLS.
+    const { data: { session: authSession } } = await supabase.auth.getSession()
+    const accessToken = authSession?.access_token
+
     let body
     try {
       body = await request.json()
@@ -28,7 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'raw_mind_dump exceeds 4000 characters limit' }, { status: 400 })
     }
 
-    const { data: session, error } = await supabase
+    const { data: newSession, error } = await supabase
       .from('sessions')
       .insert({
         user_id: user.id,
@@ -38,15 +43,17 @@ export async function POST(request: NextRequest) {
       .select('session_id')
       .single()
 
-    if (error || !session) {
+    if (error || !newSession) {
       return NextResponse.json({ error: error?.message || 'Failed to create session' }, { status: 500 })
     }
 
-    // Fire and don't await the profiler job
-    runProfiler(session.session_id).catch(() => {})
+    // Run the full pipeline inline — awaited so the client can navigate directly to /council
+    // when this responds. The profiling page will see `completed` status immediately.
+    await runProfiler(newSession.session_id, accessToken)
 
-    return NextResponse.json({ session_id: session.session_id }, { status: 201 })
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ session_id: newSession.session_id }, { status: 201 })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

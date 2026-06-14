@@ -1,0 +1,368 @@
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import OperaNav from "@/app/components/shared/OperaNav";
+import PersonaBubble from "@/app/components/shared/PersonaBubble";
+import { createClient } from "@/lib/supabase/client";
+import { Send, Loader2, ArrowRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
+
+interface Persona {
+  id: string;
+  name: string;
+  description: string;
+  variant: "a" | "b" | "c";
+}
+
+const ADVISORS: Persona[] = [
+  {
+    id: "Pragmatic Stoic",
+    name: "The Pragmatic Stoic",
+    description: "Risk minimization. Long-term stability.",
+    variant: "a",
+  },
+  {
+    id: "Venture Capitalist",
+    name: "The Venture Capitalist",
+    description: "Upside maximization. Opportunity cost.",
+    variant: "b",
+  },
+  {
+    id: "Creative Hedonist",
+    name: "The Creative Hedonist",
+    description: "Fulfillment, joy, quality of life.",
+    variant: "c",
+  },
+];
+
+export default function SoloChatPage() {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [authChecking, setAuthChecking] = useState(true);
+  const [selectedPersona, setSelectedPersona] = useState<Persona>(ADVISORS[0]);
+  const [pendingPersona, setPendingPersona] = useState<Persona | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputVal, setInputVal] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [streamedResponse, setStreamedResponse] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Authenticate user client-side on mount
+  useEffect(() => {
+    async function checkAuth() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+      } else {
+        setAuthChecking(false);
+      }
+    }
+    checkAuth();
+  }, [router, supabase]);
+
+  // Scroll to bottom when message history or streaming changes
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, streamedResponse]);
+
+  const handleAdvisorSelect = (persona: Persona) => {
+    if (persona.id === selectedPersona.id) return;
+
+    if (messages.length > 0) {
+      setPendingPersona(persona);
+      setIsDialogOpen(true);
+    } else {
+      setSelectedPersona(persona);
+    }
+  };
+
+  const confirmSwitchAdvisor = () => {
+    if (pendingPersona) {
+      setSelectedPersona(pendingPersona);
+      setMessages([]);
+      setStreamedResponse("");
+    }
+    setIsDialogOpen(false);
+    setPendingPersona(null);
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputVal.trim() || isLoading) return;
+
+    const userMsg = inputVal.trim();
+    setInputVal("");
+    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    setIsLoading(true);
+    setStreamedResponse("");
+
+    try {
+      const conversationHistory = [
+        ...messages,
+        { role: "user", content: userMsg },
+      ];
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          persona: selectedPersona.id,
+          message: userMsg,
+          history: conversationHistory,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to reach advisor.");
+      }
+
+      // Check if response is streamable or plain json
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/event-stream")) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        if (reader) {
+          let chunks = "";
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks += decoder.decode(value);
+
+            // Format stream tokens if needed (e.g. data: {"token": "x"})
+            // For simplicity, let's treat the incoming chunks as progressive text parts
+            setStreamedResponse((prev) => prev + decoder.decode(value));
+          }
+          // After stream completes
+          setMessages((prev) => [
+            ...prev,
+            { role: "assistant", content: chunks || streamedResponse },
+          ]);
+          setStreamedResponse("");
+        }
+      } else {
+        const data = await response.json();
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: data.content },
+        ]);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content:
+            "I apologize, I lost connection to OPERA's orchestrator. Please try again.",
+        },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans">
+      <OperaNav variant="authed" />
+
+      {/* Main Grid View */}
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-8">
+        {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
+        <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
+          <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+            Choose your advisor
+          </span>
+
+          {/* Persona selector list */}
+          <div className="flex flex-col gap-3">
+            {ADVISORS.map((advisor) => {
+              const isActive = advisor.id === selectedPersona.id;
+              return (
+                <Card
+                  key={advisor.id}
+                  onClick={() => handleAdvisorSelect(advisor)}
+                  className={`p-4 cursor-pointer transition-all rounded-lg border shadow-none ring-0 ${
+                    isActive
+                      ? "bg-[#e8e0d2] border-[#141413]"
+                      : "bg-[#efe9de] border-[#e6dfd8] hover:bg-[#e8e0d2]/50"
+                  }`}
+                >
+                  <h4 className="text-sm font-semibold text-[#141413] font-sans">
+                    {advisor.name}
+                  </h4>
+                  <p className="text-xs text-[#6c6a64] mt-1 font-sans">
+                    {advisor.description}
+                  </p>
+                </Card>
+              );
+            })}
+          </div>
+        </aside>
+
+        {/* Right Chat Area Panel */}
+        <main className="flex-1 bg-[#efe9de]/30 border border-[#e6dfd8] rounded-lg flex flex-col justify-between overflow-hidden h-[calc(100vh-180px)]">
+          {/* Active Chat Header */}
+          <div className="bg-[#efe9de] border-b border-[#e6dfd8] py-4 px-6 flex items-center gap-3">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                selectedPersona.variant === "a"
+                  ? "bg-[#5db8a6]"
+                  : selectedPersona.variant === "b"
+                    ? "bg-[#e8a55a]"
+                    : "bg-[#cc785c]"
+              }`}
+            />
+            <span className="text-sm font-semibold text-[#141413] font-sans uppercase tracking-[0.5px]">
+              {selectedPersona.name}
+            </span>
+          </div>
+
+          {/* Messages Feed */}
+          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+            {messages.length === 0 ? (
+              <div className="my-auto text-center max-w-sm mx-auto flex flex-col gap-2">
+                <h3 className="text-lg font-normal text-[#141413] font-serif">
+                  Consult {selectedPersona.name}
+                </h3>
+                <p className="text-sm text-[#6c6a64] font-sans leading-[1.55]">
+                  Start typing to test ideas, analyze risk, or map fulfillment
+                  options directly.
+                </p>
+              </div>
+            ) : (
+              messages.map((msg, index) => {
+                if (msg.role === "user") {
+                  return (
+                    <div
+                      key={index}
+                      className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150"
+                    >
+                      <div className="bg-[#efe9de] text-[#141413] text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-[#e6dfd8] shadow-sm font-sans">
+                        {msg.content}
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <PersonaBubble
+                      key={index}
+                      persona_name={selectedPersona.name}
+                      message_content={msg.content}
+                      variant={selectedPersona.variant}
+                    />
+                  );
+                }
+              })
+            )}
+
+            {/* Streaming Message block */}
+            {streamedResponse && (
+              <PersonaBubble
+                persona_name={selectedPersona.name}
+                message_content={streamedResponse}
+                variant={selectedPersona.variant}
+                isStreaming={true}
+              />
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Bottom input area panel */}
+          <div className="bg-[#efe9de] border-t border-[#e6dfd8] p-4 flex flex-col gap-2">
+            <div className="relative flex items-center w-full bg-[#faf9f5] border border-[#e6dfd8] rounded-md focus-within:border-[#cc785c] focus-within:ring-3 focus-within:ring-[rgba(204,120,92,0.12)] transition-all">
+              <textarea
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onKeyDown={handleKeyPress}
+                placeholder="..."
+                disabled={isLoading}
+                rows={1}
+                className="w-full bg-transparent text-[#141413] text-base leading-[1.55] py-3 pl-4 pr-12 resize-none focus:outline-none md:text-sm font-sans"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={isLoading || !inputVal.trim()}
+                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#cc785c] hover:text-[#a9583e] disabled:text-[#6c6a64] focus:outline-none transition-colors cursor-pointer"
+              >
+                <ArrowRight className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex justify-center">
+              <span className="text-[11px] text-[#6c6a64] font-medium font-sans">
+                This conversation isn't saved.
+              </span>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      {/* Switch Advisor Confirmation Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-[#efe9de] border border-[#e6dfd8] max-w-sm rounded-lg p-6 shadow-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-semibold text-[#141413] font-sans">
+              Switch Advisor?
+            </DialogTitle>
+            <DialogDescription className="text-sm text-[#6c6a64] mt-2 font-sans">
+              Starting a new advisor clears this chat.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-6 flex justify-end gap-3">
+            <button
+              onClick={() => {
+                setIsDialogOpen(false);
+                setPendingPersona(null);
+              }}
+              className="px-4 py-2 border border-[#e6dfd8] text-[#141413] rounded-md text-sm hover:bg-[#e8e0d2]/50 font-sans cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmSwitchAdvisor}
+              className="px-4 py-2 bg-[#cc785c] hover:bg-[#a9583e] text-white rounded-md text-sm font-sans cursor-pointer"
+            >
+              Clear and Switch
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

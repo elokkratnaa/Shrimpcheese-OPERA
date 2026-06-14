@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { createClient } from "@/lib/supabase/client";
 
 interface OperaNavProps {
   variant: "guest" | "authed";
@@ -12,7 +13,33 @@ interface OperaNavProps {
 
 export default function OperaNav({ variant }: OperaNavProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [initials, setInitials] = useState("OP");
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
+
+  useEffect(() => {
+    if (variant === "authed") {
+      const fetchUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const fullName = user.user_metadata?.full_name;
+          const email = user.email;
+          
+          if (fullName && fullName.trim().length > 0) {
+            const parts = fullName.trim().split(/\s+/);
+            if (parts.length >= 2) {
+              setInitials((parts[0][0] + parts[parts.length - 1][0]).toUpperCase());
+            } else {
+              setInitials(parts[0].slice(0, 2).toUpperCase());
+            }
+          } else if (email) {
+            setInitials(email.slice(0, 2).toUpperCase());
+          }
+        }
+      };
+      fetchUser();
+    }
+  }, [variant, supabase]);
 
   const handleAvatarClick = () => {
     router.push("/profile");
@@ -73,7 +100,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
                 className="cursor-pointer size-9 hover:ring-2 hover:ring-[#cc785c] transition-all bg-[#efe9de] text-[#141413]"
               >
                 <AvatarFallback className="font-semibold bg-[#efe9de] text-[#141413]">
-                  OP
+                  {initials}
                 </AvatarFallback>
               </Avatar>
             </div>
