@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { PERSONAS } from "@/lib/personas";
+import { PERSONAS, PERSONA_MAP } from "@/shared/personas";
 
 interface DebateUtterance {
   debate_id: string;
@@ -47,7 +47,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const uniquePersonas = useMemo(() => {
     const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
     const fromBiases = (session?.detected_biases?.suggested_persona_archetypes || [])
-      .map(key => PERSONAS[key as keyof typeof PERSONAS]?.name || key);
+      .map(key => (PERSONA_MAP as any)[key]?.name || key);
     // Combine and deduplicate
     return Array.from(new Set([...fromDebates, ...fromBiases]));
   }, [debates, session]);

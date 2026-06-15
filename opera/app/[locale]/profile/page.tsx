@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/core/lib/supabase-server'
 import type { Metadata } from 'next'
 import OperaNav from '@/app/components/shared/OperaNav'
 import OperaFooter from '@/app/components/shared/OperaFooter'

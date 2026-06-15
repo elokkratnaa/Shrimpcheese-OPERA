@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Link, useRouter } from "@/i18n/routing";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";

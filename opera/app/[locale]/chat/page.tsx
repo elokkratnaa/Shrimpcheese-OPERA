@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter, Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import PersonaBubble from "@/app/components/shared/PersonaBubble";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { Send, Loader2, ArrowRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,7 +16,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
-import { extractMessageText } from "@/utils/extractMessageText";
+import { extractMessageText } from "@/shared/extractMessageText";
 
 interface Message {
   role: "user" | "assistant";

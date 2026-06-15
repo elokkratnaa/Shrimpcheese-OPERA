@@ -6,7 +6,7 @@ import OperaNav from "@/app/components/shared/OperaNav";
 import CommitButton from "@/app/components/shared/CommitButton";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { PERSONAS } from "@/lib/personas";
+import { PERSONAS } from "@/shared/personas";
 
 interface ProConOption {
   option: string;

@@ -5,10 +5,10 @@ import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import OperaInput from "@/app/components/shared/OperaInput";
 import { Loader2 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { useTranslations } from "next-intl";
 
-import { PERSONAS } from "@/lib/personas";
+import { PERSONAS, PERSONA_MAP } from "@/shared/personas";
 
 export default function MindDumpPage() {
   const router = useRouter();
@@ -294,7 +294,7 @@ export default function MindDumpPage() {
 
           <div className="grid grid-cols-1 gap-3">
             {PERSONA_POOL.map(key => {
-              const persona = PERSONAS[key];
+              const persona = (PERSONA_MAP as any)[key];
               const isSelected = selectedPersonas.includes(key);
               const show = squadMode === "racik" || isSelected;
 

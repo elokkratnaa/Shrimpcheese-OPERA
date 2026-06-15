@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter, Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 

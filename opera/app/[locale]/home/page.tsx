@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "@/i18n/routing";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/core/lib/supabase-server";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
 import { Badge } from "@/components/ui/badge";
