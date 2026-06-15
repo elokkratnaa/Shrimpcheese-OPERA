@@ -27,14 +27,14 @@ export default function MindDumpPage() {
   ];
 
   const CATEGORIES = ["Karir", "Percintaan", "Keluarga", "Keuangan", "Pendidikan", "Self-Growth", "Lainnya"];
-  const EMOTIONS = ["Bingung", "Galau", "Panik", "Frustrasi", "Santai"];
+  const EMOTIONS = ["anxious", "avoidant", "risk-tolerant", "fatigued", "hopeful", "bingung"];
   
-  const PERSONA_POOL = useMemo(() => Object.keys(PERSONAS), []);
+  const PERSONA_POOL = useMemo(() => Object.keys(PERSONA_MAP), []);
 
   const [mindDump, setMindDump] = useState("");
   const [rounds, setRounds] = useState(1);
-  const [category, setCategory] = useState("");
-  const [emotion, setEmotion] = useState("");
+  const [category, setCategory] = useState("Lainnya");
+  const [emotion, setEmotion] = useState("bingung");
   const [squadMode, setSquadMode] = useState<"gacha" | "racik">("gacha");
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -46,8 +46,8 @@ export default function MindDumpPage() {
   const getOverthinkingValue = () => {
     let base = (mindDump.length / 4000) * 100;
     let bonus = 0;
-    if (emotion === "Panik" || emotion === "Frustrasi") bonus = 20;
-    else if (emotion === "Galau") bonus = 10;
+    if (emotion === "anxious" || emotion === "fatigued") bonus = 20;
+    else if (emotion === "bingung") bonus = 10;
     return Math.min(base + bonus, 100);
   };
 

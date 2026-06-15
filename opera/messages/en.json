@@ -208,10 +208,12 @@
       "Lainnya": "Other"
     },
     "emotions": {
-      "Calm": "Calm",
-      "Anxious": "Anxious",
-      "Overwhelmed": "Overwhelmed",
-      "Excited": "Excited"
+      "anxious": "Anxious",
+      "avoidant": "Avoidant",
+      "risk-tolerant": "Risk-Tolerant",
+      "fatigued": "Fatigued",
+      "hopeful": "Hopeful",
+      "bingung": "Confused"
     },
     "rounds": "DEBATE ROUNDS:",
     "overthinking": "OVERTHINKING LEVEL",

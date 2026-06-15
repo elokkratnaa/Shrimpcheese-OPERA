@@ -209,10 +209,12 @@
       "Lainnya": "Lainnya"
     },
     "emotions": {
-      "Calm": "Tenang",
-      "Anxious": "Galau",
-      "Overwhelmed": "Kewalahan",
-      "Excited": "Semangat"
+      "anxious": "Galau",
+      "avoidant": "Menghindar",
+      "risk-tolerant": "Berani",
+      "fatigued": "Lelah",
+      "hopeful": "Optimis",
+      "bingung": "Bingung"
     },
     "rounds": "JUMLAH RONDE DEBAT:",
     "overthinking": "TINGKAT OVERTHINKING",

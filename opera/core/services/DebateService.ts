@@ -26,9 +26,17 @@ export async function spawnCouncil(
   const locale = 'en';
 
   try {
+    const ARCHETYPE_MAP: Record<string, string> = {
+        'venture-capitalist': 'vc',
+        'creative-hedonist': 'hedonist',
+        'pragmatic-stoic': 'stoic'
+    };
+
     const chosenConfigs = archetypes.map(key => {
-        const foundKey = Object.keys(PERSONA_MAP).find(k => k.toLowerCase() === key.toLowerCase());
-        return foundKey ? PERSONA_MAP[foundKey] : undefined;
+        const normalizedKey = key.toLowerCase();
+        // Try direct ID match or map from archetype name
+        const mappedKey = ARCHETYPE_MAP[normalizedKey] || normalizedKey;
+        return PERSONA_MAP[mappedKey];
     }).filter(config => !!config)
     console.log(`[DebateService] Chosen configs:`, chosenConfigs.map(c => c.name));
     
@@ -158,10 +166,10 @@ export async function spawnCouncil(
           round_number: roundNumber,
           turn_sequence: turnSequence
         };
-      console.log(`[DebateService] Attempting to insert:`, insertPayload);
+      console.log(`[DebateService] Attempting to insert:`, JSON.stringify(insertPayload));
       const { data, error } = await supabase
         .from('council_debates')
-        .insert(insertPayload);
+        .insert([insertPayload]);
       
       if (error) {
           console.error(`[DebateService] Failed to insert debate utterance for ${personaName}:`, error);
