@@ -106,15 +106,15 @@ export async function spawnCouncil(
         globalTranscript += `\n[Round ${round}][${r.name}]: ${r.text}`
       })
 
+      // Emit round complete event at the end of each round
+      sessionEvents.emit(`session:${sessionId}`, { 
+        type: "round_complete", 
+        round: round, 
+        total: rounds 
+      });
+
       // If more rounds exist, wait for user input
       if (round < rounds) {
-        // ... SSE event ...
-        sessionEvents.emit(`session:${sessionId}`, { 
-          type: "round_complete", 
-          round: round, 
-          total: rounds 
-        });
-
         // Wait for rebuttal event
         await new Promise<void>((resolve) => {
           const onRebuttal = (data: { content: string, target?: string }) => {
