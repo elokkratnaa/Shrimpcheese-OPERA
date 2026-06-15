@@ -136,9 +136,9 @@ export async function spawnCouncil(
         persona_name: personaName
       });
 
-      // Create a timeout that rejects after 25s
+      // Create a timeout that rejects after 60s
       const timeoutPromise = new Promise<string>((_, reject) => 
-        setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 25000)
+        setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 60000)
       );
 
       console.log(`[DebateService] Invoking Groq for ${personaName}...`);
