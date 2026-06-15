@@ -220,31 +220,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
-      {/* HEADER */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-[16px] border-b border-slate-200 px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex -space-x-3">
-            {uniquePersonas.slice(0, 3).map((name) => (
-              <div
-                key={name}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#F8FAFC]"
-                style={{ backgroundColor: getPersonaColor(name) }}
-              >
-                {name.charAt(0)}
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-sm font-bold leading-none truncate max-w-[200px] text-slate-900">{squadName}</h1>
-            <p className="text-[11px] text-slate-500 mt-1 truncate max-w-[200px]">{personaSubtitle}</p>
-          </div>
-        </div>
-        {isStreaming && (
-          <div className="flex items-center gap-2 text-slate-500 text-xs italic">
-            <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
-            <span>{t("typing")}</span>
-          </div>
-        )}
+        <OperaNav variant="authed" showHomeButton={true} />
+        {/* ... */}
       </header>
 
       {/* CHAT AREA */}

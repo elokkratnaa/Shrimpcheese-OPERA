@@ -10,9 +10,10 @@ import LanguageSwitcher from "./LanguageSwitcher";
 
 interface OperaNavProps {
   variant: "guest" | "authed";
+  showHomeButton?: boolean;
 }
 
-export default function OperaNav({ variant }: OperaNavProps) {
+export default function OperaNav({ variant, showHomeButton = false }: OperaNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [initials, setInitials] = useState("OP");
   const router = useRouter();
@@ -52,14 +53,21 @@ export default function OperaNav({ variant }: OperaNavProps) {
   };
 
   return (
-    <nav className="sticky top-0 z-50 h-16 w-full bg-canvas border-b border-hairline px-4 md:px-8">
+    <nav className="sticky top-0 z-50 h-16 w-full bg-[#F8FAFC] border-b border-slate-200 px-4 md:px-8">
       <div className="flex h-full items-center justify-between max-w-7xl mx-auto">
-        {/* Logo left */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold font-serif tracking-tight text-ink">
-            OPERA
-          </span>
-        </Link>
+        {/* Left: Logo + Optional Home */}
+        <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-xl font-bold font-serif tracking-tight text-slate-900">
+              OPERA
+            </span>
+          </Link>
+          {showHomeButton && (
+            <Link href="/home" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
+              ← Home
+            </Link>
+          )}
+        </div>
 
         {/* Desktop navigation */}
         {variant === "guest" ? (
@@ -68,13 +76,13 @@ export default function OperaNav({ variant }: OperaNavProps) {
             <div className="flex items-center gap-4">
               <Link
                 href="/login"
-                className="text-sm font-medium text-ink hover:text-primary transition-colors"
+                className="text-sm font-medium text-slate-900 hover:text-[#cc785c] transition-colors"
               >
                 {t("signIn")}
               </Link>
               <Button
                 onClick={() => router.push("/dump")}
-                className="bg-primary text-white hover:bg-primary-active border-transparent font-medium h-10 px-5 rounded-md cursor-pointer"
+                className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium h-10 px-5 rounded-lg cursor-pointer"
               >
                 {t("startThinking")}
               </Button>
@@ -85,19 +93,19 @@ export default function OperaNav({ variant }: OperaNavProps) {
             <div className="hidden md:flex items-center justify-center gap-8 absolute left-1/2 transform -translate-x-1/2">
               <Link
                 href="/home"
-                className="text-sm font-medium text-muted hover:text-ink transition-colors"
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
                 {t("home")}
               </Link>
               <Link
                 href="/history"
-                className="text-sm font-medium text-muted hover:text-ink transition-colors"
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
                 {t("history")}
               </Link>
               <Link
                 href="/chat"
-                className="text-sm font-medium text-muted hover:text-ink transition-colors"
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
                 {t("chat")}
               </Link>
@@ -107,9 +115,9 @@ export default function OperaNav({ variant }: OperaNavProps) {
               <LanguageSwitcher />
               <Avatar
                 onClick={handleAvatarClick}
-                className="cursor-pointer size-9 hover:ring-2 hover:ring-primary transition-all bg-surface-card text-ink"
+                className="cursor-pointer size-9 hover:ring-2 hover:ring-[#cc785c] transition-all bg-slate-200 text-slate-900"
               >
-                <AvatarFallback className="font-semibold bg-surface-card text-ink">
+                <AvatarFallback className="font-semibold bg-slate-200 text-slate-900">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -120,7 +128,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
         {/* Mobile menu trigger */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex md:hidden h-10 w-10 items-center justify-center rounded-md text-ink focus:outline-none"
+          className="flex md:hidden h-10 w-10 items-center justify-center rounded-md text-slate-900 focus:outline-none"
         >
           {isOpen ? (
             <svg
@@ -156,9 +164,9 @@ export default function OperaNav({ variant }: OperaNavProps) {
         </button>
       </div>
 
-      {/* Mobile cream sheet menu */}
+      {/* Mobile sheet menu */}
       {isOpen && (
-        <div className="md:hidden fixed inset-0 top-16 z-40 w-full bg-canvas border-t border-hairline px-6 py-8 flex flex-col gap-6 animate-in fade-in duration-200">
+        <div className="md:hidden fixed inset-0 top-16 z-40 w-full bg-[#F8FAFC] border-t border-slate-200 px-6 py-8 flex flex-col gap-6 animate-in fade-in duration-200">
           <div className="flex justify-start mb-2">
             <LanguageSwitcher />
           </div>
@@ -167,7 +175,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
               <Link
                 href="/login"
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-medium text-ink"
+                className="text-lg font-medium text-slate-900"
               >
                 {t("signIn")}
               </Link>
@@ -176,7 +184,7 @@ export default function OperaNav({ variant }: OperaNavProps) {
                   setIsOpen(false);
                   router.push("/dump");
                 }}
-                className="bg-primary text-white hover:bg-primary-active h-12 w-full text-base font-medium rounded-md cursor-pointer"
+                className="bg-[#cc785c] text-white hover:bg-[#a9583e] h-12 w-full text-base font-medium rounded-lg cursor-pointer"
               >
                 {t("startThinking")}
               </Button>
@@ -186,29 +194,29 @@ export default function OperaNav({ variant }: OperaNavProps) {
               <Link
                 href="/home"
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-medium text-muted"
+                className="text-lg font-medium text-slate-600"
               >
                 {t("home")}
               </Link>
               <Link
                 href="/history"
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-medium text-muted"
+                className="text-lg font-medium text-slate-600"
               >
                 {t("history")}
               </Link>
               <Link
                 href="/chat"
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-medium text-muted"
+                className="text-lg font-medium text-slate-600"
               >
                 {t("chat")}
               </Link>
-              <div className="h-px bg-hairline my-2" />
+              <div className="h-px bg-slate-200 my-2" />
               <Link
                 href="/profile"
                 onClick={() => setIsOpen(false)}
-                className="text-lg font-medium text-ink"
+                className="text-lg font-medium text-slate-900"
               >
                 {t("profile")}
               </Link>
