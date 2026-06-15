@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
+import { motion } from "framer-motion";
 
 interface PersonaBubbleProps {
   persona_name: string
@@ -17,43 +18,49 @@ export default function PersonaBubble({
   category,
 }: PersonaBubbleProps) {
   const bgColors = {
-    a: 'bg-[rgba(93,184,166,0.10)]',
-    b: 'bg-[rgba(232,165,90,0.10)]',
-    c: 'bg-[rgba(204,120,92,0.10)]',
+    a: 'bg-slate-100',
+    b: 'bg-orange-50',
+    c: 'bg-orange-50',
   }
   const borderColors = {
-    a: 'border-[rgba(93,184,166,0.20)]',
-    b: 'border-[rgba(232,165,90,0.20)]',
-    c: 'border-[rgba(204,120,92,0.20)]',
+    a: 'border-slate-200',
+    b: 'border-orange-200',
+    c: 'border-orange-200',
   }
   const textColors = {
-    a: 'text-accent-teal',
-    b: 'text-accent-amber',
-    c: 'text-primary',
+    a: 'text-slate-600',
+    b: 'text-orange-600',
+    c: 'text-[#cc785c]',
   }
 
   const cleanContent = message_content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
   return (
-    <Card className={`${bgColors[variant]} ${borderColors[variant]} rounded-lg border shadow-none ring-0`}>
-      <CardContent className="p-5 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <span className={`text-[12px] font-medium tracking-[1.5px] uppercase ${textColors[variant]}`}>
-            {persona_name}
-          </span>
-          {category && (
-            <span className="text-[10px] font-medium uppercase tracking-[1px] px-2 py-0.5 rounded-full bg-glass border border-white/[0.12] text-muted-soft">
-              {category}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className={`${bgColors[variant]} ${borderColors[variant]} rounded-lg border shadow-sm`}>
+        <CardContent className="p-5 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <span className={`text-[12px] font-bold tracking-[1.5px] uppercase ${textColors[variant]}`}>
+              {persona_name}
             </span>
-          )}
-        </div>
-        <p className="text-body text-[15px] leading-[1.55] font-sans">
-          {cleanContent}
-          {isStreaming && (
-            <span className="inline-block w-1.5 h-4 bg-primary ml-1 animate-pulse" />
-          )}
-        </p>
-      </CardContent>
-    </Card>
+            {category && (
+              <span className="text-[10px] font-medium uppercase tracking-[1px] px-2 py-0.5 rounded-full bg-white border border-slate-200 text-slate-500">
+                {category}
+              </span>
+            )}
+          </div>
+          <p className="text-slate-900 text-[15px] leading-[1.55] font-sans">
+            {cleanContent}
+            {isStreaming && (
+              <span className="inline-block w-1.5 h-4 bg-[#cc785c] ml-1 animate-pulse" />
+            )}
+          </p>
+        </CardContent>
+      </Card>
+    </motion.div>
   )
 }

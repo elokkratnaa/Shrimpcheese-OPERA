@@ -5,6 +5,7 @@ import { Link } from '@/i18n/routing'
 import { Card, CardContent } from '@/components/ui/card'
 import { useLocale, useTranslations } from 'next-intl'
 import { CheckCircle, Clock } from 'lucide-react'
+import { motion } from "framer-motion";
 
 interface Verdict {
   verdict_id: string
@@ -60,42 +61,48 @@ export default function SessionCard({ session }: SessionCardProps) {
   const isCommitted = session.verdict?.is_committed;
 
   return (
-    <Link href={`/session/${session.session_id}/verdict`} className="block group">
-      <Card className="bg-surface-card border-hairline rounded-md shadow-none hover:bg-surface-soft transition-colors overflow-hidden">
-        <CardContent className="p-5 flex flex-col gap-3">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <p className="text-ink text-sm leading-relaxed font-semibold truncate">
-                {truncatedDump}
-              </p>
-              {verdictSnippet && (
-                <p className="text-body text-xs leading-relaxed truncate opacity-80">
-                  {verdictSnippet}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Link href={`/session/${session.session_id}/verdict`} className="block group">
+        <Card className="bg-white border-slate-200 rounded-lg shadow-none hover:border-[#cc785c]/50 transition-all overflow-hidden">
+          <CardContent className="p-5 flex flex-col gap-3">
+            <div className="flex justify-between items-start gap-4">
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <p className="text-slate-900 text-sm leading-relaxed font-semibold truncate">
+                  {truncatedDump}
                 </p>
-              )}
+                {verdictSnippet && (
+                  <p className="text-slate-600 text-xs leading-relaxed truncate opacity-80">
+                    {verdictSnippet}
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0 pt-0.5">
+                {isCommitted ? (
+                  <div className="flex items-center gap-1.5 text-[#5db872]">
+                    <CheckCircle className="size-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("committed")}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-slate-500">
+                    <Clock className="size-4" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider">{t("notCommitted")}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="shrink-0 pt-0.5">
-              {isCommitted ? (
-                <div className="flex items-center gap-1.5 text-primary">
-                  <CheckCircle className="size-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{t("committed")}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1.5 text-muted">
-                  <Clock className="size-4" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">{t("notCommitted")}</span>
-                </div>
-              )}
+            
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                {getRelativeTime(session.created_at)}
+              </span>
             </div>
-          </div>
-          
-          <div className="flex items-center justify-between mt-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted">
-              {getRelativeTime(session.created_at)}
-            </span>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+          </CardContent>
+        </Card>
+      </Link>
+    </motion.div>
   )
 }
