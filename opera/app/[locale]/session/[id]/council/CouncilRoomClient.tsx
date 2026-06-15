@@ -375,7 +375,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       <div className="fixed bottom-20 left-0 right-0 p-4 flex justify-center gap-2 z-30">
         <button
           onClick={() => router.push(`/session/${id}/verdict?force=true`)}
-          className="bg-white/80 backdrop-blur text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full border border-slate-200 hover:bg-white"
+          className="bg-white text-[#cc785c] text-[12px] font-bold px-6 py-2 rounded-full border-2 border-[#cc785c] shadow-md hover:bg-[#cc785c] hover:text-white transition-all"
         >
           Force Verdict Access
         </button>
