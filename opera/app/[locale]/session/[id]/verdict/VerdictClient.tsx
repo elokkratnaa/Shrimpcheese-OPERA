@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
 import CommitButton from "@/app/components/shared/CommitButton";
@@ -135,33 +135,33 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const nextSteps = verdict?.next_steps || [];
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans pb-32">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between font-sans pb-32">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
         <div className="flex flex-col gap-2">
-          <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+          <span className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
             {t("title")}
           </span>
         </div>
 
-        <div className="text-[#3d3d3a] text-[16px] leading-[1.55] whitespace-pre-wrap font-sans">
+        <div className="text-slate-900 text-[16px] leading-[1.55] whitespace-pre-wrap font-sans">
           {summaryText}
         </div>
 
-        <section className="flex flex-col gap-8 border-t border-[#e6dfd8] pt-8">
-          <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+        <section className="flex flex-col gap-8 border-t border-slate-200 pt-8">
+          <h2 className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
             {t("matrix")}
           </h2>
 
           <div className="flex flex-col gap-8">
             {proConMatrix.map((optionData, idx) => (
               <div key={idx} className="flex flex-col gap-4">
-                <h3 className="text-base font-semibold text-[#141413] font-sans">
+                <h3 className="text-base font-semibold text-slate-900 font-sans">
                   {optionData.option}
                 </h3>
 
-                <div className="w-full h-1 bg-[#e6dfd8] rounded-full overflow-hidden">
+                <div className="w-full h-1 bg-slate-200 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-[#5db8a6] transition-all duration-500"
                     style={{ width: `${Math.min(100, Math.max(0, optionData.weight * 100))}%` }}
@@ -171,7 +171,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-1">
                   <div className="flex flex-col gap-2.5">
                     {optionData.pros.map((pro, pIdx) => (
-                      <div key={pIdx} className="flex items-start gap-2 text-sm text-[#3d3d3a] font-sans">
+                      <div key={pIdx} className="flex items-start gap-2 text-sm text-slate-700 font-sans">
                         <span className="w-2 h-2 rounded-full bg-[#5db872] shrink-0 mt-1.5" />
                         <span>{pro}</span>
                       </div>
@@ -180,7 +180,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
                   <div className="flex flex-col gap-2.5">
                     {optionData.cons.map((con, cIdx) => (
-                      <div key={cIdx} className="flex items-start gap-2 text-sm text-[#3d3d3a] font-sans">
+                      <div key={cIdx} className="flex items-start gap-2 text-sm text-slate-700 font-sans">
                         <span className="w-2 h-2 rounded-full bg-[#c64545] shrink-0 mt-1.5" />
                         <span>{con}</span>
                       </div>
@@ -193,7 +193,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
           {/* PERSONA SELECTION SECTION */}
           <div className="flex flex-col gap-4 mt-4">
-            <label className="text-xs font-bold tracking-widest text-[#71717a] uppercase">
+            <label className="text-xs font-bold tracking-widest text-slate-500 uppercase">
               {t("favouritePersonaLabel")}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -205,7 +205,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer disabled:opacity-50 ${
                     favouritePersona === name 
                       ? "bg-[#cc785c] text-white" 
-                      : "bg-[#efe9de] border border-[#e6dfd8] text-[#141413] hover:bg-[#e8e0d2]"
+                      : "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50"
                   }`}
                 >
                   {name}
@@ -215,8 +215,8 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
             {(fetchingClosing || closingMessage) && favouritePersona !== t("undecided") && (
               <div 
-                className="bg-[#efe9de] p-6 rounded-xl border-l-[3px] animate-in fade-in slide-in-from-bottom-2 duration-300"
-                style={{ borderLeftColor: getPersonaColor(favouritePersona) }}
+                className="bg-white p-6 rounded-xl border border-slate-200 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                style={{ borderLeftWidth: "3px", borderLeftColor: getPersonaColor(favouritePersona) }}
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div 
@@ -226,18 +226,18 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                     {favouritePersona.charAt(0)}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[#141413] font-bold text-sm leading-none">{favouritePersona}</span>
-                    <span className="text-[#6c6a64] text-[10px] font-bold uppercase tracking-widest mt-1">{t("closingMessage")}</span>
+                    <span className="text-slate-900 font-bold text-sm leading-none">{favouritePersona}</span>
+                    <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">{t("closingMessage")}</span>
                   </div>
                 </div>
                 
                 {fetchingClosing ? (
-                  <div className="flex items-center gap-2 text-[#6c6a64] text-sm italic">
+                  <div className="flex items-center gap-2 text-slate-500 text-sm italic">
                     <Loader2 className="animate-spin h-3 w-3" />
                     <span>{t("typing")}</span>
                   </div>
                 ) : (
-                  <p className="text-[#3d3d3a] text-[15px] leading-relaxed italic">
+                  <p className="text-slate-700 text-[15px] leading-relaxed italic">
                     "{closingMessage}"
                   </p>
                 )}
@@ -247,11 +247,11 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
         </section>
 
         {recommendation && (
-          <section className="bg-[#efe9de] rounded-lg p-8 border border-[#e6dfd8] flex flex-col gap-4">
-            <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+          <section className="bg-white rounded-lg p-8 border border-slate-200 flex flex-col gap-4">
+            <span className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
               {t("recommendation")}
             </span>
-            <p className="text-[22px] font-normal leading-tight tracking-normal text-[#141413] font-serif">
+            <p className="text-[22px] font-normal leading-tight tracking-normal text-slate-900 font-serif">
               {recommendation}
             </p>
           </section>
@@ -259,7 +259,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
         {nextSteps.length > 0 && (
           <section className="flex flex-col gap-6">
-            <h2 className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+            <h2 className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
               {t("nextSteps")}
             </h2>
 
@@ -269,7 +269,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                   <span className="text-[28px] font-normal leading-none tracking-tight text-[#cc785c] font-serif shrink-0">
                     {String(sIdx + 1).padStart(2, "0")}
                   </span>
-                  <p className="text-[#3d3d3a] text-[16px] leading-[1.55] pt-1 font-sans">
+                  <p className="text-slate-700 text-[16px] leading-[1.55] pt-1 font-sans">
                     {step}
                   </p>
                 </div>
@@ -279,22 +279,22 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
         )}
 
         {verdict && (
-          <div className="border-t border-[#e6dfd8] pt-8 flex flex-col gap-4">
+          <div className="border-t border-slate-200 pt-8 flex flex-col gap-4">
             <CommitButton onCommit={handleCommit} isCommitted={isCommitted} />
           </div>
         )}
       </main>
 
       {/* QUICK START + ACTION ROW */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#faf9f5] border-t border-[#e6dfd8] px-6 py-4 z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#F8FAFC] border-t border-slate-200 px-6 py-4 z-50">
         <div className="max-w-[720px] mx-auto flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <div className="h-[1px] bg-[#e6dfd8] w-full mb-2" />
+            <div className="h-[1px] bg-slate-200 w-full mb-2" />
             <textarea
               aria-label={t("dilemmaPlaceholder")}
               value={newDilema}
               onChange={(e) => setNewDilema(e.target.value)}
-              className="w-full bg-white border border-[#e6dfd8] rounded-lg p-4 text-sm text-[#141413] focus:outline-none focus:border-[#cc785c] transition-all resize-none"
+              className="w-full bg-white border border-slate-200 rounded-lg p-4 text-sm text-slate-900 focus:outline-none focus:border-[#cc785c] transition-all resize-none"
               rows={2}
             />
             <button
@@ -310,10 +310,10 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
             <button onClick={handleNewDilemma} className="flex-1 bg-[#cc785c] hover:bg-[#a9583e] text-white font-bold text-sm py-3 rounded-lg transition-all">
               {t("newDilemma")}
             </button>
-            <button onClick={handleCopy} className="flex-1 bg-[#e6dfd8] text-[#141413] font-medium text-sm py-3 rounded-lg hover:bg-[#dcd6ce]">
+            <button onClick={handleCopy} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-lg hover:bg-slate-300">
               {t("copyResult")}
             </button>
-            <button onClick={handleShare} className="flex-1 bg-[#e6dfd8] text-[#141413] font-medium text-sm py-3 rounded-lg hover:bg-[#dcd6ce]">
+            <button onClick={handleShare} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-lg hover:bg-slate-300">
               {t("shareResults")}
             </button>
           </div>

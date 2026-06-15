@@ -103,7 +103,7 @@ export default async function HomeDashboard({
   const patterns = Object.keys(tagsMap).sort((a, b) => tagsMap[b] - tagsMap[a]);
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <OperaNav variant="authed" />
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:px-8 flex flex-col md:flex-row gap-8">
@@ -117,7 +117,7 @@ export default async function HomeDashboard({
 
           <Link
             href="/chat"
-            className="w-full h-12 border border-[#e6dfd8] text-[#141413] bg-[#faf9f5] hover:bg-[#efe9de] font-medium text-sm rounded-md flex items-center justify-center transition-colors cursor-pointer"
+            className="w-full h-12 border border-slate-200 text-slate-900 bg-white hover:bg-slate-50 font-medium text-sm rounded-md flex items-center justify-center transition-colors cursor-pointer"
           >
             {t("soloChat")}
           </Link>
@@ -125,19 +125,19 @@ export default async function HomeDashboard({
           <nav className="flex flex-col gap-1.5 mt-2">
             <Link
               href="/home"
-              className="flex items-center h-10 px-4 rounded-md text-[#141413] bg-[#efe9de] font-medium text-sm transition-colors"
+              className="flex items-center h-10 px-4 rounded-md text-slate-900 bg-slate-200 font-medium text-sm transition-colors"
             >
               {t("home")}
             </Link>
             <Link
               href="/history"
-              className="flex items-center h-10 px-4 rounded-md text-[#6c6a64] hover:text-[#141413] hover:bg-[#f5f0e8] font-medium text-sm transition-colors"
+              className="flex items-center h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-sm transition-colors"
             >
               {t("history")}
             </Link>
             <Link
               href="/profile"
-              className="flex items-center h-10 px-4 rounded-md text-[#6c6a64] hover:text-[#141413] hover:bg-[#f5f0e8] font-medium text-sm transition-colors"
+              className="flex items-center h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-sm transition-colors"
             >
               {t("profile")}
             </Link>
@@ -146,13 +146,13 @@ export default async function HomeDashboard({
 
         <main className="flex-1 flex flex-col gap-8">
           <div>
-            <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
+            <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-slate-900 font-serif">
               {t("greeting", { name: displayName })}
             </h1>
           </div>
 
           <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[1.5px]">
               {t("recentSessions")}
             </h2>
 
@@ -163,8 +163,8 @@ export default async function HomeDashboard({
                 ))}
               </div>
             ) : (
-              <div className="border border-dashed border-[#e6dfd8] rounded-lg p-12 text-center flex flex-col items-center gap-4 bg-[#f5f0e8]/30">
-                <p className="text-[#3d3d3a] text-sm leading-[1.55] max-w-sm">
+              <div className="border border-dashed border-slate-200 rounded-lg p-12 text-center flex flex-col items-center gap-4 bg-slate-50">
+                <p className="text-slate-600 text-sm leading-[1.55] max-w-sm">
                   {t("emptyTheater")}
                 </p>
                 <Link
@@ -178,7 +178,7 @@ export default async function HomeDashboard({
           </section>
 
           <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-[#6c6a64] uppercase tracking-[1.5px]">
+            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[1.5px]">
               {t("patterns")}
             </h2>
             {patterns.length > 0 ? (
@@ -191,7 +191,7 @@ export default async function HomeDashboard({
                   >
                     <Badge
                       variant="secondary"
-                      className="bg-[#efe9de] text-[#141413] hover:bg-[#e8e0d2] text-[13px] font-medium px-3 py-1 rounded-full transition-colors border-transparent h-auto"
+                      className="bg-slate-200 text-slate-900 hover:bg-slate-300 text-[13px] font-medium px-3 py-1 rounded-full transition-colors border-transparent h-auto"
                     >
                       {tag}
                     </Badge>
@@ -199,7 +199,7 @@ export default async function HomeDashboard({
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-[#6c6a64] italic">
+              <p className="text-xs text-slate-500 italic">
                 {t("noPatterns")}
               </p>
             )}

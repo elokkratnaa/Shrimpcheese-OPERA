@@ -157,14 +157,14 @@ export default function MindDumpPage() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
       </div>
     );
   }
 
   const SectionLabel = ({ children }: { children: React.ReactNode }) => (
-    <h3 className="text-xs font-bold tracking-widest text-[#6c6a64] uppercase mb-4">
+    <h3 className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-4">
       {children}
     </h3>
   );
@@ -175,7 +175,7 @@ export default function MindDumpPage() {
       className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer ${
         selected 
           ? "bg-[#cc785c] text-white" 
-          : "bg-[#efe9de] border border-[#e6dfd8] text-[#141413] hover:bg-[#e8e0d2]"
+          : "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50"
       }`}
     >
       {label}
@@ -183,15 +183,15 @@ export default function MindDumpPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-24 flex flex-col gap-12">
         <div className="flex flex-col gap-3">
-          <h1 className="text-4xl font-bold tracking-tight text-[#141413]">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900">
             {t("title")}
           </h1>
-          <p className="text-[#6c6a64]">
+          <p className="text-slate-600">
             {t("subtitle")}
           </p>
         </div>
@@ -205,7 +205,7 @@ export default function MindDumpPage() {
             maxLength={4000}
             showCounter={true}
           />
-          <span className="text-xs text-[#6c6a64] font-sans px-1">
+          <span className="text-xs text-slate-500 font-sans px-1">
             {t("minCharMessage")}
           </span>
         </div>
@@ -213,14 +213,14 @@ export default function MindDumpPage() {
         {/* OVERTHINKING BAR */}
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-end">
-            <span className="text-xs font-bold tracking-widest text-[#6c6a64] uppercase">
+            <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
               {t("overthinking")}
             </span>
-            <span className="text-[#141413] font-bold text-right">
+            <span className="text-slate-900 font-bold text-right">
               {getOverthinkingLabel(overthinkingValue)}
             </span>
           </div>
-          <div className="w-full h-3 bg-[#e6dfd8] rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
             <div 
               className="h-full bg-[#cc785c] transition-[width] duration-400 ease"
               style={{ width: `${overthinkingValue}%` }}
@@ -277,13 +277,13 @@ export default function MindDumpPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <SectionLabel>{t("personaLabel")}</SectionLabel>
-            <div className="flex bg-[#efe9de] rounded-lg p-1">
+            <div className="flex bg-slate-200 rounded-lg p-1">
               {(["gacha", "racik"] as const).map(mode => (
                 <button
                   key={mode}
                   onClick={() => setSquadMode(mode)}
                   className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                    squadMode === mode ? "bg-[#cc785c] text-white" : "text-[#6c6a64] hover:text-[#141413]"
+                    squadMode === mode ? "bg-[#cc785c] text-white" : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {mode === "gacha" ? t("gacha") : t("racik")}
@@ -304,23 +304,23 @@ export default function MindDumpPage() {
                 <div 
                   key={key}
                   onClick={() => squadMode === "racik" && togglePersona(key)}
-                  className={`bg-[#efe9de] border transition-all p-4 rounded-xl flex items-center gap-4 cursor-pointer ${
-                    isSelected && squadMode === "racik" ? "border-[#cc785c]" : "border-[#e6dfd8]"
+                  className={`bg-white border transition-all p-4 rounded-xl flex items-center gap-4 cursor-pointer ${
+                    isSelected && squadMode === "racik" ? "border-[#cc785c]" : "border-slate-200"
                   }`}
                 >
                   <div 
                     className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-sm"
-                    style={{ backgroundColor: isSelected ? "#cc785c" : "#8e8b82" }}
+                    style={{ backgroundColor: isSelected ? "#cc785c" : "#94a3b8" }}
                   >
                     {persona.name.charAt(0)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-[#141413] truncate">{persona.name}</p>
-                    <p className="text-xs text-[#6c6a64] truncate">{persona.description}</p>
+                    <p className="font-bold text-slate-900 truncate">{persona.name}</p>
+                    <p className="text-xs text-slate-500 truncate">{persona.description}</p>
                   </div>
                   {squadMode === "racik" && (
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      isSelected ? "bg-[#cc785c] border-[#cc785c]" : "border-[#e6dfd8]"
+                      isSelected ? "bg-[#cc785c] border-[#cc785c]" : "border-slate-200"
                     }`}>
                       {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
                     </div>
@@ -341,7 +341,7 @@ export default function MindDumpPage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className="w-full h-14 bg-[#cc785c] text-white hover:bg-[#a9583e] font-bold text-lg rounded-xl transition-all shadow-lg shadow-[#cc785c]/20 disabled:bg-[#e6dfd8] disabled:text-[#6c6a64] disabled:cursor-not-allowed cursor-pointer"
+            className="w-full h-14 bg-[#cc785c] text-white hover:bg-[#a9583e] font-bold text-lg rounded-xl transition-all shadow-lg shadow-[#cc785c]/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">

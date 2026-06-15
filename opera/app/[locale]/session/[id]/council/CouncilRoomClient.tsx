@@ -48,7 +48,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
     const fromBiases = (session?.detected_biases?.suggested_persona_archetypes || [])
       .map(key => (PERSONA_MAP as any)[key]?.name || key);
-    // Combine and deduplicate
     return Array.from(new Set([...fromDebates, ...fromBiases]));
   }, [debates, session]);
 
@@ -74,7 +73,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     loadInitialData();
   }, [id]);
 
-  // SSE logic
   useEffect(() => {
     if (!id || !session || session.current_status === "completed") return;
 
@@ -129,7 +127,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     };
   }, [id, session]);
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -205,7 +202,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
       </div>
     );
@@ -222,15 +219,15 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const categoryLabel = session?.category || "Analisis";
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] text-[#141413] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-[#efe9de]/90 backdrop-blur-[16px] border-b border-[#e6dfd8] px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-[16px] border-b border-slate-200 px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex -space-x-3">
             {uniquePersonas.slice(0, 3).map((name) => (
               <div
                 key={name}
-                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#faf9f5]"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold border-2 border-[#F8FAFC]"
                 style={{ backgroundColor: getPersonaColor(name) }}
               >
                 {name.charAt(0)}
@@ -238,13 +235,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             ))}
           </div>
           <div className="flex flex-col">
-            <h1 className="text-sm font-bold leading-none truncate max-w-[200px] text-[#141413]">{squadName}</h1>
-            <p className="text-[11px] text-[#6c6a64] mt-1 truncate max-w-[200px]">{personaSubtitle}</p>
+            <h1 className="text-sm font-bold leading-none truncate max-w-[200px] text-slate-900">{squadName}</h1>
+            <p className="text-[11px] text-slate-500 mt-1 truncate max-w-[200px]">{personaSubtitle}</p>
           </div>
         </div>
         {isStreaming && (
-          <div className="flex items-center gap-2 text-[#6c6a64] text-xs italic">
-            <span className="w-2 h-2 rounded-full bg-[#6c6a64] animate-pulse" />
+          <div className="flex items-center gap-2 text-slate-500 text-xs italic">
+            <span className="w-2 h-2 rounded-full bg-slate-500 animate-pulse" />
             <span>{t("typing")}</span>
           </div>
         )}
@@ -267,11 +264,11 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             <React.Fragment key={utterance.debate_id}>
               {showRoundDivider && utterance.round_number && (
                 <div className="flex items-center gap-4 my-4">
-                  <div className="flex-1 h-[1px] bg-[#e6dfd8]" />
-                  <span className="text-[10px] font-bold text-[#6c6a64] uppercase tracking-widest">
+                  <div className="flex-1 h-[1px] bg-slate-200" />
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                     — Ronde {utterance.round_number} —
                   </span>
-                  <div className="flex-1 h-[1px] bg-[#e6dfd8]" />
+                  <div className="flex-1 h-[1px] bg-slate-200" />
                 </div>
               )}
               <div className={`flex gap-3 ${utterance.persona_name === "Kamu" ? "flex-row-reverse" : ""}`}>
@@ -285,11 +282,11 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                   <span className="text-[11px] font-medium" style={{ color }}>
                     {utterance.persona_name}
                   </span>
-                  <div className={`bg-[#efe9de] text-[#141413] rounded-2xl p-3 px-4 shadow-sm relative ${utterance.persona_name === "Kamu" ? "border-r-2 border-[#cc785c]" : ""}`}>
+                  <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === "Kamu" ? "border-r-2 border-[#cc785c]" : ""}`}>
                     <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
                       {bodyLines.join("\n")}
                       {lastLine && utterance.persona_name !== "Kamu" && (
-                        <blockquote className="mt-3 border-l-[3px] border-[#6c6a64] bg-white/50 italic text-sm p-2 rounded-r-sm">
+                        <blockquote className="mt-3 border-l-[3px] border-slate-300 bg-slate-50 italic text-sm p-2 rounded-r-sm">
                           {lastLine}
                         </blockquote>
                       )}
@@ -302,9 +299,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         })}
 
         {roundCompleteEvent && (
-          <div className="bg-[#efe9de] border border-[#e6dfd8] rounded-xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="flex flex-col gap-4">
-              <span className="text-xs font-bold tracking-widest text-[#6c6a64] uppercase">
+              <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
                 {t("target")}
               </span>
               <div className="flex flex-wrap gap-2">
@@ -313,7 +310,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                     key={p}
                     onClick={() => setRebuttalTarget(p)}
                     className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
-                      rebuttalTarget === p ? "bg-[#cc785c] text-white" : "bg-white border border-[#e6dfd8] text-[#141413]"
+                      rebuttalTarget === p ? "bg-[#cc785c] text-white" : "bg-slate-100 border border-slate-200 text-slate-900"
                     }`}
                   >
                     {p}
@@ -327,7 +324,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 aria-label={t("rebuttalPlaceholder")}
                 value={rebuttalContent}
                 onChange={(e) => setRebuttalContent(e.target.value)}
-                className="w-full min-h-[100px] bg-white border border-[#e6dfd8] rounded-lg p-3 text-sm text-[#141413] focus:outline-none focus:border-[#cc785c] transition-all resize-none"
+                className="w-full min-h-[100px] bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:border-[#cc785c] transition-all resize-none"
               />
             </div>
 
@@ -342,7 +339,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
               <button
                 onClick={() => handleSendRebuttal(true)}
                 disabled={isSubmittingRebuttal}
-                className="w-full h-11 bg-[#e6dfd8] text-[#141413] font-medium rounded-lg hover:bg-[#dcd6ce] transition-all"
+                className="w-full h-11 bg-slate-200 text-slate-900 font-medium rounded-lg hover:bg-slate-300 transition-all"
               >
                 {t("skip", { round: roundCompleteEvent.round + 1 })}
               </button>
@@ -359,11 +356,11 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                {(uniquePersonas[debates.length % uniquePersonas.length] || "C").charAt(0)}
              </div>
              <div className="flex flex-col gap-1">
-                <p className="text-xs italic text-[#71717a]">lagi mikir</p>
+                <p className="text-xs italic text-slate-500">lagi mikir</p>
                 <div className="flex gap-1 mt-1 px-1">
-                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce [animation-delay:-0.3s]" />
-                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce [animation-delay:-0.15s]" />
-                   <span className="w-1.5 h-1.5 rounded-full bg-[#6c6a64] animate-bounce" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" />
                 </div>
              </div>
           </div>
@@ -371,23 +368,23 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       </main>
 
       {/* OVERTHINKING BOTTOM BAR */}
-      <footer className="sticky bottom-0 z-40 bg-[#efe9de] border-t border-[#e6dfd8] px-4 py-3">
+      <footer className="sticky bottom-0 z-40 bg-[#F8FAFC] border-t border-slate-200 px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-[10px] font-bold text-[#cc785c] uppercase tracking-wider">
                 {categoryLabel}
               </span>
-              <div className="bg-white border border-[#e6dfd8] rounded-full px-3 py-1 text-xs font-medium text-[#141413]">
+              <div className="bg-white border border-slate-200 rounded-full px-3 py-1 text-xs font-medium text-slate-900">
                 Ronde {Math.min(Math.ceil(completedTurns / (uniquePersonas.length * 3)) || 1, totalRounds)}/{totalRounds}
               </div>
             </div>
-            <span className="text-[10px] font-bold text-[#6c6a64] uppercase">
+            <span className="text-[10px] font-bold text-slate-500 uppercase">
               {isComplete ? "Analisis Selesai" : `Overthinking: ${Math.round(progressPercent)}%`}
             </span>
           </div>
           
-          <div className="w-full h-1.5 bg-[#e6dfd8] rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <div 
               className="h-full bg-[#cc785c] transition-[width] duration-400 ease"
               style={{ width: `${progressPercent}%` }}
@@ -400,7 +397,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       <div className="fixed bottom-20 left-0 right-0 p-4 flex justify-center gap-2 z-30">
         <button
           onClick={() => router.push(`/session/${id}/verdict?force=true`)}
-          className="bg-white/50 backdrop-blur text-[#6c6a64] text-[10px] font-bold px-3 py-1 rounded-full border border-[#e6dfd8] hover:bg-white"
+          className="bg-white/80 backdrop-blur text-slate-500 text-[10px] font-bold px-3 py-1 rounded-full border border-slate-200 hover:bg-white"
         >
           Force Verdict Access
         </button>
@@ -415,7 +412,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       </div>
 
       {session?.current_status === "completed" && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#faf9f5] to-transparent z-30">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F8FAFC] to-transparent z-30">
           <div className="max-w-2xl mx-auto w-full">
             <button
               onClick={() => router.push(`/session/${id}/verdict`)}
