@@ -47,15 +47,23 @@ export async function runProfiler(
         })
         console.log(`[ProfilerService] Received Groq response for session ${sessionId}`)
 
-        let cleanJsonString = resultString.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
+        let cleanJsonString = resultString.trim();
         
-        if (cleanJsonString.startsWith('```json')) {
-          cleanJsonString = cleanJsonString.substring(7)
+        // Find the first '{' and last '}'
+        const firstBrace = cleanJsonString.indexOf('{');
+        const lastBrace = cleanJsonString.lastIndexOf('}');
+        
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            cleanJsonString = cleanJsonString.substring(firstBrace, lastBrace + 1);
+        } else {
+            // Fallback: strip markdown blocks if braces weren't found via simple search
+            cleanJsonString = cleanJsonString.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+            if (cleanJsonString.startsWith('```json')) cleanJsonString = cleanJsonString.substring(7);
+            if (cleanJsonString.startsWith('```')) cleanJsonString = cleanJsonString.substring(3);
+            if (cleanJsonString.endsWith('```')) cleanJsonString = cleanJsonString.substring(0, cleanJsonString.length - 3);
         }
-        if (cleanJsonString.endsWith('```')) {
-          cleanJsonString = cleanJsonString.substring(0, cleanJsonString.length - 3)
-        }
-        cleanJsonString = cleanJsonString.trim()
+        
+        cleanJsonString = cleanJsonString.trim();
 
         try {
           const parsed = JSON.parse(cleanJsonString) as ProfilerOutput
