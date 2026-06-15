@@ -42,6 +42,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const [rebuttalTarget, setRebuttalTarget] = useState("Semua (Squad)");
   const [rebuttalContent, setRebuttalContent] = useState("");
   const [isSubmittingRebuttal, setIsSubmittingRebuttal] = useState(false);
+  const [showThinkingTooltip, setShowThinkingTooltip] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const uniquePersonas = useMemo(() => {
@@ -144,6 +145,16 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     }
   }, [debates, isStreaming, roundCompleteEvent]);
 
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (isStreaming) {
+       timer = setTimeout(() => setShowThinkingTooltip(true), 30000);
+    } else {
+       setShowThinkingTooltip(false);
+    }
+    return () => clearTimeout(timer);
+  }, [isStreaming]);
+
   async function consumeSSE(response: Response, onEvent: (data: any) => void) {
     if (!response.body) return;
     const reader = response.body.getReader();
@@ -223,17 +234,16 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const personaSubtitle = uniquePersonas.join(", ") + " & Kamu";
 
   const totalRounds = session?.rounds || 1;
-  const totalExpectedTurns = (uniquePersonas.length || 3) * 3 * totalRounds;
   const completedTurns = debates.filter(d => !d.debate_id.startsWith('streaming-')).length;
-  const progressPercent = Math.min((completedTurns / totalExpectedTurns) * 100, 100);
-  const isComplete = progressPercent === 100;
+  const isComplete = session?.current_status === "completed";
   const categoryLabel = session?.category || "Analisis";
+  const currentRound = roundCompleteEvent ? roundCompleteEvent.round : Math.min(Math.ceil(completedTurns / (uniquePersonas.length * 3)) || 1, totalRounds);
+  const displayRound = Math.min(Math.max(currentRound, 1), totalRounds);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-[16px] border-b border-slate-200 px-4 h-16 flex items-center justify-between">
         <OperaNav variant="authed" showHomeButton={true} />
-        {/* ... */}
       </header>
 
       {/* CHAT AREA */}
@@ -287,7 +297,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           );
         })}
 
-        {roundCompleteEvent && (
+        {showThinkingTooltip && isStreaming && (
+            <div className="text-center text-xs text-slate-500 italic animate-pulse">
+                {t("longAnalysis")}
+            </div>
+        )}
+
+        {roundCompleteEvent && !isComplete && (
           <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="flex flex-col gap-4">
               <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
@@ -365,19 +381,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 {categoryLabel}
               </span>
               <div className="bg-white border border-slate-200 rounded-full px-3 py-1 text-xs font-medium text-slate-900">
-                Ronde {Math.min((roundCompleteEvent?.round || 0) + 1, totalRounds)}/{totalRounds}
+                Ronde {displayRound}/{totalRounds}
               </div>
             </div>
-            <span className="text-[10px] font-bold text-slate-500 uppercase">
-              {isComplete ? "Analisis Selesai" : `Overthinking: ${Math.round(progressPercent)}%`}
-            </span>
-          </div>
-          
-          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-[#cc785c] transition-[width] duration-400 ease"
-              style={{ width: `${progressPercent}%` }}
-            />
           </div>
         </div>
       </footer>
@@ -390,7 +396,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         >
           Force Verdict Access
         </button>
-        {roundCompleteEvent && (
+        {roundCompleteEvent && !isComplete && (
           <button
             onClick={() => handleSendRebuttal(true)}
             className="bg-[#cc785c]/10 backdrop-blur text-[#cc785c] text-[10px] font-bold px-3 py-1 rounded-full border border-[#cc785c]/20 hover:bg-[#cc785c]/20"
@@ -400,7 +406,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         )}
       </div>
 
-      {session?.current_status === "completed" && (
+      {isComplete && (
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F8FAFC] to-transparent z-30">
           <div className="max-w-2xl mx-auto w-full">
             <button
