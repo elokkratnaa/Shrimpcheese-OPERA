@@ -404,6 +404,14 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         >
           Force Verdict Access
         </button>
+        {roundCompleteEvent && (
+          <button
+            onClick={() => handleSendRebuttal(true)}
+            className="bg-[#cc785c]/10 backdrop-blur text-[#cc785c] text-[10px] font-bold px-3 py-1 rounded-full border border-[#cc785c]/20 hover:bg-[#cc785c]/20"
+          >
+            Force Next Round
+          </button>
+        )}
       </div>
 
       {session?.current_status === "completed" && (
