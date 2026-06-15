@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { completeGroq } from '@/lib/groq'
+import { completeGroq, DEBATE_MODEL_CHAIN } from '@/lib/groq'
 import { PERSONAS } from '@/lib/personas'
 
 /**
@@ -121,7 +121,8 @@ export async function PATCH(
       if (personaEntry) {
         closing_message = await completeGroq({
           system: personaEntry.systemPrompt,
-          messages: [{ role: 'user', content: 'User picked you as most rational. Give a short closing message in character.' }]
+          messages: [{ role: 'user', content: 'User picked you as most rational. Give a short closing message in character.' }],
+          modelChain: DEBATE_MODEL_CHAIN
         })
       }
     }

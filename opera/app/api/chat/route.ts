@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { streamGroq } from '@/lib/groq'
-import { personas } from '@/lib/personas'
+import { PERSONA_MAP } from '@/lib/personas'
 import { checkInputSafety } from '@/services/SafetyService'
+import { getTranslations } from 'next-intl/server'
 
 export async function POST(request: NextRequest) {
   try {
+    const t = await getTranslations('Error')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -31,12 +33,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Safety check
-    const isSafe = await checkInputSafety(message)
-    if (!isSafe) {
-      return new Response('Input is not safe.', { status: 400 })
+    const safety = await checkInputSafety(message)
+    if (!safety.isSafe) {
+      const errorMessage = safety.error === 'RATE_LIMITED' ? t('rateLimit') : t('profiler_failed')
+      return new Response(errorMessage, { status: 400 })
     }
 
-    const systemPrompt = personas[persona] || `You are ${persona}, a helpful advisor.`
+    const systemPrompt = PERSONA_MAP[persona]?.systemPrompt || `You are ${persona}, a helpful advisor.`
 
     const chatHistory = (history as Array<{ role: string; content: string }> || []).map((msg) => ({
       role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,

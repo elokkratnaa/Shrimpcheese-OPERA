@@ -5,7 +5,8 @@
     "home": "Home",
     "history": "History",
     "chat": "Chat",
-    "profile": "Profile"
+    "profile": "Profile",
+    "dump": "New Session"
   },
   "Landing": {
     "hero": {
@@ -133,6 +134,8 @@
     "profiler_failed": "OPERA couldn't read your dump. Try again with more detail.",
     "timeout": "This took too long. The council may be stuck.",
     "not_found": "This session doesn't exist or isn't yours.",
+    "rateLimit": "Please wait an hour to chat again.",
+    "verdictUnavailable": "Sorry, a verdict couldn't be reached within the allotted time. You can try again in the next hour.",
     "default": "Something broke backstage.",
     "tryAgain": "Try again",
     "goHome": "Go back home",
@@ -176,7 +179,9 @@
     "patterns": "Your patterns",
     "emptyTheater": "Your theater is empty. Pour your thoughts out to host your first cognitive debate council.",
     "startFirst": "Start your first session",
-    "noPatterns": "Commit to decisions to discover tags and track your cognitive patterns."
+    "noPatterns": "Commit to decisions to discover tags and track your cognitive patterns.",
+    "noMood": "Mood isnt available :/",
+    "overthinking": "OVERTHINKING LEVEL"
   },
   "Session": {
     "committed": "Decision Committed",
@@ -191,7 +196,7 @@
   "MindDump": {
     "title": "What's going on?",
     "subtitle": "No format needed. Write like you think.",
-    "minCharMessage": "Min. 50 characters",
+    "minCharMessage": "{count} more characters needed to start",
     "submit": "Start my session",
     "categories": {
       "Karir": "Career",
@@ -203,20 +208,21 @@
       "Lainnya": "Other"
     },
     "emotions": {
-      "Bingung": "Confused",
-      "Galau": "Anxious",
-      "Panik": "Panicked",
-      "Frustrasi": "Frustrated",
-      "Santai": "Relaxed"
+      "Calm": "Calm",
+      "Anxious": "Anxious",
+      "Overwhelmed": "Overwhelmed",
+      "Excited": "Excited"
     },
     "rounds": "DEBATE ROUNDS:",
-    "overthinking": "REASONING DEPTH:",
+    "overthinking": "OVERTHINKING LEVEL",
     "overthinkingLabels": {
       "relaxed": "Relaxed",
       "warming": "Warming up",
       "hot": "Getting hot",
       "overthinking": "OVERTHINKING DETECTED"
     },
+    "currentMood": "Current mood",
+    "noMood": "None yet",
     "categoryLabel": "WHAT'S THIS ABOUT?",
     "emotionLabel": "HOW ARE YOU FEELING?",
     "personaLabel": "CHOOSE YOUR COUNCIL (OPTIONAL):",
@@ -333,7 +339,7 @@
     }
   },
   "OverthinkingBar": {
-    "label": "Reasoning depth",
+    "label": "Overthinking level",
     "complete": "Analysis complete"
   }
 }

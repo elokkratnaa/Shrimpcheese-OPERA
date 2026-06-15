@@ -50,7 +50,12 @@ export async function GET(
 
         // Listen for debate events
         const onEvent = async (data: any) => {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+          } catch (e) {
+            // Stream already closed or errored, ignore
+            return;
+          }
           
           if (data.type === 'debate_complete') {
             sessionEvents.off(`session:${id}`, onEvent)
@@ -61,7 +66,12 @@ export async function GET(
               while (true) {
                 const { done, value } = await reader.read()
                 if (done) break
-                controller.enqueue(value)
+                try {
+                    controller.enqueue(value)
+                } catch (e) {
+                    // Stream already closed, stop reading
+                    break;
+                }
               }
             } catch (err) {
               console.error('Error during automatic verdict synthesis:', err)

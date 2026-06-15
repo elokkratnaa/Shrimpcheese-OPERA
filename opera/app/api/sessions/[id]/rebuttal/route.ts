@@ -34,13 +34,17 @@ export async function POST(
     let body
     try {
       body = await request.json()
+      console.log(`[Rebuttal API] Received body for session ${id}:`, body);
     } catch {
+      console.error(`[Rebuttal API] Invalid JSON body for session ${id}`);
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const { content, target = 'Squad', round_number } = body
+    const { content, target = 'Squad', round_number, action } = body
+    console.log(`[Rebuttal API] Parsed body: content=${content}, target=${target}, round_number=${round_number}, action=${action}`);
 
-    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+    if (action !== 'skip' && (!content || typeof content !== 'string' || content.trim().length === 0)) {
+      console.error(`[Rebuttal API] Missing content for session ${id}`);
       return NextResponse.json({ error: 'content is required' }, { status: 400 })
     }
 

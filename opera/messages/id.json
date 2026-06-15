@@ -5,7 +5,8 @@
     "home": "Beranda",
     "history": "Riwayat",
     "chat": "Obrolan",
-    "profile": "Profil"
+    "profile": "Profil",
+    "dump": "Sesi Baru"
   },
   "Landing": {
     "hero": {
@@ -133,6 +134,8 @@
     "profiler_failed": "OPERA tidak bisa membaca mind dump Anda. Coba lagi dengan lebih detail.",
     "timeout": "Ini memakan waktu terlalu lama. Dewan mungkin macet.",
     "not_found": "Sesi ini tidak ada atau bukan milik Anda.",
+    "rateLimit": "Mohon tunggu satu jam untuk chat lagi.",
+    "verdictUnavailable": "Maaf, verdict tidak dapat dicapai dalam waktu yang ditentukan. Anda bisa mencoba lagi dalam satu jam ke depan.",
     "default": "Ada yang rusak di balik layar.",
     "tryAgain": "Coba lagi",
     "goHome": "Kembali ke beranda",
@@ -176,7 +179,10 @@
     "patterns": "Pola Anda",
     "emptyTheater": "Theater Anda kosong. Tumpahkan pikiran Anda untuk mengadakan dewan debat kognitif pertama Anda.",
     "startFirst": "Mulai sesi pertama saya",
-    "noPatterns": "Berkomitmenlah pada keputusan untuk menemukan tag dan melacak pola kognitif Anda."
+    "noPatterns": "Berkomitmenlah pada keputusan untuk menemukan tag dan melacak pola kognitif Anda.",
+    "currentMood": "Mood saat ini",
+    "noMood": "Belum ada",
+    "overthinking": "TINGKAT OVERTHINKING"
   },
   "Session": {
     "committed": "Keputusan Berkomitmen",
@@ -203,14 +209,13 @@
       "Lainnya": "Lainnya"
     },
     "emotions": {
-      "Bingung": "Bingung",
-      "Galau": "Galau",
-      "Panik": "Panik",
-      "Frustrasi": "Frustrasi",
-      "Santai": "Santai"
+      "Calm": "Tenang",
+      "Anxious": "Galau",
+      "Overwhelmed": "Kewalahan",
+      "Excited": "Semangat"
     },
     "rounds": "JUMLAH RONDE DEBAT:",
-    "overthinking": "TINGKAT OVERTHINKING LO:",
+    "overthinking": "TINGKAT OVERTHINKING",
     "overthinkingLabels": {
       "relaxed": "Santai Aja",
       "warming": "Mulai Berasap",
