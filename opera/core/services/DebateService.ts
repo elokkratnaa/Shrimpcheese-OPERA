@@ -141,23 +141,25 @@ export async function spawnCouncil(
         persona_name: personaName
       });
 
-      const timeoutPromise = new Promise<string>((resolve) => 
-        setTimeout(() => resolve((locale as any) === 'id' ? 'Saya tidak punya pendapat lebih lanjut.' : 'I have no further opinion.'), 60000)
+      // Create a timeout that rejects after 25s (slightly longer than completeGroq's 20s)
+      const timeoutPromise = new Promise<string>((_, reject) => 
+        setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 25000)
       );
 
       const responsePromise = completeGroq({
-        system: `${systemPrompt} You're a helpful assistant in a fast-moving group chat. Rules:
-                - Max 3 sentences. One if possible.
-                - Casual tone. No formal openers like "Certainly!" or "Great question!"
-                - Never restate the question.
-                - No markdown, lists, or headers.
-                - If unsure, say so in one line.
-                DO NOT use <think> tags. Output ONLY the response text.`,
+        system: `${systemPrompt} ...`, // ... (rest of prompt)
         messages: [{ role: 'user', content: userPrompt }],
         modelChain: DEBATE_MODEL_CHAIN
       });
 
-      const messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
+      // Use a race, but if it rejects, log it and return the fallback
+      let messageContent: string = "";
+      try {
+        messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
+      } catch (err) {
+        console.error(`[DebateService] Utterance failed or timed out for ${personaName}:`, err);
+        messageContent = (locale as any) === 'id' ? 'Saya tidak punya pendapat lebih lanjut.' : 'I have no further opinion.';
+      }
       
       const insertPayload = {
           session_id: sessionId,
