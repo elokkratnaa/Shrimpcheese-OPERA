@@ -283,7 +283,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 {t("target")}
               </span>
               <div className="flex flex-wrap gap-2">
-                {["Semua (Squad)", ...uniquePersonas].map(p => (
+                {["Semua (Squad)", ...uniquePersonas].filter(p => p !== "Kamu").map(p => (
                   <button
                     key={p}
                     onClick={() => setRebuttalTarget(p)}
@@ -354,7 +354,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 {categoryLabel}
               </span>
               <div className="bg-white border border-slate-200 rounded-full px-3 py-1 text-xs font-medium text-slate-900">
-                Ronde {Math.min(Math.ceil(completedTurns / (uniquePersonas.length * 3)) || 1, totalRounds)}/{totalRounds}
+                Ronde {Math.min((roundCompleteEvent?.round || 0) + 1, totalRounds)}/{totalRounds}
               </div>
             </div>
             <span className="text-[10px] font-bold text-slate-500 uppercase">
