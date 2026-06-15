@@ -1,3 +1,4 @@
+import { logger } from "@/shared/logger"
 import { createBackgroundClient } from '@/core/lib/supabase-background'
 import { completeGroq, DEBATE_MODEL_CHAIN } from '@/core/lib/groq'
 import { PERSONA_MAP } from '@/shared/personas'
@@ -44,7 +45,7 @@ export async function spawnCouncil(
         throw new Error("No valid personas found for debate");
     }
     
-    // ... rest of the setup code ...
+    // Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select('detected_biases')
@@ -88,7 +89,7 @@ export async function spawnCouncil(
               const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + turn * 10 + idx);
               return { name: config.name, text };
             } catch (err) {
-              console.error(`[DebateService] Turn failed for ${config.name}:`, err);
+              logger.error(`Turn failed for ${config.name}:`, err);
               return { name: config.name, text: (locale as any) === 'id' ? 'Saya tidak dapat merespons saat ini.' : 'I am unable to respond at this time.' };
             }
           })
@@ -101,10 +102,10 @@ export async function spawnCouncil(
       
       globalTranscript += `\n[Round ${round}]: ${roundTranscript}`;
 
-      console.log(`${COLORS.yellow}[DebateService] Completed turn loop for round ${round}/${rounds}.${COLORS.reset}`);
+      logger.warn(`[DebateService] Completed turn loop for round ${round}/${rounds}.`);
 
       // Emit round complete event at the end of each round
-      console.log(`${COLORS.yellow}[DebateService] Emitting round_complete for round ${round}/${rounds}${COLORS.reset}`);
+      logger.warn(`[DebateService] Emitting round_complete for round ${round}/${rounds}`);
       sessionEvents.emit(`session:${sessionId}`, { 
         type: "round_complete", 
         round: round, 
@@ -144,59 +145,49 @@ export async function spawnCouncil(
         setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 60000)
       );
 
-      const COLORS = {
-        reset: "\x1b[0m",
-        green: "\x1b[32m",
-        cyan: "\x1b[36m",
-        yellow: "\x1b[33m",
-        red: "\x1b[31m",
-      };
+      logger.info(`Invoking Groq for ${personaName}...`);
+      
+      const responsePromise = completeGroq({
+        system: `${systemPrompt} Rules:
+                - Output ONLY the response text.
+                - Max 2 sentences. Be extremely concise.
+                - No formal openers/closers.
+                - No markdown, lists, or headers.
+                - DO NOT use <think> tags.`,
+        messages: [{ role: 'user', content: userPrompt }],
+        modelChain: DEBATE_MODEL_CHAIN
+      });
 
-      // ... inside runUtterance ...
-
-            console.log(`${COLORS.cyan}[DebateService] Invoking Groq for ${personaName}...${COLORS.reset}`);
-
-            const responsePromise = completeGroq({
-              system: `${systemPrompt} Rules:
-                      - Output ONLY the response text.
-                      - Max 2 sentences. Be extremely concise.
-                      - No formal openers/closers.
-                      - No markdown, lists, or headers.
-                      - DO NOT use <think> tags.`,
-              messages: [{ role: 'user', content: userPrompt }],
-              modelChain: DEBATE_MODEL_CHAIN
-            });
-
-            // Use a race, but if it rejects, log it and return the fallback
-            let messageContent: string = "";
-            try {
-              messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
-              console.log(`${COLORS.green}[DebateService] Successfully got response from ${personaName}${COLORS.reset}`);
-            } catch (err) {
-              console.error(`${COLORS.red}[DebateService] Utterance failed or timed out for ${personaName}:`, err, `${COLORS.reset}`);
-              messageContent = (locale as any) === 'id' ? 'Saya tidak dapat merespons saat ini.' : 'I am unable to respond at this time.';
-            }
-
-            const insertPayload = {
-                session_id: sessionId,
-                persona_name: personaName,
-                message_content: messageContent,
-                round_number: roundNumber,
-                turn_sequence: turnSequence
-              };
-            console.log(`${COLORS.yellow}[DebateService] Attempting to insert: ${JSON.stringify(insertPayload)}${COLORS.reset}`);
+      // Use a race, but if it rejects, log it and return the fallback
+      let messageContent: string = "";
+      try {
+        messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
+        logger.success(`Successfully got response from ${personaName}`);
+      } catch (err) {
+        logger.error(`Utterance failed or timed out for ${personaName}:`, err);
+        messageContent = (locale as any) === 'id' ? 'Saya tidak dapat merespons saat ini.' : 'I am unable to respond at this time.';
+      }
+      
+      const insertPayload = {
+          session_id: sessionId,
+          persona_name: personaName,
+          message_content: messageContent,
+          round_number: roundNumber,
+          turn_sequence: turnSequence
+        };
+      logger.warn(`Attempting to insert: ${JSON.stringify(insertPayload)}`);
+      
       const { data, error } = await supabase
         .from('council_debates')
         .insert([insertPayload]);
       
       if (error) {
-          console.error(`[DebateService] Failed to insert debate utterance for ${personaName}:`, error);
-          console.error(`[DebateService] Payload was:`, insertPayload);
+          logger.error(`Failed to insert debate utterance for ${personaName}:`, error);
+          logger.error(`Payload was:`, insertPayload);
       } else {
-          console.log(`[DebateService] Inserted utterance for ${personaName}`);
+          logger.success(`Inserted utterance for ${personaName}`);
       }
-      
-      // Emit turn to client for live updates
+
       sessionEvents.emit(`session:${sessionId}`, {
         type: "turn",
         persona_name: personaName,
@@ -207,7 +198,7 @@ export async function spawnCouncil(
       return messageContent
     }
 
-    // ... completion code ...
+    // Mark as completed
     await supabase
       .from('sessions')
       .update({ current_status: 'completed' })
@@ -217,7 +208,7 @@ export async function spawnCouncil(
     sessionEvents.emit(`session:${sessionId}`, { type: "debate_complete" });
 
   } catch (err: unknown) {
-    console.error(`[DebateService] Debate failed:`, err)
+    logger.error(`Debate failed:`, err)
     await supabase
       .from('sessions')
       .update({ current_status: 'failed' })
