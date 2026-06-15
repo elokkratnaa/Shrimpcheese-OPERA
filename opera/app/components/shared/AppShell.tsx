@@ -11,9 +11,9 @@ import {
   User 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { UserAvatar } from "./UserAvatar";
 
 const NAV_ITEMS = [
   { href: "/home", icon: LayoutDashboard, labelKey: "home" },
@@ -28,18 +28,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const t = useTranslations("Nav");
   const router = useRouter();
   const supabase = createClient();
-  const [initials, setInitials] = useState("OP");
+  const [userData, setUserData] = useState({ fullName: "", email: "" });
 
   useEffect(() => {
     const fetchUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const fullName = user.user_metadata?.full_name;
-        if (fullName) {
-          setInitials(fullName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2));
-        } else if (user.email) {
-          setInitials(user.email.slice(0, 2).toUpperCase());
-        }
+        setUserData({
+            fullName: user.user_metadata?.full_name || "",
+            email: user.email || ""
+        });
       }
     };
     fetchUser();
@@ -93,14 +91,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {!isFocusMode && (
           <header className="h-16 border-b border-hairline flex items-center justify-end px-6 gap-4">
             <LanguageSwitcher />
-            <Avatar 
+            <UserAvatar 
               className="cursor-pointer size-8 hover:ring-2 hover:ring-primary transition-all"
+              fullName={userData.fullName}
+              email={userData.email}
               onClick={() => router.push("/profile")}
-            >
-              <AvatarFallback className="font-semibold bg-surface-card text-ink">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
+            />
           </header>
         )}
 

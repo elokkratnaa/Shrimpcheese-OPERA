@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    console.log(`[API] User from auth: ${user?.id}`);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -74,7 +73,6 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    console.log(`[API] User from auth: ${user?.id}`);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -85,7 +83,6 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = (page - 1) * limit
 
-    console.log(`[API] Fetching sessions for user ${user.id}, page ${page}`);
 
     const { data: sessions, error } = await supabase
       .from('sessions')
@@ -110,7 +107,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log(`[API] Fetched ${sessions?.length || 0} sessions`);
     return NextResponse.json(sessions)
   } catch (err: unknown) {
     console.error("[API] Unexpected error:", err);

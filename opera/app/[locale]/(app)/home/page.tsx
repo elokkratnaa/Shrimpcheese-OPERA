@@ -40,7 +40,6 @@ export default async function HomeDashboard({
   }
 
   const sessions = rawSessions || [];
-  console.log("[Dashboard] Fetched sessions:", sessions);
 
   // Calculate current mood: most frequent emotional state in last 5 sessions
   const moodCounts: Record<string, number> = {};

@@ -42,7 +42,6 @@ export async function completeGroq({
     
     while (retries <= maxRetries) {
       try {
-        console.log(`[Groq] Attempting model: ${model} (Attempt ${retries + 1})`);
         
         const formattedMessages = [{ role: 'system', content: system }, ...messages].filter(msg => msg.role !== 'system' || msg.content.trim() !== '');
 
@@ -69,7 +68,6 @@ export async function completeGroq({
         
         retries++;
         if (retries <= maxRetries) {
-          console.log(`[Groq] Retrying in ${delay}ms...`);
           await sleep(delay);
         } else {
           break; // Move to next model in chain
@@ -93,7 +91,6 @@ export async function streamGroq({
 }) {
   for (const model of modelChain) {
     try {
-      console.log(`[Groq] Attempting stream model: ${model}`);
       return await groqClient.chat.completions.create({
         model,
         max_tokens: 2048,

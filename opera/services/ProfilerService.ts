@@ -1,39 +1,7 @@
 import { createBackgroundClient } from '@/lib/supabase/background'
-import { completeGroq, DEBATE_MODEL_CHAIN } from '@/lib/groq'
+import { completeGroq, DEBATE_MODEL_CHAIN} from '@/lib/groq'
 import { spawnCouncil } from '@/services/DebateService'
-
-/**
- * Interface representing the parsed Stage 1 Profiler output schema.
- */
-export interface ProfilerOutput {
-  core_decision_node: string
-  constraints: string[]
-  dependencies: string[]
-  contradictions: string[]
-  emotional_vector: {
-    state: 'anxious' | 'avoidant' | 'risk-tolerant' | 'fatigued' | 'hopeful' | 'bingung'
-    intensity: 1 | 2 | 3
-  }
-  suggested_persona_archetypes: string[]
-}
-
-const PROFILER_SYSTEM_PROMPT = `You are the Profiler for OPERA. Your task is to analyze the user's raw mind dump and output a structured JSON object.
-You must extract the core decision node, hard constraints, dependencies, logical/emotional contradictions, emotional state vector, and 2-3 suggested persona archetypes (must use the exact keys: 'pragmatic-stoic', 'venture-capitalist', 'creative-hedonist').
-
-You must strictly output ONLY valid JSON matching this schema:
-{
-  "core_decision_node": "the actual decision being faced",
-  "constraints": ["limit 1", "limit 2"],
-  "dependencies": ["dependency 1"],
-  "contradictions": ["logical conflict 1"],
-  "emotional_vector": {
-    "state": "anxious", // must be one of: anxious, avoidant, risk-tolerant, fatigued, hopeful, bingung
-    "intensity": 2 // must be 1, 2, or 3
-  },
-  "suggested_persona_archetypes": ["pragmatic-stoic", "venture-capitalist"] // choose 2 to 3 from: pragmatic-stoic, venture-capitalist, creative-hedonist
-}
-
-Do not include any chat conversational text or markdown code blocks other than raw JSON.`
+import { PROFILER_SYSTEM_PROMPT, ProfilerOutput } from '@/lib/types'
 
 /**
  * Runs the profiler on a session by reading the mind dump, sending to Groq,
@@ -48,6 +16,7 @@ export async function runProfiler(
 
   try {
     console.log(`[ProfilerService] Starting profiling for session ${sessionId}`)
+    // 1. Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select('raw_mind_dump, rounds, category, emotional_state')
@@ -67,6 +36,7 @@ export async function runProfiler(
     let success = false
     let profilerOutput: ProfilerOutput | null = null
 
+    // 2. Call completeGroq() with profiler system prompt (retry once on fail)
     while (attempts < 2 && !success) {
       attempts++
       try {
@@ -78,32 +48,45 @@ export async function runProfiler(
         console.log(`[ProfilerService] Received Groq response for session ${sessionId}`)
 
         let cleanJsonString = resultString.replace(/<think>[\s\S]*?<\/think>/g, '').trim()
-        if (cleanJsonString.startsWith('```json')) cleanJsonString = cleanJsonString.substring(7)
-        if (cleanJsonString.endsWith('```')) cleanJsonString = cleanJsonString.substring(0, cleanJsonString.length - 3)
+        
+        if (cleanJsonString.startsWith('```json')) {
+          cleanJsonString = cleanJsonString.substring(7)
+        }
+        if (cleanJsonString.endsWith('```')) {
+          cleanJsonString = cleanJsonString.substring(0, cleanJsonString.length - 3)
+        }
         cleanJsonString = cleanJsonString.trim()
 
-        const parsed = JSON.parse(cleanJsonString) as ProfilerOutput
-        if (
-          typeof parsed.core_decision_node === 'string' &&
-          Array.isArray(parsed.constraints) &&
-          Array.isArray(parsed.dependencies) &&
-          Array.isArray(parsed.contradictions) &&
-          parsed.emotional_vector &&
-          ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector.state) &&
-          [1, 2, 3].includes(parsed.emotional_vector.intensity) &&
-          Array.isArray(parsed.suggested_persona_archetypes) &&
-          parsed.suggested_persona_archetypes.length >= 2
-        ) {
-          profilerOutput = parsed
-          success = true
-        } else {
-          throw new Error('JSON structure validation failed')
+        try {
+          const parsed = JSON.parse(cleanJsonString) as ProfilerOutput
+          // Validation checks
+          if (
+            typeof parsed.core_decision_node === 'string' &&
+            Array.isArray(parsed.constraints) &&
+            Array.isArray(parsed.dependencies) &&
+            Array.isArray(parsed.contradictions) &&
+            parsed.emotional_vector &&
+            ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector.state) &&
+            [1, 2, 3].includes(parsed.emotional_vector.intensity) &&
+            Array.isArray(parsed.suggested_persona_archetypes) &&
+            parsed.suggested_persona_archetypes.length >= 2
+          ) {
+            profilerOutput = parsed
+            success = true
+          } else {
+            console.error(`[ProfilerService] JSON structure validation failed. Raw response: ${cleanJsonString}`)
+            throw new Error('JSON structure validation failed')
+          }
+        } catch (parseErr) {
+          console.error(`[ProfilerService] JSON parsing failed. Raw response: ${cleanJsonString}`)
+          throw parseErr
         }
       } catch (err: unknown) {
         console.error(`[ProfilerService] Attempt ${attempts} failed for session ${sessionId}:`, err)
       }
     }
 
+    // 4. On second failure update status to failed
     if (!success || !profilerOutput) {
       console.error(`[ProfilerService] Profiling failed for session ${sessionId} after ${attempts} attempts`)
       await supabase
@@ -114,6 +97,7 @@ export async function runProfiler(
     }
     console.log(`[ProfilerService] Profiling successful for session ${sessionId}`)
 
+    // 5. Update session details and status
     const { error: updateError } = await supabase
       .from('sessions')
       .update({
@@ -129,6 +113,7 @@ export async function runProfiler(
     }
     console.log(`[ProfilerService] Session ${sessionId} updated to processing`)
 
+    // 6. Spawn the Council Debate (Backgrounded)
     const personasToSpawn = (manualPersonas && manualPersonas.length > 0) 
       ? manualPersonas 
       : profilerOutput.suggested_persona_archetypes
