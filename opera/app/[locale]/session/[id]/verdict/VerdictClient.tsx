@@ -101,7 +101,10 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Feedback response:", data);
         setClosingMessage(data.closing_message);
+      } else {
+        console.error("Feedback fetch failed", await response.text());
       }
     } catch (err: unknown) {
       console.error("Error updating favourite persona:", err);

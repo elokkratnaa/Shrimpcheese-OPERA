@@ -69,42 +69,32 @@ export async function spawnCouncil(
     let globalTranscript: string = ""
 
     for (let round = 1; round <= rounds; round++) {
-      // ... round loops ...
-      // Turn 1
-      const turn1Responses = await Promise.all(
-        chosenConfigs.map(async (config, idx) => {
-          const userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`
-          const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + 10 + idx)
-          return { name: config.name, text }
-        })
-      )
-      
-      // Turn 2
-      const turn2Responses = await Promise.all(
-        chosenConfigs.map(async (config, idx) => {
-          const otherResponses = turn1Responses.filter(r => r.name !== config.name)
-            .map(r => `[${r.name}]: "${r.text}"`).join('\n\n')
-          const userPrompt = `Round ${round}: Challenge these arguments: ${otherResponses}`
-          const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + 20 + idx)
-          return { name: config.name, text }
-        })
-      )
+      const turns = Math.floor(Math.random() * 3) + 1;
+      let roundTranscript = "";
 
-      // Turn 3
-      const turn3Responses = await Promise.all(
-        chosenConfigs.map(async (config, idx) => {
-          const myChallenges = turn2Responses.filter(r => r.name !== config.name)
-            .map(r => `[${r.name}]: "${r.text}"`).join('\n\n')
-          const userPrompt = `Round ${round}: Deliver final strategic advice based on: ${myChallenges}`
-          const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + 30 + idx)
-          return { name: config.name, text }
-        })
-      )
+      for (let turn = 1; turn <= turns; turn++) {
+        const turnResponses = await Promise.all(
+          chosenConfigs.map(async (config, idx) => {
+            let userPrompt = "";
+            if (turn === 1) {
+              userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`;
+            } else if (turn === turns) {
+               userPrompt = `Round ${round}: Deliver final strategic advice based on previous arguments: ${roundTranscript}`;
+            } else {
+               userPrompt = `Round ${round}: Challenge/refine previous arguments: ${roundTranscript}`;
+            }
+
+            const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + turn * 10 + idx);
+            return { name: config.name, text };
+          })
+        );
+
+        turnResponses.forEach(r => {
+          roundTranscript += `\n[${r.name}]: ${r.text}`;
+        });
+      }
       
-      // Append all Turn 3 responses to transcript
-      turn3Responses.forEach(r => {
-        globalTranscript += `\n[Round ${round}][${r.name}]: ${r.text}`
-      })
+      globalTranscript += `\n[Round ${round}]: ${roundTranscript}`;
 
       // Emit round complete event at the end of each round
       sessionEvents.emit(`session:${sessionId}`, { 

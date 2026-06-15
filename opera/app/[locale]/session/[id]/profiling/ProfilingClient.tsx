@@ -31,8 +31,12 @@ export default function ProfilingClient() {
         const personaIds = session.detected_biases?.suggested_persona_archetypes || [];
         const chosen = personaIds.map((pid: string) => (PERSONA_MAP as any)[pid]).filter(Boolean);
         
+        // Mood analysis
+        const mood = session.detected_biases?.emotional_vector;
+        
         if (chosen.length >= 2) {
           setDynamicMessages([
+            `Mood detected: ${mood?.state || 'neutral'}`,
             `${chosen[0].name}: Analyzing structural integrity...`,
             `${chosen[1].name}: Mapping constraints and contradictions...`,
             `${chosen[2]?.name || "The Squad"}: Preparing the Council Room...`
