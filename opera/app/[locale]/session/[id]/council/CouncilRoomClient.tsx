@@ -89,10 +89,12 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
         await consumeSSE(response, (event) => {
           if (aborted) return;
+          console.log("[UI] Received SSE event:", event);
 
           if (event.type === "turn") {
             setDebates(prev => {
-              if (prev.some(d => d.persona_name === event.persona_name && d.message_content === event.message_content && d.round_number === event.round_number)) {
+              // Add a more robust duplicate check using sequence or ID if available
+              if (prev.some(d => d.turn_sequence === event.turn_sequence && d.persona_name === event.persona_name)) {
                 return prev;
               }
               return [
@@ -101,17 +103,18 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                   debate_id: `live-${Date.now()}-${Math.random()}`,
                   persona_name: event.persona_name,
                   message_content: event.message_content,
-                  turn_sequence: prev.length + 1,
+                  turn_sequence: event.turn_sequence,
                   round_number: event.round_number
                 }
               ];
             });
           } else if (event.type === "typing") {
-            // Optional: You could set a 'typing' state here to show an indicator
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
+            console.log("[UI] Round complete received:", event);
             setRoundCompleteEvent({ round: event.round, total: event.total });
           } else if (event.type === "debate_complete") {
+            console.log("[UI] Debate complete received");
             setSession(prev => prev ? { ...prev, current_status: "completed" } : prev);
           }
         });
