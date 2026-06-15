@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { dump_text, debate_rounds, conversation_type, emotional_state, personas } = body
+    const parsedRounds = parseInt(debate_rounds) || 1;
 
     if (!dump_text || typeof dump_text !== 'string' || dump_text.trim().length === 0) {
       return NextResponse.json({ error: 'raw_mind_dump cannot be empty' }, { status: 400 })
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         raw_mind_dump: dump_text,
-        rounds: debate_rounds,
+        rounds: parsedRounds,
         category: conversation_type,
         emotional_state,
         current_status: 'ingested'
