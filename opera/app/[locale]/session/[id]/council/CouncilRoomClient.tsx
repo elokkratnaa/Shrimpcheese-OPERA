@@ -136,7 +136,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       aborted = true;
       controller.abort();
     };
-  }, [id, session]);
+  }, [id, session.current_status]);
 
   useEffect(() => {
     if (scrollRef.current) {
