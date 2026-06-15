@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { useTranslations } from "next-intl";
+import { PERSONA_MAP } from "@/shared/personas";
 
 export default function ProfilingClient() {
   const router = useRouter();
@@ -17,14 +18,36 @@ export default function ProfilingClient() {
     t("assembling"),
   ];
 
+  const [dynamicMessages, setDynamicMessages] = useState<string[]>(STATUS_MESSAGES);
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
+    async function fetchPersonas() {
+      try {
+        const response = await fetch(`/api/sessions/${id}`, { cache: 'no-store' });
+        if (!response.ok) return;
+        const session = await response.json();
+        const personaIds = session.detected_biases?.suggested_persona_archetypes || [];
+        const chosen = personaIds.map((pid: string) => (PERSONA_MAP as any)[pid]).filter(Boolean);
+        
+        if (chosen.length >= 2) {
+          setDynamicMessages([
+            `${chosen[0].name}: Analyzing structural integrity...`,
+            `${chosen[1].name}: Mapping constraints and contradictions...`,
+            `${chosen[2]?.name || "The Squad"}: Preparing the Council Room...`
+          ]);
+        }
+      } catch (e) {}
+    }
+    fetchPersonas();
+  }, [id]);
+
+  useEffect(() => {
     const interval = setInterval(() => {
-      setMessageIndex((prevIndex) => (prevIndex + 1) % STATUS_MESSAGES.length);
-    }, 2000);
+      setMessageIndex((prevIndex) => (prevIndex + 1) % dynamicMessages.length);
+    }, 2500);
     return () => clearInterval(interval);
-  }, [STATUS_MESSAGES.length]);
+  }, [dynamicMessages.length]);
 
   useEffect(() => {
     if (!id) return;
@@ -86,7 +109,7 @@ export default function ProfilingClient() {
 
           <div className="h-6 flex items-center justify-center">
             <p className="text-base text-[#6c6a64] font-normal transition-all duration-300 ease-in-out font-sans">
-              {STATUS_MESSAGES[messageIndex]}
+              {dynamicMessages[messageIndex]}
             </p>
           </div>
         </div>

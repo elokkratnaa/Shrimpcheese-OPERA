@@ -127,11 +127,11 @@ export default function MindDumpPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ 
-          raw_mind_dump: mindDump, 
-          rounds,
-          category,
+          dump_text: mindDump, 
+          debate_rounds: rounds,
+          conversation_type: category,
           emotional_state: emotion,
-          selected_personas: squadMode === "racik" ? selectedPersonas : []
+          personas: squadMode === "racik" ? selectedPersonas : []
         }),
       });
 

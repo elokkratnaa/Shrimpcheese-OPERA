@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { useTranslations } from "next-intl";
 import { extractMessageText } from "@/shared/extractMessageText";
+import { PERSONAS } from "@/shared/personas";
 
 interface Message {
   role: "user" | "assistant";
@@ -63,26 +64,12 @@ export default function SoloChatPage() {
     }
   }
 
-  const ADVISORS: Persona[] = [
-    {
-      id: "Pragmatic Stoic",
-      name: t("advisors.stoic.name"),
-      description: t("advisors.stoic.description"),
-      variant: "a",
-    },
-    {
-      id: "Venture Capitalist",
-      name: t("advisors.vc.name"),
-      description: t("advisors.vc.description"),
-      variant: "b",
-    },
-    {
-      id: "Creative Hedonist",
-      name: t("advisors.hedonist.name"),
-      description: t("advisors.hedonist.description"),
-      variant: "c",
-    },
-  ];
+  const ADVISORS: Persona[] = PERSONAS.map((p, idx) => ({
+    id: p.name,
+    name: p.name,
+    description: p.description,
+    variant: (["a", "b", "c"][idx % 3]) as "a" | "b" | "c",
+  }));
 
   const [authChecking, setAuthChecking] = useState(true);
   const [selectedPersona, setSelectedPersona] = useState<Persona>(ADVISORS[0]);
@@ -94,6 +81,18 @@ export default function SoloChatPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Warn on navigate away
+  useEffect(() => {
+    if (messages.length > 0) {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = t("notSaved");
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
+  }, [messages, t]);
 
   // Authenticate user client-side on mount
   useEffect(() => {
