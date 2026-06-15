@@ -116,7 +116,14 @@ export async function spawnCouncil(
       if (round < rounds) {
         // Wait for rebuttal event
         await new Promise<void>((resolve) => {
+          const timer = setTimeout(() => {
+            logger.warn(`[DebateService] Rebuttal timeout reached for session ${sessionId}, proceeding...`);
+            sessionEvents.off(`rebuttal:${sessionId}`, onRebuttal);
+            resolve();
+          }, 5 * 60 * 1000); // 5 minutes
+
           const onRebuttal = (data: { content: string, target?: string }) => {
+            clearTimeout(timer);
             globalTranscript += `\n[User Rebuttal]: ${data.content} (Targeting: ${data.target || 'Squad'})`;
             sessionEvents.off(`rebuttal:${sessionId}`, onRebuttal);
             resolve();
