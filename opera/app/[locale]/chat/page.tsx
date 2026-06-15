@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter, Link } from "@/i18n/routing";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import { createClient } from "@/client/services/supabase";
@@ -211,21 +211,21 @@ export default function SoloChatPage() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans">
       <OperaNav variant="authed" />
 
       {/* Main Grid View */}
       <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-8">
         {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
         <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
-          <span className="text-[12px] font-semibold tracking-[1.5px] text-[#6c6a64] uppercase font-sans">
+          <span className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
             {t("title")}
           </span>
 
@@ -239,14 +239,14 @@ export default function SoloChatPage() {
                   onClick={() => handleAdvisorSelect(advisor)}
                   className={`p-4 cursor-pointer transition-all rounded-lg border shadow-none ring-0 ${
                     isActive
-                      ? "bg-[#e8e0d2] border-[#141413]"
-                      : "bg-[#efe9de] border-[#e6dfd8] hover:bg-[#e8e0d2]/50"
+                      ? "bg-slate-200 border-slate-900"
+                      : "bg-white border-slate-200 hover:bg-slate-50"
                   }`}
                 >
-                  <h4 className="text-sm font-semibold text-[#141413] font-sans">
+                  <h4 className="text-sm font-semibold text-slate-900 font-sans">
                     {advisor.name}
                   </h4>
-                  <p className="text-xs text-[#6c6a64] mt-1 font-sans">
+                  <p className="text-xs text-slate-500 mt-1 font-sans">
                     {advisor.description}
                   </p>
                 </Card>
@@ -256,9 +256,9 @@ export default function SoloChatPage() {
         </aside>
 
         {/* Right Chat Area Panel */}
-        <main className="flex-1 bg-[#efe9de]/30 border border-[#e6dfd8] rounded-lg flex flex-col justify-between overflow-hidden h-[calc(100vh-180px)]">
+        <main className="flex-1 bg-white border border-slate-200 rounded-lg flex flex-col justify-between overflow-hidden h-[calc(100vh-180px)]">
           {/* Active Chat Header */}
-          <div className="bg-[#efe9de] border-b border-[#e6dfd8] py-4 px-6 flex items-center gap-3">
+          <div className="bg-white border-b border-slate-200 py-4 px-6 flex items-center gap-3">
             <span
               className={`w-2.5 h-2.5 rounded-full ${
                 selectedPersona.variant === "a"
@@ -268,7 +268,7 @@ export default function SoloChatPage() {
                     : "bg-[#cc785c]"
               }`}
             />
-            <span className="text-sm font-semibold text-[#141413] font-sans uppercase tracking-[0.5px]">
+            <span className="text-sm font-semibold text-slate-900 font-sans uppercase tracking-[0.5px]">
               {selectedPersona.name}
             </span>
           </div>
@@ -277,10 +277,10 @@ export default function SoloChatPage() {
           <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
             {messages.length === 0 ? (
               <div className="my-auto text-center max-w-sm mx-auto flex flex-col gap-2">
-                <h3 className="text-lg font-normal text-[#141413] font-serif">
+                <h3 className="text-lg font-normal text-slate-900 font-serif">
                   {t("consult", { name: selectedPersona.name })}
                 </h3>
-                <p className="text-sm text-[#6c6a64] font-sans leading-[1.55]">
+                <p className="text-sm text-slate-600 font-sans leading-[1.55]">
                   {t("intro")}
                 </p>
               </div>
@@ -293,7 +293,7 @@ export default function SoloChatPage() {
                       key={index}
                       className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150"
                     >
-                      <div className="bg-[#efe9de] text-[#141413] text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-[#e6dfd8] shadow-sm font-sans">
+                      <div className="bg-white text-slate-900 text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-slate-200 shadow-sm font-sans">
                         {content}
                       </div>
                     </div>
@@ -325,8 +325,8 @@ export default function SoloChatPage() {
           </div>
 
           {/* Bottom input area panel */}
-          <div className="bg-[#efe9de] border-t border-[#e6dfd8] p-4 flex flex-col gap-2">
-            <div className="relative flex items-center w-full bg-[#faf9f5] border border-[#e6dfd8] rounded-md focus-within:border-[#cc785c] focus-within:ring-3 focus-within:ring-[rgba(204,120,92,0.12)] transition-all">
+          <div className="bg-white border-t border-slate-200 p-4 flex flex-col gap-2">
+            <div className="relative flex items-center w-full bg-slate-50 border border-slate-200 rounded-md focus-within:border-[#cc785c] focus-within:ring-2 focus-within:ring-[#cc785c]/10 transition-all">
               <textarea
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
@@ -334,19 +334,19 @@ export default function SoloChatPage() {
                 placeholder="..."
                 disabled={isLoading}
                 rows={1}
-                className="w-full bg-transparent text-[#141413] text-base leading-[1.55] py-3 pl-4 pr-12 resize-none focus:outline-none md:text-sm font-sans"
+                className="w-full bg-transparent text-slate-900 text-base leading-[1.55] py-3 pl-4 pr-12 resize-none focus:outline-none md:text-sm font-sans"
               />
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputVal.trim()}
-                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#cc785c] hover:text-[#a9583e] disabled:text-[#6c6a64] focus:outline-none transition-colors cursor-pointer"
+                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#cc785c] hover:text-[#a9583e] disabled:text-slate-400 focus:outline-none transition-colors cursor-pointer"
               >
                 <ArrowRight className="h-5 w-5" />
               </button>
             </div>
 
             <div className="flex justify-center">
-              <span className="text-[11px] text-[#6c6a64] font-medium font-sans">
+              <span className="text-[11px] text-slate-500 font-medium font-sans">
                 {t("notSaved")}
               </span>
             </div>
@@ -356,12 +356,12 @@ export default function SoloChatPage() {
 
       {/* Switch Advisor Confirmation Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-[#efe9de] border border-[#e6dfd8] max-w-sm rounded-lg p-6 shadow-md">
+        <DialogContent className="bg-white border border-slate-200 max-w-sm rounded-lg p-6 shadow-md">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold text-[#141413] font-sans">
+            <DialogTitle className="text-base font-semibold text-slate-900 font-sans">
               {t("switchTitle")}
             </DialogTitle>
-            <DialogDescription className="text-sm text-[#6c6a64] mt-2 font-sans">
+            <DialogDescription className="text-sm text-slate-600 mt-2 font-sans">
               {t("switchDescription")}
             </DialogDescription>
           </DialogHeader>
@@ -371,7 +371,7 @@ export default function SoloChatPage() {
                 setIsDialogOpen(false);
                 setPendingPersona(null);
               }}
-              className="px-4 py-2 border border-[#e6dfd8] text-[#141413] rounded-md text-sm hover:bg-[#e8e0d2]/50 font-sans cursor-pointer"
+              className="px-4 py-2 border border-slate-200 text-slate-900 rounded-md text-sm hover:bg-slate-50 font-sans cursor-pointer"
             >
               {t("cancel")}
             </button>
