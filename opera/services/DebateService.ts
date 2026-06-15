@@ -1,6 +1,6 @@
 import { createBackgroundClient } from '@/lib/supabase/background'
-import { completeGroq } from '@/lib/groq'
-import { PERSONAS } from '@/lib/personas'
+import { completeGroq, DEBATE_MODEL_CHAIN } from '@/lib/groq'
+import { PERSONA_MAP } from '@/lib/personas'
 import { sessionEvents } from '@/lib/events'
 
 /**
@@ -18,15 +18,25 @@ export async function spawnCouncil(
   rounds: number = 1,
   accessToken?: string
 ): Promise<void> {
+  console.log(`[DebateService] spawnCouncil called for session ${sessionId} with archetypes:`, archetypes, "rounds:", rounds);
   const supabase = createBackgroundClient(accessToken)
+  
+  // Fetch locale for error messages, default to 'en'
+  // Simplified for this context - in a real app, this should be passed in or derived
+  const locale = 'en';
 
   try {
-    const chosenConfigs = archetypes.map(key => PERSONAS[key]).filter(config => !!config)
-
+    const chosenConfigs = archetypes.map(key => {
+        const foundKey = Object.keys(PERSONA_MAP).find(k => k.toLowerCase() === key.toLowerCase());
+        return foundKey ? PERSONA_MAP[foundKey] : undefined;
+    }).filter(config => !!config)
+    console.log(`[DebateService] Chosen configs:`, chosenConfigs.map(c => c.name));
+    
     if (chosenConfigs.length === 0) {
-      throw new Error('No valid persona archetypes provided')
+        throw new Error("No valid personas found for debate");
     }
-
+    
+    // ... rest of the setup code ...
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select('detected_biases')
@@ -41,11 +51,18 @@ export async function spawnCouncil(
     const coreDecision = biases?.core_decision_node || 'The main decision'
     const constraints = Array.isArray(biases?.constraints) ? biases.constraints.join(', ') : 'none'
 
+    // Update status to council_ready before spawning the debate loop
+    await supabase
+      .from('sessions')
+      .update({ current_status: 'council_ready' })
+      .eq('session_id', sessionId)
+    console.log(`[DebateService] Session ${sessionId} updated to council_ready`);
+
     let globalTranscript: string = ""
 
     for (let round = 1; round <= rounds; round++) {
-      
-      // Turn 1: Initial reaction
+      // ... round loops ...
+      // Turn 1
       const turn1Responses = await Promise.all(
         chosenConfigs.map(async (config, idx) => {
           const userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`
@@ -54,7 +71,7 @@ export async function spawnCouncil(
         })
       )
       
-      // Turn 2: Challenge
+      // Turn 2
       const turn2Responses = await Promise.all(
         chosenConfigs.map(async (config, idx) => {
           const otherResponses = turn1Responses.filter(r => r.name !== config.name)
@@ -65,7 +82,7 @@ export async function spawnCouncil(
         })
       )
 
-      // Turn 3: Finalize
+      // Turn 3
       const turn3Responses = await Promise.all(
         chosenConfigs.map(async (config, idx) => {
           const myChallenges = turn2Responses.filter(r => r.name !== config.name)
@@ -83,7 +100,7 @@ export async function spawnCouncil(
 
       // If more rounds exist, wait for user input
       if (round < rounds) {
-        // Emit SSE event to client
+        // ... SSE event ...
         sessionEvents.emit(`session:${sessionId}`, { 
           type: "round_complete", 
           round: round, 
@@ -110,20 +127,48 @@ export async function spawnCouncil(
       roundNumber: number,
       turnSequence: number
     ): Promise<string> {
-      const response = await completeGroq({
-        system: `${systemPrompt} Write your response like a natural, quick chat message in a group thread. Keep it concise, to the point, and no more than 3 sentences. Avoid formal structures. DO NOT use <think> tags. Output ONLY the response text.`,
-        messages: [{ role: 'user', content: userPrompt }]
-      })
-      const messageContent = response.trim()
-      await supabase
-        .from('council_debates')
-        .insert({
+      // Emit typing event
+      sessionEvents.emit(`session:${sessionId}`, {
+        type: "typing",
+        persona_name: personaName
+      });
+
+      const timeoutPromise = new Promise<string>((resolve) => 
+        setTimeout(() => resolve((locale as any) === 'id' ? 'Saya tidak punya pendapat lebih lanjut.' : 'I have no further opinion.'), 60000)
+      );
+
+      const responsePromise = completeGroq({
+        system: `${systemPrompt} You're a helpful assistant in a fast-moving group chat. Rules:
+                - Max 3 sentences. One if possible.
+                - Casual tone. No formal openers like "Certainly!" or "Great question!"
+                - Never restate the question.
+                - No markdown, lists, or headers.
+                - If unsure, say so in one line.
+                DO NOT use <think> tags. Output ONLY the response text.`,
+        messages: [{ role: 'user', content: userPrompt }],
+        modelChain: DEBATE_MODEL_CHAIN
+      });
+
+      const messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
+      
+      const insertPayload = {
           session_id: sessionId,
           persona_name: personaName,
           message_content: messageContent,
           round_number: roundNumber,
           turn_sequence: turnSequence
-        })
+        };
+      console.log(`[DebateService] Attempting to insert:`, insertPayload);
+      const { data, error } = await supabase
+        .from('council_debates')
+        .insert(insertPayload);
+      
+      if (error) {
+          console.error(`[DebateService] Failed to insert debate utterance for ${personaName}:`, error);
+          console.error(`[DebateService] Payload was:`, insertPayload);
+      } else {
+          console.log(`[DebateService] Inserted utterance for ${personaName}`);
+      }
       
       // Emit turn to client for live updates
       sessionEvents.emit(`session:${sessionId}`, {
@@ -136,6 +181,7 @@ export async function spawnCouncil(
       return messageContent
     }
 
+    // ... completion code ...
     await supabase
       .from('sessions')
       .update({ current_status: 'completed' })

@@ -1,13 +1,18 @@
 import Groq from 'groq-sdk'
 
-const MODEL_CHAIN = [
+export const DEBATE_MODEL_CHAIN = [
+  'llama-3.1-8b-instant', // Faster, cheaper, less prone to rate limits
   'llama-3.3-70b-versatile',
   'qwen/qwen3-32b',
-  'llama-3.1-8b-instant',
-  'groq/compound-mini'
+  'meta-llama/llama-4-scout-17b-16e-instruct'
 ]
 
-export const GROQ_MODEL = MODEL_CHAIN[0]
+export const SAFETY_MODEL_CHAIN = [
+  'meta-llama/llama-prompt-guard-2-22m',
+  'openai/gpt-oss-safeguard-20b'
+]
+
+export const DEFAULT_MODEL_CHAIN = DEBATE_MODEL_CHAIN
 
 const groqClient = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -20,44 +25,47 @@ export type ChatMessage = {
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-async function callGroqWithTimeout(model: string, system: string, messages: ChatMessage[]): Promise<string> {
-  const completionPromise = groqClient.chat.completions.create({
-    model,
-    max_tokens: 2048,
-    stream: false,
-    messages: [{ role: 'system', content: system }, ...messages],
-  });
-
-  const timeoutPromise = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error('TIMEOUT')), 15000)
-  );
-
-  const completion = await Promise.race([completionPromise, timeoutPromise]);
-  // @ts-ignore
-  return completion.choices[0]?.message?.content ?? '';
-}
-
 export async function completeGroq({
   system,
   messages,
+  modelChain = DEFAULT_MODEL_CHAIN,
+  maxTokens = 2048,
 }: {
   system: string
   messages: ChatMessage[]
+  modelChain?: string[]
+  maxTokens?: number
 }): Promise<string> {
-  for (const model of MODEL_CHAIN) {
+  for (const model of modelChain) {
     let retries = 0;
-    const maxRetries = 2;
+    const maxRetries = 3;
     
     while (retries <= maxRetries) {
       try {
         console.log(`[Groq] Attempting model: ${model} (Attempt ${retries + 1})`);
-        return await callGroqWithTimeout(model, system, messages);
+        
+        const formattedMessages = [{ role: 'system', content: system }, ...messages].filter(msg => msg.role !== 'system' || msg.content.trim() !== '');
+
+        const completionPromise = groqClient.chat.completions.create({
+            model,
+            max_tokens: maxTokens,
+            stream: false,
+            messages: formattedMessages as any,
+        });
+
+        const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('TIMEOUT')), 20000)
+        );
+
+        const completion = await Promise.race([completionPromise, timeoutPromise]);
+        return (completion as any).choices[0]?.message?.content ?? '';
+        
       } catch (err: any) {
         console.warn(`[Groq] Model ${model} failed. Error: ${err.message}`);
         
-        // If it's a rate limit, wait longer
-        const isRateLimit = err.status === 429 || err.message.includes('rate_limit');
-        const delay = isRateLimit ? 5000 * (retries + 1) : 1000 * (retries + 1);
+        const isRateLimit = err.status === 429 || err.message?.includes('rate_limit');
+        // Exponential backoff: 2s, 8s, 18s
+        const delay = isRateLimit ? 2000 * Math.pow(retries + 1, 2) : 1000 * (retries + 1);
         
         retries++;
         if (retries <= maxRetries) {
@@ -77,11 +85,13 @@ export async function completeGroq({
 export async function streamGroq({
   system,
   messages,
+  modelChain = DEFAULT_MODEL_CHAIN,
 }: {
   system: string
   messages: ChatMessage[]
+  modelChain?: string[]
 }) {
-  for (const model of MODEL_CHAIN) {
+  for (const model of modelChain) {
     try {
       console.log(`[Groq] Attempting stream model: ${model}`);
       return await groqClient.chat.completions.create({
@@ -92,7 +102,6 @@ export async function streamGroq({
       });
     } catch (err: any) {
       console.warn(`[Groq] Stream model ${model} failed. Error: ${err.message}`);
-      // Continue to next model in chain
     }
   }
   throw new Error('AI_FAILED');
