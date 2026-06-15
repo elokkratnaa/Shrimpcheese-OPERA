@@ -96,8 +96,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             return;
           }
           console.log("[UI] Received SSE event:", event);
-          // ... rest of event handler ...
-              // Add a more robust duplicate check using sequence or ID if available
+
+          if (event.type === "turn") {
+            setDebates(prev => {
               if (prev.some(d => d.turn_sequence === event.turn_sequence && d.persona_name === event.persona_name)) {
                 return prev;
               }
