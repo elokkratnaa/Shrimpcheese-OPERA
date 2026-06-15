@@ -141,13 +141,20 @@ export async function spawnCouncil(
         persona_name: personaName
       });
 
-      // Create a timeout that rejects after 25s (slightly longer than completeGroq's 20s)
+      // Create a timeout that rejects after 25s
       const timeoutPromise = new Promise<string>((_, reject) => 
         setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 25000)
       );
 
+      console.log(`[DebateService] Invoking Groq for ${personaName}...`);
+      
       const responsePromise = completeGroq({
-        system: `${systemPrompt} ...`, // ... (rest of prompt)
+        system: `${systemPrompt} Rules:
+                - Output ONLY the response text.
+                - Max 2 sentences. Be extremely concise.
+                - No formal openers/closers.
+                - No markdown, lists, or headers.
+                - DO NOT use <think> tags.`,
         messages: [{ role: 'user', content: userPrompt }],
         modelChain: DEBATE_MODEL_CHAIN
       });

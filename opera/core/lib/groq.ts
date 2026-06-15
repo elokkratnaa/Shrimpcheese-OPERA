@@ -42,6 +42,7 @@ export async function completeGroq({
     
     while (retries <= maxRetries) {
       try {
+        console.log(`[Groq] Attempting completion with model: ${model}`);
         
         const formattedMessages = [{ role: 'system', content: system }, ...messages].filter(msg => msg.role !== 'system' || msg.content.trim() !== '');
 
