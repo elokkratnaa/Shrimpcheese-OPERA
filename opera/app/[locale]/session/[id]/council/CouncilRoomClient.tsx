@@ -106,6 +106,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 }
               ];
             });
+          } else if (event.type === "typing") {
+            // Optional: You could set a 'typing' state here to show an indicator
+            console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
             setRoundCompleteEvent({ round: event.round, total: event.total });
           } else if (event.type === "debate_complete") {
