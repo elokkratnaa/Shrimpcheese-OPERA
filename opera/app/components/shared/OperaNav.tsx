@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "./LanguageSwitcher";
 

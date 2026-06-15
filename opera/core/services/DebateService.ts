@@ -1,7 +1,7 @@
-import { createBackgroundClient } from '@/lib/supabase/background'
-import { completeGroq, DEBATE_MODEL_CHAIN } from '@/lib/groq'
-import { PERSONA_MAP } from '@/lib/personas'
-import { sessionEvents } from '@/lib/events'
+import { createBackgroundClient } from '@/core/lib/supabase-background'
+import { completeGroq, DEBATE_MODEL_CHAIN } from '@/core/lib/groq'
+import { PERSONA_MAP } from '@/shared/personas'
+import { sessionEvents } from '@/shared/events'
 
 /**
  * Executes a multi-round debate loop between chosen persona archetypes,

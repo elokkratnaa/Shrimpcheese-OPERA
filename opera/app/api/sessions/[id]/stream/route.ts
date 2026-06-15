@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { synthesizeVerdict } from '@/services/VerdictService'
-import { sessionEvents } from '@/lib/events'
+import { createClient } from '@/core/lib/supabase-server'
+import { synthesizeVerdict } from '@/core/services/VerdictService'
+import { sessionEvents } from '@/shared/events'
 
 export async function GET(
   request: NextRequest,

@@ -10,8 +10,8 @@ import {
   Clock, 
   User 
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
+import { cn } from "@/shared/utils";
+import { createClient } from "@/client/services/supabase";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { UserAvatar } from "./UserAvatar";
 

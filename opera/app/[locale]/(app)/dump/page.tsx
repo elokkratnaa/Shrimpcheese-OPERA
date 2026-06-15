@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, Link } from "@/i18n/routing";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { useTranslations } from "next-intl";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 import { User, BrainCircuit, ShieldAlert } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import LanguageSwitcher from "@/app/components/shared/LanguageSwitcher";

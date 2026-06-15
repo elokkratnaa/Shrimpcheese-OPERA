@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "@/i18n/routing";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/core/lib/supabase-server";
 import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";

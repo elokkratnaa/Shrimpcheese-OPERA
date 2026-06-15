@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { completeGroq, DEBATE_MODEL_CHAIN } from '@/lib/groq'
-import { PERSONAS } from '@/lib/personas'
+import { createClient } from '@/core/lib/supabase-server'
+import { completeGroq, DEBATE_MODEL_CHAIN } from '@/core/lib/groq'
+import { PERSONAS } from '@/shared/personas'
 
 /**
  * GET /api/verdicts/[id]

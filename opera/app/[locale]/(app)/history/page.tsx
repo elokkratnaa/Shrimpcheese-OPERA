@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { CheckCircle, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SessionCard from "@/app/components/shared/SessionCard";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 
 interface Session {
   session_id: string;

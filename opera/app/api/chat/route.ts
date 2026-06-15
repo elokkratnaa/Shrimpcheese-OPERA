@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { streamGroq } from '@/lib/groq'
-import { PERSONA_MAP } from '@/lib/personas'
-import { checkInputSafety } from '@/services/SafetyService'
+import { createClient } from '@/core/lib/supabase-server'
+import { streamGroq } from '@/core/lib/groq'
+import { PERSONA_MAP } from '@/shared/personas'
+import { checkInputSafety } from '@/core/services/SafetyService'
 import { getTranslations } from 'next-intl/server'
 
 export async function POST(request: NextRequest) {

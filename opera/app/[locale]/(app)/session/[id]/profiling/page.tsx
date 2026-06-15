@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/core/lib/supabase-server";
 import ProfilingClient from "@/app/[locale]/(app)/session/[id]/profiling/ProfilingClient";
 
 const VALID_STATUSES = [

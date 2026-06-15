@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { sessionEvents } from '@/lib/events'
-import { checkInputSafety } from '@/services/SafetyService'
+import { createClient } from '@/core/lib/supabase-server'
+import { sessionEvents } from '@/shared/events'
+import { checkInputSafety } from '@/core/services/SafetyService'
 
 export async function POST(
   request: NextRequest,

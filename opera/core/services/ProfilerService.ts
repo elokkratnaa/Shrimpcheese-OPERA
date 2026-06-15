@@ -1,7 +1,7 @@
-import { createBackgroundClient } from '@/lib/supabase/background'
-import { completeGroq, DEBATE_MODEL_CHAIN} from '@/lib/groq'
-import { spawnCouncil } from '@/services/DebateService'
-import { PROFILER_SYSTEM_PROMPT, ProfilerOutput } from '@/lib/types'
+import { createBackgroundClient } from '@/core/lib/supabase-background'
+import { completeGroq, DEBATE_MODEL_CHAIN} from '@/core/lib/groq'
+import { spawnCouncil } from '@/core/services/DebateService'
+import { PROFILER_SYSTEM_PROMPT, ProfilerOutput } from '@/shared/types'
 
 /**
  * Runs the profiler on a session by reading the mind dump, sending to Groq,

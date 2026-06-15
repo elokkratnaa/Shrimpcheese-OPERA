@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { runProfiler } from '@/services/ProfilerService'
-import { checkInputSafety } from '@/services/SafetyService'
+import { createClient } from '@/core/lib/supabase-server'
+import { runProfiler } from '@/core/services/ProfilerService'
+import { checkInputSafety } from '@/core/services/SafetyService'
 
 export async function POST(request: NextRequest) {
   try {

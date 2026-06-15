@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import {

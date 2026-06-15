@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/core/lib/supabase-server";
 import VerdictClient from "@/app/[locale]/(app)/session/[id]/verdict/VerdictClient";
 
 export default async function VerdictPage({

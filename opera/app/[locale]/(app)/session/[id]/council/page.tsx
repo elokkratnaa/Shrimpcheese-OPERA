@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@/core/lib/supabase-server';
 import CouncilRoomClient from '@/app/[locale]/(app)/session/[id]/council/CouncilRoomClient';
 
 export default async function CouncilPage({ params }: { params: Promise<{ id: string }> }) {

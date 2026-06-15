@@ -1,4 +1,4 @@
-import { completeGroq, SAFETY_MODEL_CHAIN } from '@/lib/groq';
+import { completeGroq, SAFETY_MODEL_CHAIN } from '@/core/lib/groq';
 
 const SAFETY_SYSTEM_PROMPT = `Analyze the text below. Is it safe for an AI debate platform? Answer ONLY "SAFE" or "UNSAFE".
 

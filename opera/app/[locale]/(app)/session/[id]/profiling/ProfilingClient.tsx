@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { PERSONA_MAP } from "@/lib/personas";
+import { PERSONA_MAP } from "@/shared/personas";
 
 export default function ProfilingClient() {
   const router = useRouter();

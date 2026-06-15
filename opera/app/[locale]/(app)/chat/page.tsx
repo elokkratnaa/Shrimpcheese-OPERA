@@ -6,14 +6,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send, User } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/utils";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-import { PERSONAS } from "@/lib/personas";
+import { PERSONAS } from "@/shared/personas";
 
 export default function SoloChatPage() {
   const t = useTranslations("Chat");
