@@ -101,7 +101,10 @@ export async function spawnCouncil(
       
       globalTranscript += `\n[Round ${round}]: ${roundTranscript}`;
 
+      console.log(`${COLORS.yellow}[DebateService] Completed turn loop for round ${round}/${rounds}.${COLORS.reset}`);
+
       // Emit round complete event at the end of each round
+      console.log(`${COLORS.yellow}[DebateService] Emitting round_complete for round ${round}/${rounds}${COLORS.reset}`);
       sessionEvents.emit(`session:${sessionId}`, { 
         type: "round_complete", 
         round: round, 
