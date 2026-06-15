@@ -70,7 +70,6 @@ export default async function HomeDashboard({
         ? {
             verdict_id: verdict.verdict_id,
             is_committed: verdict.is_committed,
-            // tags: Array.isArray(verdict.tags) ? verdict.tags : [],
             tags: [],
           }
         : undefined,
@@ -106,106 +105,96 @@ export default async function HomeDashboard({
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <OperaNav variant="authed" />
 
-      <div className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 md:px-8 flex flex-col md:flex-row gap-8">
-        <aside className="w-full md:w-70 shrink-0 flex flex-col gap-6">
-          <Link
-            href="/dump"
-            className="w-full h-12 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-md flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-          >
-            {t("newSession")}
-          </Link>
-
-          <Link
-            href="/chat"
-            className="w-full h-12 border border-slate-200 text-slate-900 bg-white hover:bg-slate-50 font-medium text-sm rounded-md flex items-center justify-center transition-colors cursor-pointer"
-          >
-            {t("soloChat")}
-          </Link>
-
-          <nav className="flex flex-col gap-1.5 mt-2">
-            <Link
-              href="/home"
-              className="flex items-center h-10 px-4 rounded-md text-slate-900 bg-slate-200 font-medium text-sm transition-colors"
-            >
-              {t("home")}
-            </Link>
-            <Link
-              href="/history"
-              className="flex items-center h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-sm transition-colors"
-            >
-              {t("history")}
-            </Link>
-            <Link
-              href="/profile"
-              className="flex items-center h-10 px-4 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 font-medium text-sm transition-colors"
-            >
-              {t("profile")}
-            </Link>
-          </nav>
-        </aside>
-
-        <main className="flex-1 flex flex-col gap-8">
-          <div>
-            <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-slate-900 font-serif">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12 md:py-16">
+        {/* Hero Section */}
+        <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-12">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-normal leading-tight tracking-[-0.5px] text-slate-900 font-serif">
               {t("greeting", { name: displayName })}
             </h1>
+            <p className="text-slate-600">
+              What are we analyzing today?
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+             <Link
+              href="/chat"
+              className="px-5 py-3 border border-slate-200 text-slate-900 bg-white hover:bg-slate-50 font-medium text-sm rounded-lg transition-colors cursor-pointer"
+            >
+              {t("soloChat")}
+            </Link>
+            <Link
+              href="/dump"
+              className="px-5 py-3 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-lg flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+            >
+              {t("newSession")}
+            </Link>
+          </div>
+        </header>
+
+        {/* Content Grid */}
+        <div className="grid md:grid-cols-3 gap-12">
+          {/* Main Column */}
+          <div className="md:col-span-2 flex flex-col gap-10">
+            <section className="flex flex-col gap-6">
+              <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-[1.5px]">
+                {t("recentSessions")}
+              </h2>
+
+              {sessions.length > 0 ? (
+                <div className="flex flex-col gap-4">
+                  {sessions.map((session) => (
+                    <SessionCard key={session.session_id} session={session} />
+                  ))}
+                </div>
+              ) : (
+                <div className="border border-dashed border-slate-200 rounded-xl p-12 text-center flex flex-col items-center gap-4 bg-white">
+                  <p className="text-slate-600 text-sm leading-[1.55] max-w-sm">
+                    {t("emptyTheater")}
+                  </p>
+                  <Link
+                    href="/dump"
+                    className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-10 px-5 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    {t("startFirst")}
+                  </Link>
+                </div>
+              )}
+            </section>
           </div>
 
-          <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[1.5px]">
-              {t("recentSessions")}
-            </h2>
-
-            {sessions.length > 0 ? (
-              <div className="flex flex-col gap-4">
-                {sessions.map((session) => (
-                  <SessionCard key={session.session_id} session={session} />
-                ))}
-              </div>
-            ) : (
-              <div className="border border-dashed border-slate-200 rounded-lg p-12 text-center flex flex-col items-center gap-4 bg-slate-50">
-                <p className="text-slate-600 text-sm leading-[1.55] max-w-sm">
-                  {t("emptyTheater")}
-                </p>
-                <Link
-                  href="/dump"
-                  className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-10 px-5 rounded-md flex items-center justify-center transition-colors cursor-pointer"
-                >
-                  {t("startFirst")}
-                </Link>
-              </div>
-            )}
-          </section>
-
-          <section className="flex flex-col gap-4">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-[1.5px]">
-              {t("patterns")}
-            </h2>
-            {patterns.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {patterns.map((tag) => (
-                  <Link
-                    key={tag}
-                    href={`/history?tag=${encodeURIComponent(tag)}`}
-                    className="cursor-pointer"
-                  >
-                    <Badge
-                      variant="secondary"
-                      className="bg-slate-200 text-slate-900 hover:bg-slate-300 text-[13px] font-medium px-3 py-1 rounded-full transition-colors border-transparent h-auto"
+          {/* Secondary Column */}
+          <div className="md:col-span-1 flex flex-col gap-10">
+            <section className="flex flex-col gap-6">
+              <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-[1.5px]">
+                {t("patterns")}
+              </h2>
+              {patterns.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {patterns.map((tag) => (
+                    <Link
+                      key={tag}
+                      href={`/history?tag=${encodeURIComponent(tag)}`}
+                      className="cursor-pointer"
                     >
-                      {tag}
-                    </Badge>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p className="text-xs text-slate-500 italic">
-                {t("noPatterns")}
-              </p>
-            )}
-          </section>
-        </main>
-      </div>
+                      <Badge
+                        variant="secondary"
+                        className="bg-slate-200 text-slate-900 hover:bg-slate-300 text-[13px] font-medium px-3 py-1 rounded-full transition-colors border-transparent h-auto"
+                      >
+                        {tag}
+                      </Badge>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500 italic">
+                  {t("noPatterns")}
+                </p>
+              )}
+            </section>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
