@@ -75,17 +75,22 @@ export async function spawnCouncil(
       for (let turn = 1; turn <= turns; turn++) {
         const turnResponses = await Promise.all(
           chosenConfigs.map(async (config, idx) => {
-            let userPrompt = "";
-            if (turn === 1) {
-              userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`;
-            } else if (turn === turns) {
-               userPrompt = `Round ${round}: Deliver final strategic advice based on previous arguments: ${roundTranscript}`;
-            } else {
-               userPrompt = `Round ${round}: Challenge/refine previous arguments: ${roundTranscript}`;
-            }
+            try {
+              let userPrompt = "";
+              if (turn === 1) {
+                userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`;
+              } else if (turn === turns) {
+                 userPrompt = `Round ${round}: Deliver final strategic advice based on previous arguments: ${roundTranscript}`;
+              } else {
+                 userPrompt = `Round ${round}: Challenge/refine previous arguments: ${roundTranscript}`;
+              }
 
-            const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + turn * 10 + idx);
-            return { name: config.name, text };
+              const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + turn * 10 + idx);
+              return { name: config.name, text };
+            } catch (err) {
+              console.error(`[DebateService] Turn failed for ${config.name}:`, err);
+              return { name: config.name, text: (locale as any) === 'id' ? 'Saya tidak dapat merespons saat ini.' : 'I am unable to respond at this time.' };
+            }
           })
         );
 
