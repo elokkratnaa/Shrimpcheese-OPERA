@@ -141,36 +141,47 @@ export async function spawnCouncil(
         setTimeout(() => reject(new Error(`TIMEOUT_IN_DEBATE for ${personaName}`)), 60000)
       );
 
-      console.log(`[DebateService] Invoking Groq for ${personaName}...`);
-      
-      const responsePromise = completeGroq({
-        system: `${systemPrompt} Rules:
-                - Output ONLY the response text.
-                - Max 2 sentences. Be extremely concise.
-                - No formal openers/closers.
-                - No markdown, lists, or headers.
-                - DO NOT use <think> tags.`,
-        messages: [{ role: 'user', content: userPrompt }],
-        modelChain: DEBATE_MODEL_CHAIN
-      });
+      const COLORS = {
+        reset: "\x1b[0m",
+        green: "\x1b[32m",
+        cyan: "\x1b[36m",
+        yellow: "\x1b[33m",
+        red: "\x1b[31m",
+      };
 
-      // Use a race, but if it rejects, log it and return the fallback
-      let messageContent: string = "";
-      try {
-        messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
-      } catch (err) {
-        console.error(`[DebateService] Utterance failed or timed out for ${personaName}:`, err);
-        messageContent = (locale as any) === 'id' ? 'Saya tidak punya pendapat lebih lanjut.' : 'I have no further opinion.';
-      }
-      
-      const insertPayload = {
-          session_id: sessionId,
-          persona_name: personaName,
-          message_content: messageContent,
-          round_number: roundNumber,
-          turn_sequence: turnSequence
-        };
-      console.log(`[DebateService] Attempting to insert:`, JSON.stringify(insertPayload));
+      // ... inside runUtterance ...
+
+            console.log(`${COLORS.cyan}[DebateService] Invoking Groq for ${personaName}...${COLORS.reset}`);
+
+            const responsePromise = completeGroq({
+              system: `${systemPrompt} Rules:
+                      - Output ONLY the response text.
+                      - Max 2 sentences. Be extremely concise.
+                      - No formal openers/closers.
+                      - No markdown, lists, or headers.
+                      - DO NOT use <think> tags.`,
+              messages: [{ role: 'user', content: userPrompt }],
+              modelChain: DEBATE_MODEL_CHAIN
+            });
+
+            // Use a race, but if it rejects, log it and return the fallback
+            let messageContent: string = "";
+            try {
+              messageContent = (await Promise.race([responsePromise, timeoutPromise])).trim();
+              console.log(`${COLORS.green}[DebateService] Successfully got response from ${personaName}${COLORS.reset}`);
+            } catch (err) {
+              console.error(`${COLORS.red}[DebateService] Utterance failed or timed out for ${personaName}:`, err, `${COLORS.reset}`);
+              messageContent = (locale as any) === 'id' ? 'Saya tidak dapat merespons saat ini.' : 'I am unable to respond at this time.';
+            }
+
+            const insertPayload = {
+                session_id: sessionId,
+                persona_name: personaName,
+                message_content: messageContent,
+                round_number: roundNumber,
+                turn_sequence: turnSequence
+              };
+            console.log(`${COLORS.yellow}[DebateService] Attempting to insert: ${JSON.stringify(insertPayload)}${COLORS.reset}`);
       const { data, error } = await supabase
         .from('council_debates')
         .insert([insertPayload]);
