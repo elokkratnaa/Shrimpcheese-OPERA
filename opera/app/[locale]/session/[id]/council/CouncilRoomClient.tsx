@@ -85,14 +85,18 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         const response = await fetch(`/api/sessions/${id}/stream`, {
           signal: controller.signal,
         });
-        if (!response.body) return;
+        if (!response.body) {
+           console.error("[UI] Stream response has no body");
+           return;
+        }
 
         await consumeSSE(response, (event) => {
-          if (aborted) return;
+          if (aborted) {
+            console.log("[UI] Stream event received after abort, ignoring");
+            return;
+          }
           console.log("[UI] Received SSE event:", event);
-
-          if (event.type === "turn") {
-            setDebates(prev => {
+          // ... rest of event handler ...
               // Add a more robust duplicate check using sequence or ID if available
               if (prev.some(d => d.turn_sequence === event.turn_sequence && d.persona_name === event.persona_name)) {
                 return prev;
