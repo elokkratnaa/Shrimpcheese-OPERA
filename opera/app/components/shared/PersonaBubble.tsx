@@ -27,9 +27,9 @@ export default function PersonaBubble({
     c: 'border-[rgba(204,120,92,0.20)]',
   }
   const textColors = {
-    a: 'text-[#5db8a6]',
-    b: 'text-[#e8a55a]',
-    c: 'text-[#cc785c]',
+    a: 'text-accent-teal',
+    b: 'text-accent-amber',
+    c: 'text-primary',
   }
 
   const cleanContent = message_content.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
@@ -42,15 +42,15 @@ export default function PersonaBubble({
             {persona_name}
           </span>
           {category && (
-            <span className="text-[10px] font-medium uppercase tracking-[1px] px-2 py-0.5 rounded-full bg-[rgba(255,255,255,0.08)] border border-[rgba(255,255,255,0.12)] text-[#a09d96]">
+            <span className="text-[10px] font-medium uppercase tracking-[1px] px-2 py-0.5 rounded-full bg-glass border border-white/[0.12] text-muted-soft">
               {category}
             </span>
           )}
         </div>
-        <p className="text-[#3d3d3a] text-[15px] leading-[1.55] font-sans">
+        <p className="text-body text-[15px] leading-[1.55] font-sans">
           {cleanContent}
           {isStreaming && (
-            <span className="inline-block w-1.5 h-4 bg-[#cc785c] ml-1 animate-pulse" />
+            <span className="inline-block w-1.5 h-4 bg-primary ml-1 animate-pulse" />
           )}
         </p>
       </CardContent>
