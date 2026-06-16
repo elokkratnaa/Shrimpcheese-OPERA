@@ -95,7 +95,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
         await consumeSSE(response, (event) => {
           if (controller.signal.aborted) return;
-          console.log("[UI] Received SSE event:", event);
+          console.log("[UI] DEBUG: Raw SSE event received:", JSON.stringify(event));
 
           if (event.type === "turn") {
             setDebates(prev => {
@@ -137,7 +137,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     startStream();
 
     return () => {
-      // Don't abort on every re-render, only on unmount
     };
   }, [id, session.current_status]);
 
