@@ -117,8 +117,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
             console.log("[UI] Round complete received:", event);
+            // Verify if we actually have enough turns for this round before showing the rebuttal box
+            const turnCount = debates.filter(d => d.round_number === event.round).length;
+            if (turnCount < uniquePersonas.length * 3) {
+                console.log("[UI] Ignoring round_complete; turn count too low", turnCount);
+                return;
+            }
             setIsStreaming(false); // Force stop typing indicator
-            // Only update if we haven't already processed this round, or if it's a higher round
             setRoundCompleteEvent(prev => {
               if (prev && prev.round >= event.round) return prev;
               return { round: event.round, total: event.total };
