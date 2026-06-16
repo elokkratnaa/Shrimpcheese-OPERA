@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
-import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import { createClient } from "@/client/services/supabase";
-import { Send, Loader2, ArrowRight } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,9 +13,48 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { extractMessageText } from "@/shared/extractMessageText";
 import { PERSONAS } from "@/shared/personas";
+import { motion } from "framer-motion";
+
+// ============================================================================
+// BUILT-IN LOCALIZATION DICTIONARY
+// ============================================================================
+const dict = {
+  en: {
+    title: "Council Members",
+    notSaved: "This is a temporary session. Conversations here are not saved to your history.",
+    consult: "Consult with",
+    intro: "Share what's on your mind. I'm here to provide a different perspective.",
+    switchTitle: "Switch Advisor?",
+    switchDescription: "Switching advisors will clear your current conversation. Are you sure you want to continue?",
+    cancel: "Cancel",
+    clearAndSwitch: "Clear & Switch",
+    placeholder: "Type your thoughts...",
+    errors: {
+      failed: "Failed to send message.",
+      connectionLost: "Connection lost. Please try again."
+    },
+    thinking: "is thinking..."
+  },
+  id: {
+    title: "Anggota Dewan",
+    notSaved: "Ini adalah sesi sementara. Percakapan di sini tidak disimpan ke riwayatmu.",
+    consult: "Berkonsultasi dengan",
+    intro: "Ceritakan apa yang sedang kamu pikirkan. Aku di sini untuk memberikan sudut pandang yang berbeda.",
+    switchTitle: "Ganti Penasihat?",
+    switchDescription: "Mengganti penasihat akan menghapus percakapan saat ini. Apakah kamu yakin ingin melanjutkan?",
+    cancel: "Batal",
+    clearAndSwitch: "Hapus & Ganti",
+    placeholder: "Ketik pikiranmu...",
+    errors: {
+      failed: "Gagal mengirim pesan.",
+      connectionLost: "Koneksi terputus. Silakan coba lagi."
+    },
+    thinking: "sedang berpikir..."
+  }
+};
 
 interface Message {
   role: "user" | "assistant";
@@ -31,10 +68,33 @@ interface Persona {
   variant: "a" | "b" | "c";
 }
 
+const variantStyles = {
+  a: {
+    bg: "bg-teal-100",
+    text: "text-teal-700",
+    border: "border-teal-200",
+    indicator: "bg-[#5db8a6]"
+  },
+  b: {
+    bg: "bg-orange-100",
+    text: "text-orange-700",
+    border: "border-orange-200",
+    indicator: "bg-[#e8a55a]"
+  },
+  c: {
+    bg: "bg-indigo-100",
+    text: "text-indigo-700",
+    border: "border-indigo-200",
+    indicator: "bg-[#6366F1]"
+  }
+};
+
 export default function SoloChatPage() {
   const router = useRouter();
   const supabase = createClient();
-  const t = useTranslations("Chat");
+  const locale = useLocale();
+  const lang = locale.startsWith("id") ? "id" : "en";
+  const t = dict[lang];
 
   async function consumeSSE(response: Response, onChunk: (text: string) => void) {
     if (!response.body) return;
@@ -64,12 +124,17 @@ export default function SoloChatPage() {
     }
   }
 
-  const ADVISORS: Persona[] = PERSONAS.map((p, idx) => ({
-    id: p.name,
-    name: p.name,
-    description: p.description,
-    variant: (["a", "b", "c"][idx % 3]) as "a" | "b" | "c",
-  }));
+  // Mengubah nama tampilan menjadi Luna, Sage, dan Baz sesuai Landing Page
+  // Namun tetap mempertahankan 'id' asli agar tidak merusak sistem backend/API
+  const ADVISORS: Persona[] = PERSONAS.map((p, idx) => {
+    const friendlyNames = ["Luna", "Sage", "Baz"];
+    return {
+      id: p.name,
+      name: friendlyNames[idx] || p.name,
+      description: p.description,
+      variant: (["a", "b", "c"][idx % 3]) as "a" | "b" | "c",
+    };
+  });
 
   const [authChecking, setAuthChecking] = useState(true);
   const [selectedPersona, setSelectedPersona] = useState<Persona>(ADVISORS[0]);
@@ -105,7 +170,7 @@ export default function SoloChatPage() {
     if (messages.length > 0) {
       const handleBeforeUnload = (e: BeforeUnloadEvent) => {
         e.preventDefault();
-        e.returnValue = t("notSaved");
+        e.returnValue = t.notSaved;
       };
       window.addEventListener("beforeunload", handleBeforeUnload);
       return () => window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -161,7 +226,7 @@ export default function SoloChatPage() {
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setIsLoading(true);
     setStreamedResponse("");
-    setDisplayedResponse(""); // Ensure reset
+    setDisplayedResponse(""); 
 
     try {
       const conversationHistory = [
@@ -182,10 +247,9 @@ export default function SoloChatPage() {
       });
 
       if (!response.ok) {
-        throw new Error(t("errors.failed"));
+        throw new Error(t.errors.failed);
       }
 
-      // Check if response is streamable or plain json
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("text/event-stream")) {
         let fullResponse = "";
@@ -194,7 +258,6 @@ export default function SoloChatPage() {
           setStreamedResponse((prev) => prev + text);
         });
 
-        // After stream completes
         setMessages((prev) => [
           ...prev,
           { role: "assistant", content: fullResponse },
@@ -214,7 +277,7 @@ export default function SoloChatPage() {
         ...prev,
         {
           role: "assistant",
-          content: t("errors.connectionLost"),
+          content: t.errors.connectionLost,
         },
       ]);
     } finally {
@@ -231,77 +294,87 @@ export default function SoloChatPage() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center theme-new-primary">
-        <Loader2 className="animate-spin h-6 w-6 text-primary" />
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <Loader2 className="animate-spin h-6 w-6 text-[#6366F1]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans theme-new-primary">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans relative overflow-hidden selection:bg-[#E0E7FF] selection:text-[#3730A3]">
+      
+      {/* ICY LAVENDER & BLUE FLUID BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(165,224,255,0.4)_0%,transparent_70%)] blur-[120px]" />
+        <div className="absolute bottom-[-20%] left-[-15%] w-[65vw] h-[65vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(224,195,255,0.4)_0%,transparent_65%)] blur-[140px]" />
+      </div>
+
       <OperaNav variant="authed" />
 
       {/* Main Grid View */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-4 md:gap-8">
-        {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
-        <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
-          <span className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
-            {t("title")}
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-6 py-24 gap-8 relative z-10">
+        
+        {/* Left Advisor Sidebar */}
+        <aside className="w-full md:w-72 shrink-0 flex flex-col gap-6 pt-2">
+          <span className="text-[10px] font-bold tracking-[0.25em] text-slate-400 uppercase">
+            {t.title}
           </span>
 
-          {/* Persona selector list */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {ADVISORS.map((advisor) => {
               const isActive = advisor.id === selectedPersona.id;
+              const vStyle = variantStyles[advisor.variant];
+              
               return (
-                <Card
+                <div
                   key={advisor.id}
                   onClick={() => handleAdvisorSelect(advisor)}
-                  className={`p-4 cursor-pointer transition-all rounded-lg border shadow-none ring-0 ${
+                  className={`p-5 cursor-pointer transition-all rounded-[1.5rem] border backdrop-blur-2xl group ${
                     isActive
-                      ? "bg-slate-200 border-slate-900"
-                      : "bg-white border-slate-200 hover:bg-slate-50"
+                      ? "bg-white/80 border-[#6366F1] shadow-lg shadow-indigo-500/10"
+                      : "bg-white/40 border-white/60 hover:bg-white/80 hover:shadow-md hover:-translate-y-0.5"
                   }`}
                 >
-                  <h4 className="text-sm font-semibold text-slate-900 font-sans">
-                    {advisor.name}
-                  </h4>
-                  <p className="text-xs text-slate-500 mt-1 font-sans">
+                  <div className="flex items-center gap-3 mb-2.5">
+                    <div className={`w-2 h-2 rounded-full ${vStyle.indicator} ${isActive ? "animate-pulse" : ""}`} />
+                    <h4 className="text-sm font-bold text-slate-900 tracking-wider uppercase">
+                      {advisor.name}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed font-light line-clamp-2">
                     {advisor.description}
                   </p>
-                </Card>
+                </div>
               );
             })}
           </div>
         </aside>
 
         {/* Right Chat Area Panel */}
-        <main className="flex-1 bg-white border border-slate-200 rounded-lg flex flex-col justify-between overflow-hidden h-[calc(100vh-180px)]">
+        <main className="flex-1 bg-white/50 backdrop-blur-3xl border border-white/80 rounded-[2rem] md:rounded-[2.5rem] flex flex-col overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-[600px] md:h-[calc(100vh-160px)]">
+          
           {/* Active Chat Header */}
-          <div className="bg-white border-b border-slate-200 py-4 px-6 flex items-center gap-3">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                selectedPersona.variant === "a"
-                  ? "bg-[#5db8a6]"
-                  : selectedPersona.variant === "b"
-                    ? "bg-[#e8a55a]"
-                    : "bg-primary"
-              }`}
-            />
-            <span className="text-sm font-semibold text-slate-900 font-sans uppercase tracking-[0.5px]">
-              {selectedPersona.name}
-            </span>
+          <div className="bg-white/40 backdrop-blur-xl border-b border-white/60 py-5 px-8 flex items-center justify-between z-10">
+            <div className="flex items-center gap-3">
+              <span className={`w-2.5 h-2.5 rounded-full ${variantStyles[selectedPersona.variant].indicator} animate-pulse`} />
+              <span className="text-sm font-bold text-slate-900 uppercase tracking-widest">
+                {selectedPersona.name}
+              </span>
+            </div>
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 flex flex-col gap-8 relative">
             {messages.length === 0 ? (
-              <div className="my-auto text-center max-w-sm mx-auto flex flex-col gap-2">
-                <h3 className="text-lg font-normal text-slate-900 font-serif">
-                  {t("consult", { name: selectedPersona.name })}
+              <div className="my-auto text-center max-w-sm mx-auto flex flex-col gap-5 items-center">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-serif italic ${variantStyles[selectedPersona.variant].bg} ${variantStyles[selectedPersona.variant].text} border ${variantStyles[selectedPersona.variant].border} shadow-inner`}>
+                  {selectedPersona.name.charAt(0)}
+                </div>
+                <h3 className="text-2xl font-light text-slate-900 font-serif">
+                  {t.consult} <span className="font-medium">{selectedPersona.name}</span>
                 </h3>
-                <p className="text-sm text-slate-600 font-sans leading-[1.55]">
-                  {t("intro")}
+                <p className="text-sm text-slate-500 font-light leading-relaxed">
+                  {t.intro}
                 </p>
               </div>
             ) : (
@@ -309,23 +382,35 @@ export default function SoloChatPage() {
                 const content = extractMessageText(msg.content);
                 if (msg.role === "user") {
                   return (
-                    <div
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                       key={index}
-                      className="flex justify-end w-full animate-in fade-in slide-in-from-bottom-2 duration-150"
+                      className="flex justify-end w-full"
                     >
-                      <div className="bg-white text-slate-900 text-sm leading-[1.55] p-4 max-w-[85%] rounded-lg border border-slate-200 shadow-sm font-sans">
-                        {content}
+                      <div className="bg-slate-900 text-white rounded-[1.5rem] rounded-tr-sm px-6 py-4 shadow-md max-w-[85%] md:max-w-[75%]">
+                        <p className="text-sm font-medium leading-relaxed font-sans">{content}</p>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 } else {
                   return (
-                    <PersonaBubble
-                      key={index}
-                      persona_name={selectedPersona.name}
-                      message_content={content}
-                      variant={selectedPersona.variant}
-                    />
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                      key={index} 
+                      className="flex justify-start w-full"
+                    >
+                      <div className="bg-white/60 backdrop-blur-md border border-white/80 rounded-[1.5rem] rounded-tl-sm p-6 shadow-sm max-w-[85%] md:max-w-[75%]">
+                        <div className="flex items-center gap-3 mb-3">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-serif italic border ${variantStyles[selectedPersona.variant].bg} ${variantStyles[selectedPersona.variant].text} ${variantStyles[selectedPersona.variant].border}`}>
+                            {selectedPersona.name.charAt(0)}
+                          </div>
+                          <span className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">{selectedPersona.name}</span>
+                        </div>
+                        <div className="text-sm font-serif text-slate-700 leading-relaxed space-y-4">
+                          {content}
+                        </div>
+                      </div>
+                    </motion.div>
                   );
                 }
               })
@@ -333,65 +418,64 @@ export default function SoloChatPage() {
 
             {/* Streaming Message block */}
             {displayedResponse && (
-              <PersonaBubble
-                persona_name={selectedPersona.name}
-                message_content={extractMessageText(displayedResponse)}
-                variant={selectedPersona.variant}
-                isStreaming={true}
-              />
-            )}
-
-            {isLoading && !displayedResponse && (
-              <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div 
-                  className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold ${
-                    selectedPersona.variant === "a"
-                      ? "bg-[#5db8a6]"
-                      : selectedPersona.variant === "b"
-                        ? "bg-[#e8a55a]"
-                        : "bg-primary"
-                  }`}
-                >
-                  {selectedPersona.name.charAt(0)}
-                </div>
-                <div className="flex flex-col gap-1">
-                    <p className="text-xs italic text-slate-500">lagi mikir</p>
-                    <div className="flex gap-1 mt-1 px-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" />
+              <div className="flex justify-start w-full">
+                <div className="bg-white/60 backdrop-blur-md border border-white/80 rounded-[1.5rem] rounded-tl-sm p-6 shadow-sm max-w-[85%] md:max-w-[75%]">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-serif italic border ${variantStyles[selectedPersona.variant].bg} ${variantStyles[selectedPersona.variant].text} ${variantStyles[selectedPersona.variant].border}`}>
+                      {selectedPersona.name.charAt(0)}
                     </div>
+                    <span className="text-[10px] font-bold tracking-[0.2em] text-slate-500 uppercase">{selectedPersona.name}</span>
+                  </div>
+                  <div className="text-sm font-serif text-slate-700 leading-relaxed">
+                    {displayedResponse}<span className="animate-pulse ml-1 inline-block w-1.5 h-4 bg-slate-400 align-middle"></span>
+                  </div>
                 </div>
               </div>
             )}
 
-            <div ref={messagesEndRef} />
+            {/* Loading / Thinking Indicator */}
+            {isLoading && !displayedResponse && (
+              <div className="flex gap-4 items-center">
+                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-[12px] font-bold font-serif italic border shadow-sm ${variantStyles[selectedPersona.variant].bg} ${variantStyles[selectedPersona.variant].text} ${variantStyles[selectedPersona.variant].border}`}>
+                  {selectedPersona.name.charAt(0)}
+                </div>
+                <div className="flex flex-col gap-1 justify-center">
+                  <p className="text-[10px] font-bold tracking-[0.15em] uppercase text-slate-400">
+                    {selectedPersona.name} {t.thinking}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} className="h-4" />
           </div>
 
-          {/* Bottom input area panel */}
-          <div className="bg-white border-t border-slate-200 p-4 flex flex-col gap-2">
-            <div className="relative flex items-center w-full bg-slate-50 border border-slate-200 rounded-md focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
-              <textarea
-                value={inputVal}
-                onChange={(e) => setInputVal(e.target.value)}
-                onKeyDown={handleKeyPress}
-                placeholder="..."
-                disabled={isLoading}
-                rows={1}
-                className="w-full bg-transparent text-slate-900 text-base leading-[1.55] py-3 pl-4 pr-12 resize-none focus:outline-none md:text-sm font-sans"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={isLoading || !inputVal.trim()}
-                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-primary hover:text-primary-active disabled:text-slate-400 focus:outline-none transition-colors cursor-pointer"
-              >
-                <ArrowRight className="h-5 w-5" />
-              </button>
+          {/* Bottom Input Area */}
+          <div className="p-4 md:p-6 bg-white/40 backdrop-blur-xl border-t border-white/60 z-10">
+            <div className="relative group max-w-4xl mx-auto">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366F1]/20 to-[#0EA5E9]/20 rounded-full blur-md opacity-0 group-focus-within:opacity-100 transition duration-500"></div>
+              <div className="relative flex items-center w-full bg-white/70 backdrop-blur-xl border border-white/80 rounded-full focus-within:ring-2 focus-within:ring-[#6366F1]/50 shadow-sm transition-all">
+                <textarea
+                  value={inputVal}
+                  onChange={(e) => setInputVal(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  placeholder={t.placeholder}
+                  disabled={isLoading}
+                  rows={1}
+                  className="w-full bg-transparent text-slate-800 text-sm leading-relaxed py-4 pl-6 pr-14 resize-none focus:outline-none"
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={isLoading || !inputVal.trim()}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-3 bg-slate-900 text-white rounded-full hover:bg-slate-800 disabled:opacity-50 disabled:bg-slate-300 transition-all shadow-md"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 15l7-7 7 7" /></svg>
+                </button>
+              </div>
             </div>
-
-            <div className="flex justify-center">
-              <span className="text-[11px] text-slate-500 font-medium font-sans">
-                {t("notSaved")}
+            <div className="text-center mt-4">
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                {t.notSaved}
               </span>
             </div>
           </div>
@@ -400,30 +484,30 @@ export default function SoloChatPage() {
 
       {/* Switch Advisor Confirmation Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-white border border-slate-200 max-w-sm rounded-lg p-6 shadow-md">
+        <DialogContent className="bg-white/80 backdrop-blur-3xl border border-white/60 max-w-sm rounded-[2rem] p-8 shadow-[0_20px_80px_rgba(0,0,0,0.1)]">
           <DialogHeader>
-            <DialogTitle className="text-base font-semibold text-slate-900 font-sans">
-              {t("switchTitle")}
+            <DialogTitle className="text-xl font-serif font-medium text-slate-900">
+              {t.switchTitle}
             </DialogTitle>
-            <DialogDescription className="text-sm text-slate-600 mt-2 font-sans">
-              {t("switchDescription")}
+            <DialogDescription className="text-sm text-slate-500 font-light mt-2 leading-relaxed">
+              {t.switchDescription}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="mt-6 flex justify-end gap-3">
+          <DialogFooter className="mt-8 flex justify-end gap-4">
             <button
               onClick={() => {
                 setIsDialogOpen(false);
                 setPendingPersona(null);
               }}
-              className="px-4 py-2 border border-slate-200 text-slate-900 rounded-md text-sm hover:bg-slate-50 font-sans cursor-pointer"
+              className="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm"
             >
-              {t("cancel")}
+              {t.cancel}
             </button>
             <button
               onClick={confirmSwitchAdvisor}
-              className="px-4 py-2 bg-[#cc785c] hover:bg-[#a9583e] text-white rounded-md text-sm font-sans cursor-pointer"
+              className="px-6 py-2.5 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-bold uppercase tracking-widest shadow-md transition-colors"
             >
-              {t("clearAndSwitch")}
+              {t.clearAndSwitch}
             </button>
           </DialogFooter>
         </DialogContent>
