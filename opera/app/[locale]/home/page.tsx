@@ -113,19 +113,19 @@ export default async function HomeDashboard({
               {t("greeting", { name: displayName })}
             </h1>
             <p className="text-slate-600">
-              What are we analyzing today?
+              {t("subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-3">
              <Link
               href="/chat"
-              className="px-5 py-3 border border-slate-200 text-slate-900 bg-white hover:bg-slate-50 font-medium text-sm rounded-lg transition-colors cursor-pointer"
+              className="px-6 py-3 border border-slate-200 text-slate-900 bg-white hover:bg-slate-50 font-medium text-sm rounded-full transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {t("soloChat")}
             </Link>
             <Link
               href="/dump"
-              className="px-5 py-3 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-lg flex items-center justify-center transition-colors shadow-sm cursor-pointer"
+              className="px-6 py-3 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {t("newSession")}
             </Link>
@@ -148,13 +148,13 @@ export default async function HomeDashboard({
                   ))}
                 </div>
               ) : (
-                <div className="border border-dashed border-slate-200 rounded-xl p-12 text-center flex flex-col items-center gap-4 bg-white">
+                <div className="border border-dashed border-slate-200 rounded-2xl p-12 text-center flex flex-col items-center gap-4 bg-white">
                   <p className="text-slate-600 text-sm leading-[1.55] max-w-sm">
                     {t("emptyTheater")}
                   </p>
                   <Link
                     href="/dump"
-                    className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-10 px-5 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+                    className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-12 px-8 rounded-full flex items-center justify-center transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md"
                   >
                     {t("startFirst")}
                   </Link>

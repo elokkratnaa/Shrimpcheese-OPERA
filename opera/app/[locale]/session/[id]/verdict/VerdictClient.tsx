@@ -138,7 +138,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const nextSteps = verdict?.next_steps || [];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col justify-between font-sans pb-32">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
@@ -205,10 +205,10 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                   key={name}
                   onClick={() => handleSelectPersona(name)}
                   disabled={isCommitted}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer disabled:opacity-50 ${
+                  className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ease-out cursor-pointer disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] ${
                     favouritePersona === name 
-                      ? "bg-[#cc785c] text-white" 
-                      : "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50"
+                      ? "bg-[#cc785c] text-white shadow-md shadow-[#cc785c]/20" 
+                      : "bg-white border border-slate-200 text-slate-700 hover:border-[#cc785c]/50 hover:bg-slate-50"
                   }`}
                 >
                   {name}
@@ -288,8 +288,8 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
         )}
       </main>
 
-      {/* QUICK START + ACTION ROW */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#F8FAFC] border-t border-slate-200 px-6 py-4 z-50">
+      {/* QUICK START + ACTION ROW - Relative now */}
+      <div className="bg-[#F8FAFC] border-t border-slate-200 px-6 py-8 mt-10">
         <div className="max-w-[720px] mx-auto flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <div className="h-[1px] bg-slate-200 w-full mb-2" />
@@ -303,20 +303,20 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
             <button
               onClick={handleNewDilemma}
               disabled={!newDilema.trim()}
-              className="w-full bg-[#cc785c] hover:bg-[#a9583e] text-white font-bold text-sm py-3 rounded-lg transition-all disabled:opacity-50"
+              className="w-full bg-[#cc785c] hover:bg-[#a9583e] text-white font-bold text-sm py-4 rounded-full transition-all duration-300 ease-out shadow-lg shadow-[#cc785c]/20 hover:shadow-[#cc785c]/40 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 cursor-pointer"
             >
               {t("startGibah")}
             </button>
           </div>
 
           <div className="flex gap-2">
-            <button onClick={handleNewDilemma} className="flex-1 bg-[#cc785c] hover:bg-[#a9583e] text-white font-bold text-sm py-3 rounded-lg transition-all">
+            <button onClick={handleNewDilemma} className="flex-1 bg-[#cc785c] hover:bg-[#a9583e] text-white font-bold text-sm py-3 rounded-full transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98]">
               {t("newDilemma")}
             </button>
-            <button onClick={handleCopy} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-lg hover:bg-slate-300">
+            <button onClick={handleCopy} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-full transition-all duration-300 ease-out hover:bg-slate-300 hover:scale-[1.02] active:scale-[0.98]">
               {t("copyResult")}
             </button>
-            <button onClick={handleShare} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-lg hover:bg-slate-300">
+            <button onClick={handleShare} className="flex-1 bg-slate-200 text-slate-900 font-medium text-sm py-3 rounded-full transition-all duration-300 ease-out hover:bg-slate-300 hover:scale-[1.02] active:scale-[0.98]">
               {t("shareResults")}
             </button>
           </div>

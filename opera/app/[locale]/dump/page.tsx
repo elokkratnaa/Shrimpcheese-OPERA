@@ -111,7 +111,12 @@ export default function MindDumpPage() {
   }
 
   const handleSubmit = async () => {
+    console.log("[Dump] handleSubmit clicked", { mindDumpLength: mindDump.length, isSubmitDisabled });
     if (mindDump.length < 50) return;
+    if (isSubmitDisabled) {
+        console.log("[Dump] handleSubmit blocked by isSubmitDisabled");
+        return;
+    }
 
     setIsLoading(true);
     setErrorMessage("");
@@ -153,7 +158,8 @@ export default function MindDumpPage() {
     }
   };
 
-  const isSubmitDisabled = mindDump.length < 50 || isLoading;
+  const isSubmitDisabled = mindDump.length < 50 || isLoading || (squadMode === "racik" && selectedPersonas.length < 2);
+  console.log("[Dump] isSubmitDisabled re-calculated:", { isSubmitDisabled, mindDumpLength: mindDump.length, selectedPersonasLength: selectedPersonas.length, squadMode, isLoading });
 
   if (authChecking) {
     return (
@@ -172,10 +178,10 @@ export default function MindDumpPage() {
   const Pill = ({ label, selected, onClick }: { label: string, selected: boolean, onClick: () => void }) => (
     <button
       onClick={onClick}
-      className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer ${
+      className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ease-out cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
         selected 
-          ? "bg-[#cc785c] text-white" 
-          : "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50"
+          ? "bg-[#cc785c] text-white shadow-md shadow-[#cc785c]/20" 
+          : "bg-white border border-slate-200 text-slate-700 hover:border-[#cc785c]/50 hover:bg-slate-50"
       }`}
     >
       {label}
@@ -206,7 +212,7 @@ export default function MindDumpPage() {
             showCounter={true}
           />
           <span className="text-xs text-slate-500 font-sans px-1">
-            {t("minCharMessage")}
+            {t("minCharMessage", { count: Math.max(0, 50 - mindDump.length) })}
           </span>
         </div>
 
@@ -277,13 +283,15 @@ export default function MindDumpPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <SectionLabel>{t("personaLabel")}</SectionLabel>
-            <div className="flex bg-slate-200 rounded-lg p-1">
+            <div className="flex bg-slate-100 rounded-full p-1 shadow-inner">
               {(["gacha", "racik"] as const).map(mode => (
                 <button
                   key={mode}
                   onClick={() => setSquadMode(mode)}
-                  className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-md transition-all ${
-                    squadMode === mode ? "bg-[#cc785c] text-white" : "text-slate-500 hover:text-slate-900"
+                  className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-full transition-all duration-300 ease-out ${
+                    squadMode === mode 
+                      ? "bg-[#cc785c] text-white shadow-sm" 
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {mode === "gacha" ? t("gacha") : t("racik")}
@@ -341,12 +349,12 @@ export default function MindDumpPage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className="w-full h-14 bg-[#cc785c] text-white hover:bg-[#a9583e] font-bold text-lg rounded-xl transition-all shadow-lg shadow-[#cc785c]/20 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full h-14 bg-[#cc785c] text-white hover:bg-[#a9583e] font-bold text-lg rounded-full transition-all duration-300 ease-out shadow-lg shadow-[#cc785c]/20 hover:shadow-[#cc785c]/40 hover:scale-[1.01] active:scale-[0.99] disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed cursor-pointer"
           >
             {isLoading ? (
-              <span className="flex items-center justify-center gap-2">
+              <span className="flex items-center justify-center gap-3">
                 <Loader2 className="animate-spin h-5 w-5" />
-                {LOADING_MESSAGES[loadingMsgIndex]}
+                <span className="animate-pulse">{LOADING_MESSAGES[loadingMsgIndex]}</span>
               </span>
             ) : (
               t("submit")

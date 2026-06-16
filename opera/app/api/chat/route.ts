@@ -6,7 +6,7 @@ import { checkInputSafety } from '@/core/services/SafetyService'
 import { getTranslations } from 'next-intl/server'
 
 export async function POST(request: NextRequest) {
-  try {
+  try { console.log("[ChatAPI] POST request received");
     const t = await getTranslations('Error')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -16,27 +16,29 @@ export async function POST(request: NextRequest) {
     }
 
     let body
-    try {
+    try { console.log("[ChatAPI] POST request received");
       body = await request.json()
     } catch {
       return new Response('Invalid JSON body', { status: 400 })
     }
 
     const { persona, message, history } = body
+    console.log('[ChatAPI] Request:', { persona, message, historyLength: history?.length });
 
     if (!persona || typeof persona !== 'string' || persona.trim().length === 0) {
+      console.error('[ChatAPI] Missing or invalid persona:', persona);
       return new Response('persona is required', { status: 400 })
     }
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      console.error('[ChatAPI] Missing or invalid message:', message);
       return new Response('message is required', { status: 400 })
     }
 
     // Safety check
     const safety = await checkInputSafety(message)
     if (!safety.isSafe) {
-      const errorMessage = safety.error === 'RATE_LIMITED' ? t('rateLimit') : t('profiler_failed')
-      return new Response(errorMessage, { status: 400 })
+      return new Response(safety.error || t('profiler_failed'), { status: 400 })
     }
 
     const systemPrompt = PERSONA_MAP[persona]?.systemPrompt || `You are ${persona}, a helpful advisor.`
@@ -47,7 +49,7 @@ export async function POST(request: NextRequest) {
     }))
 
     let stream;
-    try {
+    try { console.log("[ChatAPI] POST request received");
       stream = await streamGroq({
         system: systemPrompt,
         messages: [...chatHistory, { role: 'user', content: message }]
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
     const encoder = new TextEncoder()
     const customReadable = new ReadableStream({
       async start(controller) {
-        try {
+        try { console.log("[ChatAPI] POST request received");
           for await (const chunk of stream) {
             const token = chunk.choices[0]?.delta?.content || ''
             if (token) {

@@ -283,23 +283,23 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 <div className="flex items-center gap-4 my-4">
                   <div className="flex-1 h-[1px] bg-slate-200" />
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                    — Ronde {utterance.round_number} —
+                    — {t("round")} {utterance.round_number} —
                   </span>
                   <div className="flex-1 h-[1px] bg-slate-200" />
                 </div>
               )}
-              <div className={`flex gap-3 ${utterance.persona_name === "Kamu" ? "flex-row-reverse" : ""}`}>
+              <div className={`flex gap-3 ${utterance.persona_name === t("you") ? "flex-row-reverse" : ""}`}>
                 <div 
                   className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
                   style={{ backgroundColor: color }}
                 >
-                  {utterance.persona_name.charAt(0)}
+                  {utterance.persona_name === t("you") ? t("you").charAt(0) : utterance.persona_name.charAt(0)}
                 </div>
-                <div className={`flex flex-col gap-1 max-w-[85%] ${utterance.persona_name === "Kamu" ? "items-end" : ""}`}>
+                <div className={`flex flex-col gap-1 max-w-[85%] ${utterance.persona_name === t("you") ? "items-end" : ""}`}>
                   <span className="text-[11px] font-medium" style={{ color }}>
                     {utterance.persona_name}
                   </span>
-                  <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === "Kamu" ? "border-r-2 border-[#cc785c]" : ""}`}>
+                  <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === t("you") ? "border-r-2 border-[#cc785c]" : ""}`}>
                     <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
                       {utterance.message_content}
                     </div>
@@ -319,7 +319,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                {messageQueue[0].persona_name.charAt(0)}
              </div>
              <div className="flex flex-col gap-1">
-                <p className="text-xs italic text-slate-500">lagi mikir</p>
+                <p className="text-xs italic text-slate-500">{t("typing")}</p>
                 <div className="flex gap-1 mt-1 px-1">
                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
                    <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
@@ -329,7 +329,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           </div>
         )}
 
-        {messageQueue.length > 0 && messageQueue[0].displayedContent && (
+        {messageQueue.length > 0 && messageQueue[0].displayedContent !== undefined && (
              <PersonaBubble
                 persona_name={messageQueue[0].persona_name}
                 message_content={messageQueue[0].displayedContent}
@@ -344,7 +344,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             </div>
         )}
 
-        {roundCompleteEvent && !isComplete && (
+        {roundCompleteEvent && !isComplete && messageQueue.length === 0 && !isStreaming && (
           <div className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300">
             <div className="flex flex-col gap-4">
               <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
@@ -375,6 +375,17 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 className="w-full h-11 bg-[#cc785c] text-white font-bold rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
             >
                 {t("send")}
+            </button>
+          </div>
+        )}
+
+        {isComplete && messageQueue.length === 0 && !isStreaming && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => router.push(`/session/${id}/verdict`)}
+              className="px-8 py-3 bg-[#cc785c] text-white font-bold rounded-lg hover:scale-[1.01] transition-all"
+            >
+              {t("seeVerdict")}
             </button>
           </div>
         )}

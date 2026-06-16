@@ -101,18 +101,18 @@ export default function ProfilingClient() {
   }, [id, router]);
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white flex flex-col font-sans overflow-hidden relative">
-      {/* Background Ambient Glows */}
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans overflow-hidden relative">
+      {/* Background Ambient Glows - adjusted for light theme */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[60%] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(204,120,92,0.15),transparent_70%)]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08),transparent_70%)]" />
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[60%] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(204,120,92,0.1),transparent_70%)]" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05),transparent_70%)]" />
       </div>
       
-      {/* Grid Overlay Texture */}
+      {/* Grid Overlay Texture - adjusted for light theme */}
       <div 
-        className="absolute inset-0 opacity-[0.15] pointer-events-none z-0" 
+        className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" 
         style={{ 
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
           backgroundSize: '32px 32px' 
         }} 
       />
@@ -133,43 +133,42 @@ export default function ProfilingClient() {
             <div className="absolute inset-8 rounded-full border-b-2 border-l-2 border-primary/60 animate-[spin_3s_linear_infinite_reverse]" />
             
             {/* Core Orb */}
-            <div className="w-12 h-12 rounded-full bg-primary shadow-[0_0_30px_rgba(204,120,92,0.6)] relative z-20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-primary shadow-[0_0_30px_rgba(204,120,92,0.4)] relative z-20 flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full animate-ping" />
             </div>
           </div>
 
           <div className="flex flex-col gap-6 animate-in fade-in duration-700">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-white font-sans">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-slate-900 font-sans">
               Profiling in Progress
             </h2>
             
-            <div className="bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-8 shadow-2xl min-w-[320px] md:min-w-[440px] relative overflow-hidden group">
-              {/* Subtle glass reflection effect */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/[0.02] to-transparent pointer-events-none" />
+            <div className="bg-white/50 backdrop-blur-xl border border-slate-200 rounded-2xl p-8 shadow-sm min-w-[320px] md:min-w-[440px] relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-slate-100/50 to-transparent pointer-events-none" />
               
               <div className="flex flex-col gap-4 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(204,120,92,0.8)]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(204,120,92,0.6)]" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
                     Neural Bridge Active
                   </span>
                 </div>
                 
                 <div className="h-12 flex items-center">
-                  <p className="text-lg md:text-xl text-white/90 font-medium tracking-tight leading-snug animate-in slide-in-from-bottom-2 duration-300 font-sans">
+                  <p className="text-lg md:text-xl text-slate-800 font-medium tracking-tight leading-snug animate-in slide-in-from-bottom-2 duration-300 font-sans">
                     {dynamicMessages[messageIndex]}
                   </p>
                 </div>
               </div>
 
               {/* Progress Bar Skeleton */}
-              <div className="mt-8 w-full h-[3px] bg-white/[0.05] rounded-full overflow-hidden">
-                <div className="h-full bg-primary shadow-[0_0_10px_rgba(204,120,92,0.5)] animate-[progress_15s_ease-out_forwards]" 
+              <div className="mt-8 w-full h-[3px] bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-full bg-primary shadow-[0_0_10px_rgba(204,120,92,0.3)] animate-[progress_15s_ease-out_forwards]" 
                      style={{ width: '85%' }} />
               </div>
             </div>
             
-            <p className="text-xs text-white/40 font-medium uppercase tracking-[0.15em] mt-4">
+            <p className="text-xs text-slate-500 font-medium uppercase tracking-[0.15em] mt-4">
               Estimated time: ~10 seconds
             </p>
           </div>

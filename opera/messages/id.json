@@ -175,6 +175,7 @@
     "history": "Riwayat",
     "profile": "Profil",
     "greeting": "Apa yang ada di pikiran Anda, {name}?",
+    "subtitle": "Apa yang akan kita analisis hari ini?",
     "recentSessions": "Sesi terbaru",
     "patterns": "Pola Anda",
     "emptyTheater": "Theater Anda kosong. Tumpahkan pikiran Anda untuk mengadakan dewan debat kognitif pertama Anda.",
@@ -310,6 +311,8 @@
     "preparing": "Persona sedang bersiap memasuki Ruang Dewan...",
     "seeVerdict": "Lihat verdict",
     "typing": "mengetik...",
+    "you": "Kamu",
+    "round": "Ronde",
     "target": "TARGET BALASAN:",
     "rebuttalPlaceholder": "Tulis bantahan lo",
     "send": "Kirim",
@@ -342,7 +345,7 @@
     }
   },
   "OverthinkingBar": {
-    "label": "Kedalaman penalaran",
+    "label": "Tingkat Overthinking",
     "complete": "Analisis selesai"
   }
 }

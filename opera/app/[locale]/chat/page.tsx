@@ -78,7 +78,25 @@ export default function SoloChatPage() {
   const [inputVal, setInputVal] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [streamedResponse, setStreamedResponse] = useState("");
+  const [displayedResponse, setDisplayedResponse] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  // Typewriter effect
+  useEffect(() => {
+    if (streamedResponse.length > displayedResponse.length) {
+      const timer = setTimeout(() => {
+        setDisplayedResponse(streamedResponse.substring(0, displayedResponse.length + 1));
+      }, 20); // Adjust speed here
+      return () => clearTimeout(timer);
+    }
+  }, [streamedResponse, displayedResponse]);
+
+  // Reset display when streaming starts/ends
+  useEffect(() => {
+    if (streamedResponse === "") {
+      setDisplayedResponse("");
+    }
+  }, [streamedResponse]);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -143,6 +161,7 @@ export default function SoloChatPage() {
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setIsLoading(true);
     setStreamedResponse("");
+    setDisplayedResponse(""); // Ensure reset
 
     try {
       const conversationHistory = [
@@ -181,6 +200,7 @@ export default function SoloChatPage() {
           { role: "assistant", content: fullResponse },
         ]);
         setStreamedResponse("");
+        setDisplayedResponse("");
       } else {
         const data = await response.json();
         setMessages((prev) => [
@@ -312,13 +332,37 @@ export default function SoloChatPage() {
             )}
 
             {/* Streaming Message block */}
-            {streamedResponse && (
+            {displayedResponse && (
               <PersonaBubble
                 persona_name={selectedPersona.name}
-                message_content={extractMessageText(streamedResponse)}
+                message_content={extractMessageText(displayedResponse)}
                 variant={selectedPersona.variant}
                 isStreaming={true}
               />
+            )}
+
+            {isLoading && !displayedResponse && (
+              <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div 
+                  className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold ${
+                    selectedPersona.variant === "a"
+                      ? "bg-[#5db8a6]"
+                      : selectedPersona.variant === "b"
+                        ? "bg-[#e8a55a]"
+                        : "bg-[#cc785c]"
+                  }`}
+                >
+                  {selectedPersona.name.charAt(0)}
+                </div>
+                <div className="flex flex-col gap-1">
+                    <p className="text-xs italic text-slate-500">lagi mikir</p>
+                    <div className="flex gap-1 mt-1 px-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" />
+                    </div>
+                </div>
+              </div>
             )}
 
             <div ref={messagesEndRef} />
