@@ -314,6 +314,7 @@
     "rebuttalPlaceholder": "Tulis bantahan lo",
     "send": "Kirim",
     "skip": "Lanjut Ronde {round} (Tanpa Membalas)",
+    "longAnalysis": "Dewan sedang melakukan analisis mendalam, harap tunggu sebentar...",
     "errors": {
       "failed": "Gagal memuat data ruang dewan"
     }

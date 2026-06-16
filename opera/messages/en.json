@@ -315,6 +315,7 @@
     "rebuttalPlaceholder": "Write your rebuttal",
     "send": "Send",
     "skip": "Continue to Round {round} (Without rebutting)",
+    "longAnalysis": "The council is currently performing a deep analysis, this may take a moment...",
     "errors": {
       "failed": "Failed to load council room data"
     }
