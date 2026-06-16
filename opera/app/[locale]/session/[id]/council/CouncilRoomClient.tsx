@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
+import PersonaBubble from "@/app/components/shared/PersonaBubble";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { PERSONAS, PERSONA_MAP } from "@/shared/personas";
@@ -11,6 +12,7 @@ interface DebateUtterance {
   debate_id: string;
   persona_name: string;
   message_content: string;
+  displayedContent?: string;
   turn_sequence: number;
   round_number?: number;
 }
@@ -49,18 +51,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamAbortController = useRef<AbortController | null>(null);
 
-  // Effect to process queue for staggered display
-  useEffect(() => {
-    if (messageQueue.length > 0) {
-      const timer = setTimeout(() => {
-        const [nextMsg, ...rest] = messageQueue;
-        setDisplayedDebates(prev => [...prev, nextMsg]);
-        setMessageQueue(rest);
-      }, 800); // 800ms delay per message
-      return () => clearTimeout(timer);
-    }
-  }, [messageQueue]);
-
   const uniquePersonas = useMemo(() => {
     const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
     const fromBiases = (session?.detected_biases?.suggested_persona_archetypes || [])
@@ -73,6 +63,38 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     return PERSONA_COLORS[index % PERSONA_COLORS.length] || PERSONA_COLORS[0];
   };
 
+  const getPersonaVariant = (name: string): "a" | "b" | "c" => {
+    const idx = uniquePersonas.indexOf(name);
+    return (["a", "b", "c"][idx % 3]) as "a" | "b" | "c";
+  };
+
+  // Effect to process queue for staggered display and typewriter effect
+  useEffect(() => {
+    if (messageQueue.length > 0) {
+      const currentMsg = { ...messageQueue[0] };
+      
+      if (currentMsg.displayedContent === undefined) {
+        currentMsg.displayedContent = "";
+      }
+
+      if (currentMsg.displayedContent.length < currentMsg.message_content.length) {
+        const timer = setTimeout(() => {
+          setMessageQueue(prev => {
+            const [first, ...rest] = prev;
+            return [{
+                ...first,
+                displayedContent: first.message_content.substring(0, (first.displayedContent?.length || 0) + 1)
+            }, ...rest];
+          });
+        }, 30); 
+        return () => clearTimeout(timer);
+      } else {
+        setDisplayedDebates(prev => [...prev, { ...currentMsg, message_content: currentMsg.message_content || "" }]);
+        setMessageQueue(prev => prev.slice(1));
+      }
+    }
+  }, [messageQueue]);
+
   useEffect(() => {
     async function loadInitialData() {
       try {
@@ -80,6 +102,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         if (debatesRes.ok) {
           const debatesData = await debatesRes.json();
           setDebates(debatesData);
+          setDisplayedDebates(debatesData);
         }
       } catch (err) {
         console.error("Failed to load council data:", err);
@@ -102,14 +125,10 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         const response = await fetch(`/api/sessions/${id}/stream`, {
           signal: controller.signal,
         });
-        if (!response.body) {
-           console.error("[UI] Stream response has no body");
-           return;
-        }
+        if (!response.body) return;
 
         await consumeSSE(response, (event) => {
           if (controller.signal.aborted) return;
-          console.log("[UI] DEBUG: Raw SSE event received:", JSON.stringify(event));
 
           if (event.type === "turn") {
             const newUtterance = {
@@ -120,24 +139,17 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
               round_number: event.round_number
             };
             
-            setDebates(prev => {
-              if (prev.some(d => d.turn_sequence === event.turn_sequence && d.persona_name === event.persona_name)) {
-                return prev;
-              }
-              return [...prev, newUtterance];
-            });
+            setDebates(prev => [...prev, newUtterance]);
             setMessageQueue(prev => [...prev, newUtterance]);
           } else if (event.type === "typing") {
-            console.log(`[UI] ${event.persona_name} is typing...`);
+            // Typing indicator
           } else if (event.type === "round_complete") {
-            console.log("[UI] Round complete received:", event);
-            setIsStreaming(false); // Force stop typing indicator
+            setIsStreaming(false);
             setRoundCompleteEvent(prev => {
               if (prev && prev.round >= event.round) return prev;
               return { round: event.round, total: event.total };
             });
           } else if (event.type === "debate_complete") {
-            console.log("[UI] Debate complete received");
             setSession(prev => prev ? { ...prev, current_status: "completed" } : prev);
           }
         });
@@ -149,16 +161,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     }
 
     startStream();
-
-    return () => {
-    };
   }, [id, session.current_status]);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [debates, isStreaming, roundCompleteEvent]);
+  }, [displayedDebates, isStreaming, roundCompleteEvent]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -175,36 +184,20 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        
-        buffer += decoder.decode(value, { stream: true });
-        // Split by lines and process
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? ''; // Keep the incomplete last line in buffer
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed || !trimmed.startsWith('data: ')) continue;
-          
-          const payload = trimmed.slice(6).trim();
-          if (payload === '[DONE]') return;
-          
-          try {
-            const parsed = JSON.parse(payload);
-            onEvent(parsed);
-          } catch (e) {
-            console.error("[UI] Failed to parse SSE event:", payload, e);
-          }
-        }
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
+        if (!line.trim().startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (payload === '[DONE]') return;
+        try {
+          onEvent(JSON.parse(payload));
+        } catch {}
       }
-    } catch (e) {
-      console.error("[UI] SSE Stream reading error:", e);
-    } finally {
-      reader.releaseLock();
     }
   }
 
@@ -223,15 +216,17 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         });
         if (!res.ok) throw new Error("Failed to send rebuttal");
         
-        setDebates(prev => [...prev, {
+        const userUtterance = {
           debate_id: `user-${Date.now()}`,
           persona_name: "Kamu",
           message_content: rebuttalContent,
           turn_sequence: (roundCompleteEvent?.round || 0) * 100 + 99,
           round_number: roundCompleteEvent?.round
-        }]);
+        };
+        setDebates(prev => [...prev, userUtterance]);
+        setDisplayedDebates(prev => [...prev, userUtterance]);
       } else {
-        const res = await fetch(`/api/sessions/${id}/rebuttal`, {
+        await fetch(`/api/sessions/${id}/rebuttal`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ 
@@ -240,7 +235,6 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             round_number: roundCompleteEvent?.round 
           })
         });
-        if (!res.ok) throw new Error("Failed to skip");
       }
 
       setRoundCompleteEvent(null);
@@ -260,15 +254,14 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     );
   }
 
-  const squadName = session?.detected_biases?.core_decision_node || "Council Squad";
-  const personaSubtitle = uniquePersonas.join(", ") + " & Kamu";
-
   const totalRounds = session?.rounds || 1;
-  const completedTurns = debates.filter(d => !d.debate_id.startsWith('streaming-')).length;
   const isComplete = session?.current_status === "completed";
   const categoryLabel = session?.category || "Analisis";
-  const currentRound = roundCompleteEvent ? roundCompleteEvent.round : Math.min(Math.ceil(completedTurns / (uniquePersonas.length * 3)) || 1, totalRounds);
+  const currentRound = roundCompleteEvent ? roundCompleteEvent.round : 1;
   const displayRound = Math.min(Math.max(currentRound, 1), totalRounds);
+  const completedTurns = debates.filter(d => !d.debate_id.startsWith('streaming-')).length;
+  const totalExpectedTurns = (uniquePersonas.length || 3) * 3 * totalRounds;
+  const progressPercent = Math.min((completedTurns / totalExpectedTurns) * 100, 100);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
@@ -276,17 +269,12 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         <OperaNav variant="authed" showHomeButton={true} />
       </header>
 
-      {/* CHAT AREA */}
       <main 
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 max-w-2xl mx-auto w-full pb-20"
       >
         {displayedDebates.map((utterance, idx) => {
           const color = utterance.persona_name === "Kamu" ? "#cc785c" : getPersonaColor(utterance.persona_name);
-          const lines = utterance.message_content.split("\n").filter(l => l.trim().length > 0);
-          const lastLine = lines.length > 1 ? lines[lines.length - 1] : null;
-          const bodyLines = lastLine ? lines.slice(0, -1) : lines;
-
           const showRoundDivider = idx === 0 || (utterance.round_number && utterance.round_number !== displayedDebates[idx - 1].round_number);
 
           return (
@@ -313,12 +301,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                   </span>
                   <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === "Kamu" ? "border-r-2 border-[#cc785c]" : ""}`}>
                     <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
-                      {bodyLines.join("\n")}
-                      {lastLine && utterance.persona_name !== "Kamu" && (
-                        <blockquote className="mt-3 border-l-[3px] border-slate-300 bg-slate-50 italic text-sm p-2 rounded-r-sm">
-                          {lastLine}
-                        </blockquote>
-                      )}
+                      {utterance.message_content}
                     </div>
                   </div>
                 </div>
@@ -326,6 +309,15 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             </React.Fragment>
           );
         })}
+
+        {messageQueue.length > 0 && messageQueue[0].displayedContent && (
+             <PersonaBubble
+                persona_name={messageQueue[0].persona_name}
+                message_content={messageQueue[0].displayedContent}
+                variant={getPersonaVariant(messageQueue[0].persona_name)}
+                isStreaming={true}
+              />
+        )}
 
         {showThinkingTooltip && isStreaming && (
             <div className="text-center text-xs text-slate-500 italic animate-pulse">
@@ -353,101 +345,35 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                 ))}
               </div>
             </div>
-
-            <div className="flex flex-col gap-2">
-              <textarea
-                aria-label={t("rebuttalPlaceholder")}
+            <textarea
                 value={rebuttalContent}
                 onChange={(e) => setRebuttalContent(e.target.value)}
                 className="w-full min-h-[100px] bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:border-[#cc785c] transition-all resize-none"
-              />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <button
+            />
+            <button
                 onClick={() => handleSendRebuttal()}
                 disabled={!rebuttalContent.trim() || isSubmittingRebuttal}
-                className="w-full h-11 bg-[#cc785c] text-white font-bold rounded-lg shadow-lg shadow-[#cc785c]/20 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
-              >
-                {isSubmittingRebuttal ? <Loader2 className="animate-spin mx-auto h-5 w-5 text-white" /> : t("send")}
-              </button>
-              <button
-                onClick={() => handleSendRebuttal(true)}
-                disabled={isSubmittingRebuttal}
-                className="w-full h-11 bg-slate-200 text-slate-900 font-medium rounded-lg hover:bg-slate-300 transition-all"
-              >
-                {t("skip", { round: roundCompleteEvent.round + 1 })}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {isStreaming && !roundCompleteEvent && (
-          <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-             <div 
-               className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
-               style={{ backgroundColor: getPersonaColor(uniquePersonas[debates.length % uniquePersonas.length] || "") }}
-             >
-               {(uniquePersonas[debates.length % uniquePersonas.length] || "C").charAt(0)}
-             </div>
-             <div className="flex flex-col gap-1">
-                <p className="text-xs italic text-slate-500">lagi mikir</p>
-                <div className="flex gap-1 mt-1 px-1">
-                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
-                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
-                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" />
-                </div>
-             </div>
+                className="w-full h-11 bg-[#cc785c] text-white font-bold rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
+            >
+                {t("send")}
+            </button>
           </div>
         )}
       </main>
 
-      {/* OVERTHINKING BOTTOM BAR */}
       <footer className="sticky bottom-0 z-40 bg-[#F8FAFC] border-t border-slate-200 px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-bold text-[#cc785c] uppercase tracking-wider">
-                {categoryLabel}
-              </span>
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold text-[#cc785c] uppercase tracking-wider">{categoryLabel}</span>
               <div className="bg-white border border-slate-200 rounded-full px-3 py-1 text-xs font-medium text-slate-900">
                 Ronde {displayRound}/{totalRounds}
               </div>
             </div>
-          </div>
+            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                <div className="h-full bg-[#cc785c] transition-[width] duration-400 ease" style={{ width: `${progressPercent}%` }} />
+            </div>
         </div>
       </footer>
-
-      {/* FOOTER ACTION */}
-      <div className="fixed bottom-20 left-0 right-0 p-4 flex justify-center gap-2 z-30">
-        <button
-          onClick={() => router.push(`/session/${id}/verdict?force=true`)}
-          className="bg-white text-[#cc785c] text-[12px] font-bold px-6 py-2 rounded-full border-2 border-[#cc785c] shadow-md hover:bg-[#cc785c] hover:text-white transition-all"
-        >
-          Force Verdict Access
-        </button>
-        {roundCompleteEvent && !isComplete && (
-          <button
-            onClick={() => handleSendRebuttal(true)}
-            className="bg-[#cc785c]/10 backdrop-blur text-[#cc785c] text-[10px] font-bold px-3 py-1 rounded-full border border-[#cc785c]/20 hover:bg-[#cc785c]/20"
-          >
-            Force Next Round
-          </button>
-        )}
-      </div>
-
-      {isComplete && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F8FAFC] to-transparent z-30">
-          <div className="max-w-2xl mx-auto w-full">
-            <button
-              onClick={() => router.push(`/session/${id}/verdict`)}
-              className="w-full h-12 bg-[#cc785c] text-white font-bold rounded-xl shadow-lg shadow-[#cc785c]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-            >
-              {t("seeVerdict")}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
