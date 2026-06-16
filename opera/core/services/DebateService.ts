@@ -70,7 +70,7 @@ export async function spawnCouncil(
     let globalTranscript: string = ""
 
     for (let round = 1; round <= rounds; round++) {
-      const turns = 3;
+      const turns = Math.floor(Math.random() * 3) + 1;
       let roundTranscript = "";
 
       for (let turn = 1; turn <= turns; turn++) {
