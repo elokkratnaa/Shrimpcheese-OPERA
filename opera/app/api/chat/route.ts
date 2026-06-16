@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { streamGroq } from '@/lib/groq'
-import { personas } from '@/lib/personas'
+import { createClient } from '@/core/lib/supabase-server'
+import { streamGroq } from '@/core/lib/groq'
+import { PERSONA_MAP } from '@/shared/personas'
+import { checkInputSafety } from '@/core/services/SafetyService'
+import { getTranslations } from 'next-intl/server'
 
 export async function POST(request: NextRequest) {
-  try {
+  try { console.log("[ChatAPI] POST request received");
+    const t = await getTranslations('Error')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -13,42 +16,57 @@ export async function POST(request: NextRequest) {
     }
 
     let body
-    try {
+    try { console.log("[ChatAPI] POST request received");
       body = await request.json()
     } catch {
       return new Response('Invalid JSON body', { status: 400 })
     }
 
     const { persona, message, history } = body
+    console.log('[ChatAPI] Request:', { persona, message, historyLength: history?.length });
 
     if (!persona || typeof persona !== 'string' || persona.trim().length === 0) {
+      console.error('[ChatAPI] Missing or invalid persona:', persona);
       return new Response('persona is required', { status: 400 })
     }
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      console.error('[ChatAPI] Missing or invalid message:', message);
       return new Response('message is required', { status: 400 })
     }
 
-    const systemPrompt = personas[persona] || `You are ${persona}, a helpful advisor.`
+    // Safety check
+    const safety = await checkInputSafety(message)
+    if (!safety.isSafe) {
+      return new Response(safety.error || t('profiler_failed'), { status: 400 })
+    }
+
+    const systemPrompt = PERSONA_MAP[persona]?.systemPrompt || `You are ${persona}, a helpful advisor.`
 
     const chatHistory = (history as Array<{ role: string; content: string }> || []).map((msg) => ({
       role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
       content: msg.content
     }))
 
-    const stream = await streamGroq({
-      system: systemPrompt,
-      messages: [...chatHistory, { role: 'user', content: message }]
-    })
+    let stream;
+    try { console.log("[ChatAPI] POST request received");
+      stream = await streamGroq({
+        system: systemPrompt,
+        messages: [...chatHistory, { role: 'user', content: message }]
+      })
+    } catch (err) {
+      console.error('[ChatAPI] Streaming failed after all fallbacks:', err);
+      return new Response('AI_FAILED', { status: 503 });
+    }
 
     const encoder = new TextEncoder()
     const customReadable = new ReadableStream({
       async start(controller) {
-        try {
+        try { console.log("[ChatAPI] POST request received");
           for await (const chunk of stream) {
             const token = chunk.choices[0]?.delta?.content || ''
             if (token) {
-              controller.enqueue(encoder.encode(`data: ${token}\n\n`))
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: token })}\n\n`))
             }
           }
           controller.enqueue(encoder.encode(`data: [DONE]\n\n`))

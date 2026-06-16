@@ -87,12 +87,20 @@
 
   /* Animations */
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
   @keyframes progress-load {
-    0% { width: 0%; }
-    100% { width: 70%; }
+    0% {
+      width: 0%;
+    }
+    100% {
+      width: 70%;
+    }
   }
   --animate-fade-in: fade-in 0.5s ease-out forwards;
   --animate-progress-load: progress-load 1.5s ease-out forwards;
@@ -178,4 +186,3 @@
     @apply font-sans;
   }
 }
-

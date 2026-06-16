@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { synthesizeVerdict } from '@/services/VerdictService'
+import { createClient } from '@/core/lib/supabase-server'
+import { synthesizeVerdict } from '@/core/services/VerdictService'
+import { sessionEvents } from '@/shared/events'
 
 export async function GET(
   request: NextRequest,
@@ -18,7 +19,7 @@ export async function GET(
     // Verify session belongs to user
     const { data: session, error: sessionError } = await supabase
       .from('sessions')
-      .select('user_id')
+      .select('user_id, current_status')
       .eq('session_id', id)
       .single()
 
@@ -30,7 +31,68 @@ export async function GET(
       return new Response('Session not found', { status: 404 })
     }
 
-    const customReadable = await synthesizeVerdict(id)
+    const encoder = new TextEncoder()
+
+    const customReadable = new ReadableStream({
+      async start(controller) {
+        // If already completed, just jump to verdict
+        if (session.current_status === 'completed') {
+          const verdictStream = await synthesizeVerdict(id)
+          const reader = verdictStream.getReader()
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            controller.enqueue(value)
+          }
+          controller.close()
+          return
+        }
+
+        // Listen for debate events
+        const onEvent = async (data: any) => {
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+          } catch (e) {
+            // Stream already closed or errored, ignore
+            return;
+          }
+          
+          if (data.type === 'debate_complete') {
+            sessionEvents.off(`session:${id}`, onEvent)
+            // Start verdict synthesis
+            try {
+              const verdictStream = await synthesizeVerdict(id)
+              const reader = verdictStream.getReader()
+              while (true) {
+                const { done, value } = await reader.read()
+                if (done) break
+                try {
+                    controller.enqueue(value)
+                } catch (e) {
+                    // Stream already closed, stop reading
+                    break;
+                }
+              }
+            } catch (err) {
+              console.error('Error during automatic verdict synthesis:', err)
+            } finally {
+              try {
+                controller.close()
+              } catch (e) {
+                // Controller already closed, ignore
+              }
+            }
+          }
+        }
+
+        sessionEvents.on(`session:${id}`, onEvent)
+
+        // Clean up on stream close
+        request.signal.addEventListener('abort', () => {
+          sessionEvents.off(`session:${id}`, onEvent)
+        })
+      }
+    })
 
     return new Response(customReadable, {
       headers: {

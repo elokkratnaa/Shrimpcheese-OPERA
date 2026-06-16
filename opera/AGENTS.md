@@ -27,35 +27,32 @@ Core user value: externalize the noise, see the conflict clearly, commit to acti
 ## Repository Structure
 
 ```
-src/
-  agents/
-    orchestrator.ts       — master agent: parses dump, spawns personas
-    profiler.ts           — extracts decision nodes, biases, emotional vector
-    personas/             — individual AI archetype implementations
-  services/
-    SessionService.ts     — session lifecycle management
-    DebateService.ts      — async debate loop orchestration
-    VerdictService.ts     — synthesis + action blueprint generation
-  models/
-    User.ts
-    Session.ts
-    CouncilDebate.ts
-    Verdict.ts
-  queues/
-    ingestion.queue.ts    — debounced input processing
-    debate.queue.ts       — async persona invocation
-  routes/
-    sessions.ts
-    verdicts.ts
-  schemas/                — Zod/Pydantic schemas for all LLM outputs
-  utils/
-database/
-  migrations/
-  seeds/
-tests/
-  unit/
-  integration/
+core/                 — The Backend Engine
+  services/           — Business logic (Session, Debate, Verdict)
+  lib/                — Server-only utilities (Groq, Supabase Server)
+shared/               — Shared between Backend and Frontend
+  types.ts            — Common TypeScript interfaces
+  personas/           — AI archetype definitions
+  utils.ts            — Shared utility functions
+client/               — Frontend Logic
+  services/           — API wrappers and Supabase Browser client
+  hooks/              — Custom React hooks (sessionGuard, etc.)
+app/                  — Next.js App Router (Plumbing & Routing)
+  api/                — REST API routes (thin wrappers for core services)
+  [locale]/           — Page layouts and views
+components/           — UI Components (Atomic Design)
+  ui/                 — Base Shadcn/UI components
+  shared/             — Project-specific shared components
 ```
+
+---
+
+## Architecture Principles
+
+1. **Strict Decoupling**: Frontend components must never call `core` services directly. They must use the `client/services` layer or call API routes.
+2. **Thin API**: API routes in `app/api` should contain minimal logic, delegating all business rules to `core/services`.
+3. **Shared Source of Truth**: All models and schemas must be defined in `shared/` to ensure type safety across the network boundary.
+4. **Engine Isolation**: The `core/` directory should be treated as a standalone engine that could, in theory, be moved to a separate microservice.
 
 ---
 
@@ -230,8 +227,8 @@ Output (strict JSON schema):
 ## API Conventions
 
 - REST JSON API. Thin route handlers. Validation at request boundary.
-- All business logic in `src/services/`.
-- SSE endpoint for streaming Verdict as it's synthesized: `GET /sessions/:id/stream`.
+- All business logic in `core/services/`.
+- SSE endpoint for streaming Verdict as it's synthesized: `GET /api/sessions/:id/stream`.
 - Return meaningful data or proper HTTP status — no `{ success: true }`.
 - No N+1: always join or batch-load debate rows when fetching sessions.
 
@@ -244,6 +241,7 @@ Output (strict JSON schema):
 - No `console.log` in committed code — use structured logger.
 - All public functions JSDoc'd with `@param` and `@returns`.
 - Run linter before every commit.
+- **Imports**: Always use absolute `@/` aliases. Never use relative paths for cross-directory imports (e.g., don't use `../../core` from `components`).
 
 ---
 
@@ -290,7 +288,7 @@ Write comment only when:
 - Integration tests for full pipeline: Mind Dump → Profiler → Council → Verdict.
 - Unit tests for: schema validators, tag extractor, pro/con weight calculator.
 - Mock LLM calls in unit tests — never hit real API in CI.
-- Coverage target: 80%+ on `src/services/` and `src/agents/`.
+- Coverage target: 80%+ on `core/services/`.
 
 ```bash
 npm run test

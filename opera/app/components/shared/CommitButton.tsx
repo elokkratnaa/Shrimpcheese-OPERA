@@ -29,7 +29,7 @@ export default function CommitButton({ onCommit, isCommitted }: CommitButtonProp
   if (isCommitted) {
     return (
       <div className="flex items-center justify-center max-w-xs mx-auto animate-in fade-in zoom-in duration-200">
-        <Badge className="bg-[#5db872] text-white hover:bg-[#5db872]/85 text-base font-semibold px-6 py-3 rounded-full border-transparent h-auto shadow-sm">
+        <Badge className="bg-success text-white hover:bg-success/85 text-base font-semibold px-6 py-3 rounded-full border-transparent h-auto shadow-sm">
           {t("committed")}
         </Badge>
       </div>
@@ -40,7 +40,7 @@ export default function CommitButton({ onCommit, isCommitted }: CommitButtonProp
     <Button
       onClick={handleCommit}
       disabled={isLoading}
-      className={`relative flex h-12 w-full items-center justify-center rounded-md bg-[#cc785c] hover:bg-[#a9583e] text-base font-medium text-white shadow-sm transition-all duration-150 border-transparent cursor-pointer ${
+      className={`relative flex h-12 w-full items-center justify-center rounded-md bg-primary hover:bg-primary-active text-base font-medium text-white shadow-sm transition-all duration-150 border-transparent cursor-pointer ${
         isLoading ? 'opacity-80 cursor-not-allowed' : ''
       }`}
     >

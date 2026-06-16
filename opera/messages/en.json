@@ -5,7 +5,8 @@
     "home": "Home",
     "history": "History",
     "chat": "Chat",
-    "profile": "Profile"
+    "profile": "Profile",
+    "dump": "New Session"
   },
   "Landing": {
     "hero": {
@@ -133,6 +134,8 @@
     "profiler_failed": "OPERA couldn't read your dump. Try again with more detail.",
     "timeout": "This took too long. The council may be stuck.",
     "not_found": "This session doesn't exist or isn't yours.",
+    "rateLimit": "Please wait an hour to chat again.",
+    "verdictUnavailable": "Sorry, a verdict couldn't be reached within the allotted time. You can try again in the next hour.",
     "default": "Something broke backstage.",
     "tryAgain": "Try again",
     "goHome": "Go back home",
@@ -172,11 +175,14 @@
     "history": "History",
     "profile": "Profile",
     "greeting": "What's on your mind, {name}?",
+    "subtitle": "What are we analyzing today?",
     "recentSessions": "Recent sessions",
     "patterns": "Your patterns",
     "emptyTheater": "Your theater is empty. Pour your thoughts out to host your first cognitive debate council.",
     "startFirst": "Start your first session",
-    "noPatterns": "Commit to decisions to discover tags and track your cognitive patterns."
+    "noPatterns": "Commit to decisions to discover tags and track your cognitive patterns.",
+    "noMood": "Mood isnt available :/",
+    "overthinking": "OVERTHINKING LEVEL"
   },
   "Session": {
     "committed": "Decision Committed",
@@ -191,10 +197,44 @@
   "MindDump": {
     "title": "What's going on?",
     "subtitle": "No format needed. Write like you think.",
+    "minCharMessage": "{count} more characters needed to start",
     "submit": "Start my session",
+    "categories": {
+      "Karir": "Career",
+      "Percintaan": "Romance",
+      "Keluarga": "Family",
+      "Keuangan": "Finance",
+      "Pendidikan": "Education",
+      "Self-Growth": "Self-Growth",
+      "Lainnya": "Other"
+    },
+    "emotions": {
+      "anxious": "Anxious",
+      "avoidant": "Avoidant",
+      "risk-tolerant": "Risk-Tolerant",
+      "fatigued": "Fatigued",
+      "hopeful": "Hopeful",
+      "bingung": "Confused"
+    },
+    "rounds": "DEBATE ROUNDS:",
+    "overthinking": "OVERTHINKING LEVEL",
+    "overthinkingLabels": {
+      "relaxed": "Relaxed",
+      "warming": "Warming up",
+      "hot": "Getting hot",
+      "overthinking": "OVERTHINKING DETECTED"
+    },
+    "currentMood": "Current mood",
+    "noMood": "None yet",
+    "categoryLabel": "WHAT'S THIS ABOUT?",
+    "emotionLabel": "HOW ARE YOU FEELING?",
+    "personaLabel": "CHOOSE YOUR COUNCIL (OPTIONAL):",
+    "gacha": "Gacha Squad",
+    "racik": "Select",
     "errors": {
       "failed": "Failed to start session.",
-      "unexpected": "An unexpected error occurred."
+      "unexpected": "An unexpected error occurred.",
+      "aiFailed": "The AI council is currently unavailable. Please try again later."
     }
   },
   "History": {
@@ -271,19 +311,41 @@
     "analyzing": "Analyzing decision...",
     "preparing": "Personas are preparing to enter the Council Room...",
     "seeVerdict": "See the verdict",
+    "typing": "typing...",
+    "you": "You",
+    "round": "Round",
+    "target": "TARGET BALASAN:",
+    "rebuttalPlaceholder": "Write your rebuttal",
+    "send": "Send",
+    "skip": "Continue to Round {round} (Without rebutting)",
+    "longAnalysis": "The council is currently performing a deep analysis, this may take a moment...",
     "errors": {
       "failed": "Failed to load council room data"
     }
   },
   "Verdict": {
-    "title": "THE VERDICT",
+    "title": "VERDICT",
     "matrix": "PRO/CON MATRIX",
     "recommendation": "WHAT OPERA RECOMMENDS",
     "nextSteps": "NEXT STEPS",
+    "favouritePersonaLabel": "WHO MAKES THE MOST SENSE?",
+    "undecided": "Undecided",
+    "closingMessage": "CLOSING MESSAGE",
+    "typing": "typing...",
+    "copied": "Copied!",
+    "dilemmaPlaceholder": "Write your new dilemma",
+    "startGibah": "Start Gibah",
+    "newDilemma": "New Dilemma",
+    "copyResult": "Copy Result",
+    "shareResults": "Share Results",
     "errors": {
       "stream": "Failed to stream verdict. Please refresh or try again.",
       "commit": "Failed to commit decision. Please try again.",
       "unexpected": "An error occurred."
     }
+  },
+  "OverthinkingBar": {
+    "label": "Overthinking level",
+    "complete": "Analysis complete"
   }
 }

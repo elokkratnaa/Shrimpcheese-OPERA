@@ -1,5 +1,5 @@
-import { createBackgroundClient } from '@/lib/supabase/background'
-import { streamGroq } from '@/lib/groq'
+import { createBackgroundClient } from '@/core/lib/supabase-background'
+import { streamGroq } from '@/core/lib/groq'
 
 export interface VerdictOutput {
   verdict_summary: string

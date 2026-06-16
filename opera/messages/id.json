@@ -5,7 +5,8 @@
     "home": "Beranda",
     "history": "Riwayat",
     "chat": "Obrolan",
-    "profile": "Profil"
+    "profile": "Profil",
+    "dump": "Sesi Baru"
   },
   "Landing": {
     "hero": {
@@ -133,6 +134,8 @@
     "profiler_failed": "OPERA tidak bisa membaca mind dump Anda. Coba lagi dengan lebih detail.",
     "timeout": "Ini memakan waktu terlalu lama. Dewan mungkin macet.",
     "not_found": "Sesi ini tidak ada atau bukan milik Anda.",
+    "rateLimit": "Mohon tunggu satu jam untuk chat lagi.",
+    "verdictUnavailable": "Maaf, verdict tidak dapat dicapai dalam waktu yang ditentukan. Anda bisa mencoba lagi dalam satu jam ke depan.",
     "default": "Ada yang rusak di balik layar.",
     "tryAgain": "Coba lagi",
     "goHome": "Kembali ke beranda",
@@ -172,11 +175,15 @@
     "history": "Riwayat",
     "profile": "Profil",
     "greeting": "Apa yang ada di pikiran Anda, {name}?",
+    "subtitle": "Apa yang akan kita analisis hari ini?",
     "recentSessions": "Sesi terbaru",
     "patterns": "Pola Anda",
     "emptyTheater": "Theater Anda kosong. Tumpahkan pikiran Anda untuk mengadakan dewan debat kognitif pertama Anda.",
     "startFirst": "Mulai sesi pertama saya",
-    "noPatterns": "Berkomitmenlah pada keputusan untuk menemukan tag dan melacak pola kognitif Anda."
+    "noPatterns": "Berkomitmenlah pada keputusan untuk menemukan tag dan melacak pola kognitif Anda.",
+    "currentMood": "Mood saat ini",
+    "noMood": "Belum ada",
+    "overthinking": "TINGKAT OVERTHINKING"
   },
   "Session": {
     "committed": "Keputusan Berkomitmen",
@@ -191,10 +198,42 @@
   "MindDump": {
     "title": "Apa yang sedang terjadi?",
     "subtitle": "Tidak butuh format. Tulis seperti Anda berpikir.",
+    "minCharMessage": "Min. 50 karakter",
     "submit": "Mulai sesi saya",
+    "categories": {
+      "Karir": "Karir",
+      "Percintaan": "Percintaan",
+      "Keluarga": "Keluarga",
+      "Keuangan": "Keuangan",
+      "Pendidikan": "Pendidikan",
+      "Self-Growth": "Pengembangan Diri",
+      "Lainnya": "Lainnya"
+    },
+    "emotions": {
+      "anxious": "Galau",
+      "avoidant": "Menghindar",
+      "risk-tolerant": "Berani",
+      "fatigued": "Lelah",
+      "hopeful": "Optimis",
+      "bingung": "Bingung"
+    },
+    "rounds": "JUMLAH RONDE DEBAT:",
+    "overthinking": "TINGKAT OVERTHINKING",
+    "overthinkingLabels": {
+      "relaxed": "Santai Aja",
+      "warming": "Mulai Berasap",
+      "hot": "Udah Panas",
+      "overthinking": "OVERTHINKING DETECTED"
+    },
+    "categoryLabel": "INI SOAL APA?",
+    "emotionLabel": "BAGAIMANA PERASAAN LO SAAT INI?",
+    "personaLabel": "PILIH TIM GIBAH-MU (OPSIONAL):",
+    "gacha": "Gacha Squad",
+    "racik": "Racik",
     "errors": {
       "failed": "Gagal memulai sesi.",
-      "unexpected": "Terjadi kesalahan yang tidak terduga."
+      "unexpected": "Terjadi kesalahan yang tidak terduga.",
+      "aiFailed": "Dewan AI saat ini tidak tersedia. Silakan coba lagi nanti."
     }
   },
   "History": {
@@ -271,6 +310,14 @@
     "analyzing": "Menganalisis keputusan...",
     "preparing": "Persona sedang bersiap memasuki Ruang Dewan...",
     "seeVerdict": "Lihat verdict",
+    "typing": "mengetik...",
+    "you": "Kamu",
+    "round": "Ronde",
+    "target": "TARGET BALASAN:",
+    "rebuttalPlaceholder": "Tulis bantahan lo",
+    "send": "Kirim",
+    "skip": "Lanjut Ronde {round} (Tanpa Membalas)",
+    "longAnalysis": "Dewan sedang melakukan analisis mendalam, harap tunggu sebentar...",
     "errors": {
       "failed": "Gagal memuat data ruang dewan"
     }
@@ -280,10 +327,25 @@
     "matrix": "MATRIKS PRO/KONTRA",
     "recommendation": "REKOMENDASI OPERA",
     "nextSteps": "LANGKAH SELANJUTNYA",
+    "favouritePersonaLabel": "MENURUT LO, SIAPA YANG PALING MASUK AKAL?",
+    "undecided": "Masih Ragu",
+    "closingMessage": "PESAN PENUTUP",
+    "typing": "mengetik...",
+    "copied": "Tersalin",
+    "dilemmaPlaceholder": "Tulis dilema baru lo",
+    "startGibah": "Mulai Gibah",
+    "newDilemma": "Dilema Baru",
+    "copyResult": "Salin Hasil",
+    "shareResults": "Bagikan Hasil",
+    "soon": "Segera hadir",
     "errors": {
       "stream": "Gagal mengalirkan verdict. Silakan refresh atau coba lagi.",
       "commit": "Gagal berkomitmen pada keputusan. Silakan coba lagi.",
       "unexpected": "Terjadi kesalahan."
     }
+  },
+  "OverthinkingBar": {
+    "label": "Tingkat Overthinking",
+    "complete": "Analisis selesai"
   }
 }

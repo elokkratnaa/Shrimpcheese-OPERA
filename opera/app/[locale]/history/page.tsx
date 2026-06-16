@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useRouter, Link } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import SessionCard from "@/app/components/shared/SessionCard";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/client/services/supabase";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -169,7 +169,7 @@ function HistoryContent() {
 
   if (authChecking || (loading && sessions.length === 0)) {
     return (
-      <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
         <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
       </div>
     );
@@ -189,12 +189,12 @@ function HistoryContent() {
   const showLoadMore = filteredSessions.length > limit;
 
   return (
-    <div className="min-h-screen bg-[#faf9f5] flex flex-col justify-between font-sans pb-16">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans pb-16">
       <OperaNav variant="authed" />
 
-      <main className="flex-1 max-w-200 mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
+      <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
         <div className="flex flex-col gap-4">
-          <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-[#141413] font-serif">
+          <h1 className="text-[28px] font-normal leading-tight tracking-[-0.3px] text-slate-900 font-serif">
             {t("title")}
           </h1>
 
@@ -204,8 +204,8 @@ function HistoryContent() {
                 onClick={() => handleTagClick("All")}
                 className={`text-[13px] font-medium px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                   activeTag === "All"
-                    ? "bg-[#e8e0d2] text-[#141413] border border-[#141413]"
-                    : "bg-[#efe9de] text-[#6c6a64] border border-[#e6dfd8] hover:bg-[#e8e0d2]/50"
+                    ? "bg-[#cc785c] text-white"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 {t("all")}
@@ -218,8 +218,8 @@ function HistoryContent() {
                     onClick={() => handleTagClick(tag)}
                     className={`text-[13px] font-medium px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                       isActive
-                        ? "bg-[#e8e0d2] text-[#141413] border border-[#141413]"
-                        : "bg-[#efe9de] text-[#6c6a64] border border-[#e6dfd8] hover:bg-[#e8e0d2]/50"
+                        ? "bg-[#cc785c] text-white"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                     }`}
                   >
                     {tag}
@@ -240,7 +240,7 @@ function HistoryContent() {
               <div className="flex justify-center pt-6">
                 <button
                   onClick={handleLoadMore}
-                  className="px-6 py-2.5 border border-[#e6dfd8] text-[#141413] hover:bg-[#efe9de] text-sm font-medium rounded-md transition-colors cursor-pointer"
+                  className="px-6 py-2.5 border border-slate-200 text-slate-900 hover:bg-slate-50 text-sm font-medium rounded-lg transition-colors cursor-pointer"
                 >
                   {t("loadMore", { count: 10 })}
                 </button>
@@ -248,13 +248,13 @@ function HistoryContent() {
             )}
           </div>
         ) : (
-          <div className="border border-dashed border-[#e6dfd8] rounded-lg p-16 text-center flex flex-col items-center gap-6 bg-[#f5f0e8]/30 my-8">
-            <h3 className="text-[22px] font-normal leading-tight tracking-tight text-[#6c6a64] font-serif">
+          <div className="border border-dashed border-slate-200 rounded-xl p-16 text-center flex flex-col items-center gap-6 bg-white my-8">
+            <h3 className="text-[22px] font-normal leading-tight tracking-tight text-slate-500 font-serif">
               {t("empty")}
             </h3>
             <Link
               href="/dump"
-              className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-11 px-6 rounded-md flex items-center justify-center transition-colors cursor-pointer"
+              className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-11 px-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
             >
               {t("startFirst")}
             </Link>
@@ -269,7 +269,7 @@ export default function HistoryPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#faf9f5] flex items-center justify-center">
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
           <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
         </div>
       }
