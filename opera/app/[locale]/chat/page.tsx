@@ -231,18 +231,18 @@ export default function SoloChatPage() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center theme-new-primary">
+        <Loader2 className="animate-spin h-6 w-6 text-primary" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans theme-new-primary">
       <OperaNav variant="authed" />
 
       {/* Main Grid View */}
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-8">
+      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full px-4 py-8 md:px-8 gap-4 md:gap-8">
         {/* Left Advisor Sidebar / Mobile Dropdown wrapper */}
         <aside className="w-full md:w-65 shrink-0 flex flex-col gap-4">
           <span className="text-[12px] font-semibold tracking-[1.5px] text-slate-500 uppercase font-sans">
@@ -285,7 +285,7 @@ export default function SoloChatPage() {
                   ? "bg-[#5db8a6]"
                   : selectedPersona.variant === "b"
                     ? "bg-[#e8a55a]"
-                    : "bg-[#cc785c]"
+                    : "bg-primary"
               }`}
             />
             <span className="text-sm font-semibold text-slate-900 font-sans uppercase tracking-[0.5px]">
@@ -349,7 +349,7 @@ export default function SoloChatPage() {
                       ? "bg-[#5db8a6]"
                       : selectedPersona.variant === "b"
                         ? "bg-[#e8a55a]"
-                        : "bg-[#cc785c]"
+                        : "bg-primary"
                   }`}
                 >
                   {selectedPersona.name.charAt(0)}
@@ -370,7 +370,7 @@ export default function SoloChatPage() {
 
           {/* Bottom input area panel */}
           <div className="bg-white border-t border-slate-200 p-4 flex flex-col gap-2">
-            <div className="relative flex items-center w-full bg-slate-50 border border-slate-200 rounded-md focus-within:border-[#cc785c] focus-within:ring-2 focus-within:ring-[#cc785c]/10 transition-all">
+            <div className="relative flex items-center w-full bg-slate-50 border border-slate-200 rounded-md focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
               <textarea
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
@@ -383,7 +383,7 @@ export default function SoloChatPage() {
               <button
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputVal.trim()}
-                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#cc785c] hover:text-[#a9583e] disabled:text-slate-400 focus:outline-none transition-colors cursor-pointer"
+                className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-primary hover:text-primary-active disabled:text-slate-400 focus:outline-none transition-colors cursor-pointer"
               >
                 <ArrowRight className="h-5 w-5" />
               </button>

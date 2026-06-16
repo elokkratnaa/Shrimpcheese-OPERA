@@ -106,7 +106,15 @@
   --animate-progress-load: progress-load 1.5s ease-out forwards;
 }
 
+/* New Theme for requested pages */
+.theme-new-primary {
+  --color-primary: #1D2939;
+  --color-primary-active: #141d26;
+  --color-primary-rgb: 29, 41, 57;
+}
+
 :root {
+  --color-primary-rgb: 204, 120, 92;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

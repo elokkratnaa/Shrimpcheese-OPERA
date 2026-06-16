@@ -169,8 +169,8 @@ function HistoryContent() {
 
   if (authChecking || (loading && sessions.length === 0)) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center theme-new-primary">
+        <Loader2 className="animate-spin h-6 w-6 text-primary" />
       </div>
     );
   }
@@ -189,7 +189,7 @@ function HistoryContent() {
   const showLoadMore = filteredSessions.length > limit;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans pb-16">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans pb-16 theme-new-primary">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-8">
@@ -204,7 +204,7 @@ function HistoryContent() {
                 onClick={() => handleTagClick("All")}
                 className={`text-[13px] font-medium px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                   activeTag === "All"
-                    ? "bg-[#cc785c] text-white"
+                    ? "bg-primary text-white"
                     : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
@@ -218,7 +218,7 @@ function HistoryContent() {
                     onClick={() => handleTagClick(tag)}
                     className={`text-[13px] font-medium px-3 py-1.5 rounded-full transition-all cursor-pointer ${
                       isActive
-                        ? "bg-[#cc785c] text-white"
+                        ? "bg-primary text-white"
                         : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
                     }`}
                   >
@@ -254,7 +254,7 @@ function HistoryContent() {
             </h3>
             <Link
               href="/dump"
-              className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-11 px-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
+              className="bg-primary text-white hover:bg-primary-active font-medium text-sm h-11 px-6 rounded-lg flex items-center justify-center transition-colors cursor-pointer"
             >
               {t("startFirst")}
             </Link>
@@ -269,8 +269,8 @@ export default function HistoryPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-          <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+        <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center theme-new-primary">
+          <Loader2 className="animate-spin h-6 w-6 text-primary" />
         </div>
       }
     >

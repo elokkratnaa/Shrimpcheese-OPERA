@@ -28,7 +28,7 @@ interface SessionData {
   } | null;
 }
 
-const PERSONA_COLORS = ["#f59e0b", "#0d9488", "#8b5cf6", "#cc785c"];
+const PERSONA_COLORS = ["#f59e0b", "#0d9488", "#8b5cf6", "var(--color-primary)"];
 
 export default function CouncilRoomClient({ initialSession }: { initialSession: SessionData }) {
   const router = useRouter();
@@ -248,8 +248,8 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <Loader2 className="animate-spin h-6 w-6 text-[#cc785c]" />
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center theme-new-primary">
+        <Loader2 className="animate-spin h-6 w-6 text-primary" />
       </div>
     );
   }
@@ -264,7 +264,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const progressPercent = Math.min((completedTurns / totalExpectedTurns) * 100, 100);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans theme-new-primary">
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-[16px] border-b border-slate-200 px-4 h-16 flex items-center justify-between">
         <OperaNav variant="authed" showHomeButton={true} />
       </header>
@@ -274,7 +274,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 max-w-2xl mx-auto w-full pb-20"
       >
         {displayedDebates.map((utterance, idx) => {
-          const color = utterance.persona_name === "Kamu" ? "#cc785c" : getPersonaColor(utterance.persona_name);
+          const color = utterance.persona_name === "Kamu" ? "var(--color-primary)" : getPersonaColor(utterance.persona_name);
           const showRoundDivider = idx === 0 || (utterance.round_number && utterance.round_number !== displayedDebates[idx - 1].round_number);
 
           return (
@@ -299,7 +299,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                   <span className="text-[11px] font-medium" style={{ color }}>
                     {utterance.persona_name}
                   </span>
-                  <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === t("you") ? "border-r-2 border-[#cc785c]" : ""}`}>
+                  <div className={`bg-white text-slate-900 rounded-2xl p-3 px-4 shadow-sm border border-slate-100 relative ${utterance.persona_name === t("you") ? "border-r-2 border-primary" : ""}`}>
                     <div className="text-[15px] leading-relaxed whitespace-pre-wrap">
                       {utterance.message_content}
                     </div>
@@ -356,7 +356,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
                     key={p}
                     onClick={() => setRebuttalTarget(p)}
                     className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
-                      rebuttalTarget === p ? "bg-[#cc785c] text-white" : "bg-slate-100 border border-slate-200 text-slate-900"
+                      rebuttalTarget === p ? "bg-primary text-white" : "bg-slate-100 border border-slate-200 text-slate-900"
                     }`}
                   >
                     {p}
@@ -367,12 +367,12 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             <textarea
                 value={rebuttalContent}
                 onChange={(e) => setRebuttalContent(e.target.value)}
-                className="w-full min-h-[100px] bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:border-[#cc785c] transition-all resize-none"
+                className="w-full min-h-[100px] bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm text-slate-900 focus:outline-none focus:border-primary transition-all resize-none"
             />
             <button
                 onClick={() => handleSendRebuttal()}
                 disabled={!rebuttalContent.trim() || isSubmittingRebuttal}
-                className="w-full h-11 bg-[#cc785c] text-white font-bold rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
+                className="w-full h-11 bg-primary text-white font-bold rounded-lg hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50"
             >
                 {t("send")}
             </button>
@@ -383,7 +383,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           <div className="flex justify-center mt-6">
             <button
               onClick={() => router.push(`/session/${id}/verdict`)}
-              className="px-8 py-3 bg-[#cc785c] text-white font-bold rounded-lg hover:scale-[1.01] transition-all"
+              className="px-8 py-3 bg-primary text-white font-bold rounded-lg hover:scale-[1.01] transition-all"
             >
               {t("seeVerdict")}
             </button>
@@ -394,13 +394,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
       <footer className="sticky bottom-0 z-40 bg-[#F8FAFC] border-t border-slate-200 px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-[#cc785c] uppercase tracking-wider">{categoryLabel}</span>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-wider">{categoryLabel}</span>
               <div className="bg-white border border-slate-200 rounded-full px-3 py-1 text-xs font-medium text-slate-900">
                 Ronde {displayRound}/{totalRounds}
               </div>
             </div>
             <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-[#cc785c] transition-[width] duration-400 ease" style={{ width: `${progressPercent}%` }} />
+                <div className="h-full bg-primary transition-[width] duration-400 ease" style={{ width: `${progressPercent}%` }} />
             </div>
         </div>
       </footer>

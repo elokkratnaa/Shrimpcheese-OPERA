@@ -101,10 +101,10 @@ export default function ProfilingClient() {
   }, [id, router]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans overflow-hidden relative">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans overflow-hidden relative theme-new-primary">
       {/* Background Ambient Glows - adjusted for light theme */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[60%] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(204,120,92,0.1),transparent_70%)]" />
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[60%] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(var(--color-primary-rgb),0.1),transparent_70%)]" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05),transparent_70%)]" />
       </div>
       
@@ -126,14 +126,14 @@ export default function ProfilingClient() {
           <div className="relative w-40 h-40 flex items-center justify-center">
             {/* Outer Glow Ring */}
             <div className="absolute inset-0 rounded-full border border-primary/20 animate-[ping_3s_infinite] opacity-30" />
-            <div className="absolute inset-4 rounded-full border border-primary/40 animate-pulse opacity-50 shadow-[0_0_40px_rgba(204,120,92,0.2)]" />
+            <div className="absolute inset-4 rounded-full border border-primary/40 animate-pulse opacity-50 shadow-[0_0_40px_rgba(var(--color-primary-rgb),0.2)]" />
             
             {/* Spinning Orbiters */}
             <div className="absolute inset-2 rounded-full border-t-2 border-r-2 border-primary animate-[spin_2s_linear_infinite]" />
             <div className="absolute inset-8 rounded-full border-b-2 border-l-2 border-primary/60 animate-[spin_3s_linear_infinite_reverse]" />
             
             {/* Core Orb */}
-            <div className="w-12 h-12 rounded-full bg-primary shadow-[0_0_30px_rgba(204,120,92,0.4)] relative z-20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full bg-primary shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.4)] relative z-20 flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full animate-ping" />
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function ProfilingClient() {
               
               <div className="flex flex-col gap-4 relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(204,120,92,0.6)]" />
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--color-primary-rgb),0.6)]" />
                   <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
                     Neural Bridge Active
                   </span>
@@ -163,7 +163,7 @@ export default function ProfilingClient() {
 
               {/* Progress Bar Skeleton */}
               <div className="mt-8 w-full h-[3px] bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-primary shadow-[0_0_10px_rgba(204,120,92,0.3)] animate-[progress_15s_ease-out_forwards]" 
+                <div className="h-full bg-primary shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.3)] animate-[progress_15s_ease-out_forwards]" 
                      style={{ width: '85%' }} />
               </div>
             </div>

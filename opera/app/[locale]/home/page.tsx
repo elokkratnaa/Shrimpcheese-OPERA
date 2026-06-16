@@ -102,12 +102,12 @@ export default async function HomeDashboard({
   const patterns = Object.keys(tagsMap).sort((a, b) => tagsMap[b] - tagsMap[a]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans theme-new-primary">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-12 md:py-16">
         {/* Hero Section */}
-        <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200 pb-12">
+        <header className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 border-b border-slate-200 pb-12">
           <div className="flex flex-col gap-2">
             <h1 className="text-4xl font-normal leading-tight tracking-[-0.5px] text-slate-900 font-serif">
               {t("greeting", { name: displayName })}
@@ -125,7 +125,7 @@ export default async function HomeDashboard({
             </Link>
             <Link
               href="/dump"
-              className="px-6 py-3 bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="px-6 py-3 bg-primary text-white hover:bg-primary-active font-medium text-sm rounded-full flex items-center justify-center transition-all duration-300 ease-out shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               {t("newSession")}
             </Link>
@@ -154,7 +154,7 @@ export default async function HomeDashboard({
                   </p>
                   <Link
                     href="/dump"
-                    className="bg-[#cc785c] text-white hover:bg-[#a9583e] font-medium text-sm h-12 px-8 rounded-full flex items-center justify-center transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md"
+                    className="bg-primary text-white hover:bg-primary-active font-medium text-sm h-12 px-8 rounded-full flex items-center justify-center transition-all duration-300 ease-out hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-md"
                   >
                     {t("startFirst")}
                   </Link>

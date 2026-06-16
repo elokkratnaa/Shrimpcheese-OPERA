@@ -29,7 +29,7 @@ const PERSONA_COLORS: Record<string, string> = {
   "The Pragmatic Stoic": "#f59e0b",
   "The Venture Capitalist": "#0d9488",
   "The Creative Hedonist": "#8b5cf6",
-  "Default": "#cc785c"
+  "Default": "var(--color-primary)"
 };
 
 export default function VerdictClient({ initialVerdict, initialUniquePersonas }: { initialVerdict: VerdictData, initialUniquePersonas: string[] }) {
@@ -138,7 +138,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const nextSteps = verdict?.next_steps || [];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans theme-new-primary">
       <OperaNav variant="authed" />
 
       <main className="flex-1 max-w-[720px] mx-auto w-full px-4 py-12 md:py-16 flex flex-col gap-10">
@@ -207,8 +207,8 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                   disabled={isCommitted}
                   className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ease-out cursor-pointer disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98] ${
                     favouritePersona === name 
-                      ? "bg-[#cc785c] text-white shadow-md shadow-[#cc785c]/20" 
-                      : "bg-white border border-slate-200 text-slate-700 hover:border-[#cc785c]/50 hover:bg-slate-50"
+                      ? "bg-primary text-white shadow-md shadow-primary/20" 
+                      : "bg-white border border-slate-200 text-slate-700 hover:border-primary/50 hover:bg-slate-50"
                   }`}
                 >
                   {name}
@@ -269,7 +269,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
             <div className="flex flex-col gap-6">
               {nextSteps.map((step, sIdx) => (
                 <div key={sIdx} className="flex items-start gap-4">
-                  <span className="text-[28px] font-normal leading-none tracking-tight text-[#cc785c] font-serif shrink-0">
+                  <span className="text-[28px] font-normal leading-none tracking-tight text-primary font-serif shrink-0">
                     {String(sIdx + 1).padStart(2, "0")}
                   </span>
                   <p className="text-slate-700 text-[16px] leading-[1.55] pt-1 font-sans">
