@@ -43,7 +43,9 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   const [rebuttalContent, setRebuttalContent] = useState("");
   const [isSubmittingRebuttal, setIsSubmittingRebuttal] = useState(false);
   const [showThinkingTooltip, setShowThinkingTooltip] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
+  const streamAbortController = useRef<AbortController | null>(null);
 
   const uniquePersonas = useMemo(() => {
     const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
@@ -75,10 +77,10 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   }, [id]);
 
   useEffect(() => {
-    if (!id || !session || session.current_status === "completed") return;
+    if (!id || !session || session.current_status === "completed" || streamAbortController.current) return;
 
-    let aborted = false;
     const controller = new AbortController();
+    streamAbortController.current = controller;
 
     async function startStream() {
       setIsStreaming(true);
@@ -92,10 +94,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         }
 
         await consumeSSE(response, (event) => {
-          if (aborted) {
-            console.log("[UI] Stream event received after abort, ignoring");
-            return;
-          }
+          if (controller.signal.aborted) return;
           console.log("[UI] Received SSE event:", event);
 
           if (event.type === "turn") {
@@ -125,17 +124,16 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           }
         });
       } catch (err) {
-        if (!aborted) console.error("SSE Error:", err);
+        if (!controller.signal.aborted) console.error("SSE Error:", err);
       } finally {
-        if (!aborted) setIsStreaming(false);
+        if (!controller.signal.aborted) setIsStreaming(false);
       }
     }
 
     startStream();
 
     return () => {
-      aborted = true;
-      controller.abort();
+      // Don't abort on every re-render, only on unmount
     };
   }, [id, session.current_status]);
 
