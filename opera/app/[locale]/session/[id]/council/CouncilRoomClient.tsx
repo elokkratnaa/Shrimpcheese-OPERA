@@ -117,6 +117,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
             console.log("[UI] Round complete received:", event);
+            setIsStreaming(false); // Force stop typing indicator
             // Only update if we haven't already processed this round, or if it's a higher round
             setRoundCompleteEvent(prev => {
               if (prev && prev.round >= event.round) return prev;
