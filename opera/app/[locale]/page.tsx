@@ -29,109 +29,55 @@ function OperaLogo() {
 // Minimalist Modern SVG Icons
 const Icons = {
   Structure: () => (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
       <line x1="3" y1="9" x2="21" y2="9" />
       <line x1="9" y1="21" x2="9" y2="9" />
     </svg>
   ),
   Score: () => (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
   ),
   Memory: () => (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
       <path d="M3 3v5h5" />
       <path d="M12 7v5l4 2" />
     </svg>
   ),
   Career: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
       <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
     </svg>
   ),
   Relation: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z" />
     </svg>
   ),
   Relocation: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
       <circle cx="12" cy="10" r="3" />
     </svg>
   ),
   Family: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
   ),
   Growth: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
       <path d="m8 14 4-4 4 4" />
     </svg>
   ),
   Finance: () => (
-    <svg
-      className="w-4 h-4"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    >
+    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
       <line x1="12" y1="1" x2="12" y2="23" />
       <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
     </svg>
@@ -447,6 +393,35 @@ export default function UnifiedLandingPage() {
           },
         ],
       },
+      personas: {
+        label: "THE COUNCIL",
+        headlineStart: "Three distinct minds, ",
+        headlineHighlight: "one unified goal.",
+        subheadline: "Each persona brings a radically different psychological perspective to your dilemma. They are not yes-men; they are designed to challenge you.",
+        items: [
+          {
+            name: "Luna",
+            title: "The Pragmatic Stoic",
+            desc: "Focuses on emotional resilience, grounding you in reality, and separating what you can actually control from what you cannot.",
+            colorTheme: "bg-purple-100 text-purple-600 border-purple-200",
+            initial: "L"
+          },
+          {
+            name: "Sage",
+            title: "The Venture Capitalist",
+            desc: "Calculates asymmetrical risks, structural leverage, and the long-term ROI on your time, energy, and emotional capital.",
+            colorTheme: "bg-teal-100 text-teal-600 border-teal-200",
+            initial: "S"
+          },
+          {
+            name: "Baz",
+            title: "The Creative Hedonist",
+            desc: "Challenges you to break the rules, prioritize joy, and ensure your decisions aren't just strictly logical, but actually fulfilling.",
+            colorTheme: "bg-orange-100 text-orange-600 border-orange-200",
+            initial: "B"
+          }
+        ]
+      },
       useCases: {
         label: "APPLICATIONS",
         headlineStart: "For the decisions that keep you ",
@@ -560,6 +535,35 @@ export default function UnifiedLandingPage() {
           },
         ],
       },
+      personas: {
+        label: "DEWAN PERSONAL",
+        headlineStart: "Tiga pemikiran berbeda, ",
+        headlineHighlight: "satu tujuan bersatu.",
+        subheadline: "Setiap persona membawa sudut pandang yang radikal untuk dilemamu. Mereka bukan di sini untuk sekadar setuju denganmu, tapi untuk menantangmu.",
+        items: [
+          {
+            name: "Luna",
+            title: "The Pragmatic Stoic",
+            desc: "Berfokus pada ketahanan emosional, membumikanmu pada realitas, dan memisahkan apa yang bisa dan tidak bisa kamu kendalikan secara aktual.",
+            colorTheme: "bg-purple-100 text-purple-600 border-purple-200",
+            initial: "L"
+          },
+          {
+            name: "Sage",
+            title: "The Venture Capitalist",
+            desc: "Mengkalkulasi risiko asimetris, daya ungkit struktural, dan tingkat pengembalian (ROI) jangka panjang dari waktu, energi, dan modalmu.",
+            colorTheme: "bg-teal-100 text-teal-600 border-teal-200",
+            initial: "S"
+          },
+          {
+            name: "Baz",
+            title: "The Creative Hedonist",
+            desc: "Menantangmu untuk mendobrak aturan, memprioritaskan kebahagiaan, dan memastikan keputusanmu tidak hanya logis, tapi juga memuaskan hati.",
+            colorTheme: "bg-orange-100 text-orange-600 border-orange-200",
+            initial: "B"
+          }
+        ]
+      },
       useCases: {
         label: "APLIKASI",
         headlineStart: "Untuk keputusan yang membuatmu ",
@@ -660,6 +664,12 @@ export default function UnifiedLandingPage() {
               className="hover:text-slate-900 transition-colors py-1"
             >
               {t.nav.howItWorks}
+            </a>
+            <a
+              href="#personas"
+              className="hover:text-slate-900 transition-colors py-1"
+            >
+              {t.nav.personas}
             </a>
             <a
               href="#use-cases"
@@ -904,6 +914,47 @@ export default function UnifiedLandingPage() {
         </div>
       </section>
 
+      {/* NEW PERSONAS SECTION: MEET YOUR COUNCIL */}
+      <section id="personas" className="py-32 relative z-10">
+        <div className="max-w-5xl mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-left mb-16"
+          >
+            <span className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-4 block">
+              {t.personas.label}
+            </span>
+            <h2 className="text-3xl md:text-4xl font-light font-serif text-slate-900 mb-4">
+              {t.personas.headlineStart}
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#F59E0B] to-[#F43F5E] font-medium drop-shadow-sm">
+                {t.personas.headlineHighlight}
+              </span>
+            </h2>
+            <p className="text-slate-600 max-w-2xl text-base font-light leading-relaxed">
+              {t.personas.subheadline}
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {t.personas.items.map((persona, i) => (
+              <PremiumCard key={i} delay={0.1 * i} className="p-8 flex flex-col items-center text-center group">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center font-serif italic text-2xl border-2 shadow-inner mb-6 transition-transform duration-500 group-hover:scale-110 ${persona.colorTheme}`}>
+                  {persona.initial}
+                </div>
+                <h3 className="text-xl font-serif text-slate-900 mb-1">{persona.name}</h3>
+                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-5">{persona.title}</h4>
+                <p className="text-sm font-light text-slate-600 leading-relaxed">
+                  {persona.desc}
+                </p>
+              </PremiumCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* USE CASES (Soft Slides with SVG Icons) */}
       <section id="use-cases" className="py-32 relative z-10">
         <div className="max-w-5xl mx-auto px-6">
@@ -1020,6 +1071,12 @@ export default function UnifiedLandingPage() {
             className="hover:text-slate-900 transition-colors"
           >
             {t.nav.howItWorks}
+          </a>
+          <a
+            href="#personas"
+            className="hover:text-slate-900 transition-colors"
+          >
+            {t.nav.personas}
           </a>
           <a
             href="#use-cases"

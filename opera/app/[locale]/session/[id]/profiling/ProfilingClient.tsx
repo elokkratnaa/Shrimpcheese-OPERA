@@ -3,15 +3,17 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { PERSONA_MAP } from "@/shared/personas";
-import { Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function ProfilingClient() {
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
   const t = useTranslations("Loading");
+  const locale = useLocale();
+  const isId = locale.startsWith("id");
 
   const STATUS_MESSAGES = [
     t("reading"),
@@ -22,6 +24,13 @@ export default function ProfilingClient() {
   const [dynamicMessages, setDynamicMessages] = useState<string[]>(STATUS_MESSAGES);
   const [messageIndex, setMessageIndex] = useState(0);
 
+  const getFriendlyName = (backendName: string) => {
+    if (backendName === "The Pragmatic Stoic") return "Luna";
+    if (backendName === "The Venture Capitalist") return "Sage";
+    if (backendName === "The Creative Hedonist") return "Baz";
+    return backendName;
+  };
+
   useEffect(() => {
     async function fetchPersonas() {
       try {
@@ -31,26 +40,27 @@ export default function ProfilingClient() {
         const personaIds = session.detected_biases?.suggested_persona_archetypes || [];
         const chosen = personaIds.map((pid: string) => (PERSONA_MAP as any)[pid]).filter(Boolean);
         
-        // Mood analysis
-        const mood = session.detected_biases?.emotional_vector;
-        
         if (chosen.length >= 2) {
+          const name1 = getFriendlyName(chosen[0].name);
+          const name2 = getFriendlyName(chosen[1].name);
+          const name3 = chosen[2] ? getFriendlyName(chosen[2].name) : (isId ? "Tim" : "The Squad");
+
           setDynamicMessages([
-            `Mood detected: ${mood?.state || 'neutral'}`,
-            `${chosen[0].name}: Analyzing structural integrity...`,
-            `${chosen[1].name}: Mapping constraints and contradictions...`,
-            `${chosen[2]?.name || "The Squad"}: Preparing the Council Room...`
+            isId ? "Memahami kedalaman ceritamu..." : "Understanding the depth of your story...",
+            isId ? `${name1} sedang merumuskan sudut pandang...` : `${name1} is formulating a perspective...`,
+            isId ? `${name2} sedang memetakan jalur pikiranmu...` : `${name2} is mapping your thought process...`,
+            isId ? `${name3} bersiap memasuki ruang diskusi...` : `${name3} is entering the discussion room...`
           ]);
         }
       } catch (e) {}
     }
     fetchPersonas();
-  }, [id]);
+  }, [id, isId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setMessageIndex((prevIndex) => (prevIndex + 1) % dynamicMessages.length);
-    }, 2500);
+    }, 3000);
     return () => clearInterval(interval);
   }, [dynamicMessages.length]);
 
@@ -64,7 +74,7 @@ export default function ProfilingClient() {
       if (Date.now() - startTime > 45000) {
         clearInterval(pollInterval);
         if (isSubscribed) {
-          router.push("/error?reason=timeout");
+          router.push(`/${locale}/error?reason=timeout`);
         }
         return;
       }
@@ -83,10 +93,10 @@ export default function ProfilingClient() {
         if (isSubscribed) {
           if (session.current_status === "completed" || session.current_status === "council_ready") {
             clearInterval(pollInterval);
-            router.push(`/session/${id}/council`);
+            router.push(`/${locale}/session/${id}/council`);
           } else if (session.current_status === "failed") {
             clearInterval(pollInterval);
-            router.push("/error?reason=profiler_failed");
+            router.push(`/${locale}/error?reason=profiler_failed`);
           }
         }
       } catch (err: unknown) {
@@ -98,85 +108,88 @@ export default function ProfilingClient() {
       isSubscribed = false;
       clearInterval(pollInterval);
     };
-  }, [id, router]);
+  }, [id, router, locale]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans overflow-hidden relative theme-new-primary">
-      {/* Background Ambient Glows - adjusted for light theme */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[120%] h-[60%] bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(var(--color-primary-rgb),0.1),transparent_70%)]" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.05),transparent_70%)]" />
-      </div>
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col font-sans overflow-hidden relative selection:bg-[#E0E7FF] selection:text-[#3730A3]">
       
-      {/* Grid Overlay Texture - adjusted for light theme */}
-      <div 
-        className="absolute inset-0 opacity-[0.05] pointer-events-none z-0" 
-        style={{ 
-          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.1) 1px, transparent 1px)',
-          backgroundSize: '32px 32px' 
-        }} 
-      />
+      {/* ICY LAVENDER & PEACH FLUID BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(165,224,255,0.4)_0%,transparent_70%)] blur-[120px]" />
+        <div className="absolute bottom-[-20%] left-[-15%] w-[65vw] h-[65vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(224,195,255,0.4)_0%,transparent_65%)] blur-[140px]" />
+        <div className="absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,218,185,0.25)_0%,transparent_70%)] blur-[100px]" />
+      </div>
 
       <OperaNav variant="authed" />
 
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative z-10">
-        <div className="flex flex-col items-center justify-center gap-12 max-w-lg text-center">
+        <div className="flex flex-col items-center justify-center gap-12 max-w-lg text-center w-full">
           
-          {/* Visual Loader - Animated Orb */}
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            {/* Outer Glow Ring */}
-            <div className="absolute inset-0 rounded-full border border-primary/20 animate-[ping_3s_infinite] opacity-30" />
-            <div className="absolute inset-4 rounded-full border border-primary/40 animate-pulse opacity-50 shadow-[0_0_40px_rgba(var(--color-primary-rgb),0.2)]" />
-            
-            {/* Spinning Orbiters */}
-            <div className="absolute inset-2 rounded-full border-t-2 border-r-2 border-primary animate-[spin_2s_linear_infinite]" />
-            <div className="absolute inset-8 rounded-full border-b-2 border-l-2 border-primary/60 animate-[spin_3s_linear_infinite_reverse]" />
-            
-            {/* Core Orb */}
-            <div className="w-12 h-12 rounded-full bg-primary shadow-[0_0_30px_rgba(var(--color-primary-rgb),0.4)] relative z-20 flex items-center justify-center">
-              <div className="w-2 h-2 bg-white rounded-full animate-ping" />
+          {/* Calming Visual Loader */}
+          <div className="relative w-32 h-32 flex items-center justify-center mb-4">
+            <motion.div 
+              animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }} 
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute inset-0 rounded-full bg-indigo-300 blur-2xl"
+            />
+            <motion.div 
+              animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }} 
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              className="absolute inset-4 rounded-full bg-rose-200 blur-xl"
+            />
+            <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-md shadow-[0_0_40px_rgba(255,255,255,0.8)] border border-white flex items-center justify-center z-10">
+               <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  className="w-12 h-12 rounded-full border-[1.5px] border-transparent border-t-indigo-400 border-r-rose-400 opacity-80"
+               />
+               <motion.div 
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+                  className="absolute w-8 h-8 rounded-full border-[1.5px] border-transparent border-b-teal-400 border-l-orange-400 opacity-60"
+               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 animate-in fade-in duration-700">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter text-slate-900 font-sans">
-              Profiling in Progress
+          <div className="flex flex-col gap-8 w-full animate-in fade-in duration-1000">
+            <h2 className="text-3xl md:text-4xl font-light font-serif text-slate-800 tracking-tight">
+              {isId ? "Menyiapkan ruangmu..." : "Preparing your space..."}
             </h2>
             
-            <div className="bg-white/50 backdrop-blur-xl border border-slate-200 rounded-2xl p-8 shadow-sm min-w-[320px] md:min-w-[440px] relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-tr from-slate-100/50 to-transparent pointer-events-none" />
+            <div className="bg-white/40 backdrop-blur-3xl border border-white/60 rounded-[2.5rem] p-10 md:p-12 shadow-[0_20px_80px_rgba(0,0,0,0.03)] relative overflow-hidden group w-full">
               
-              <div className="flex flex-col gap-4 relative z-10">
+              <div className="flex flex-col gap-6 relative z-10 items-center">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--color-primary-rgb),0.6)]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
-                    Neural Bridge Active
+                  <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    {isId ? "Sedang Memproses" : "Processing"}
                   </span>
                 </div>
                 
-                <div className="h-12 flex items-center">
-                  <p className="text-lg md:text-xl text-slate-800 font-medium tracking-tight leading-snug animate-in slide-in-from-bottom-2 duration-300 font-sans">
+                <div className="h-16 flex items-center justify-center w-full">
+                  <motion.p 
+                    key={messageIndex}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-base md:text-lg text-slate-700 font-light leading-relaxed font-sans text-center"
+                  >
                     {dynamicMessages[messageIndex]}
-                  </p>
+                  </motion.p>
                 </div>
               </div>
 
-              {/* Progress Bar Skeleton */}
-              <div className="mt-8 w-full h-[3px] bg-slate-200 rounded-full overflow-hidden">
-                <div className="h-full bg-primary shadow-[0_0_10px_rgba(var(--color-primary-rgb),0.3)] animate-[progress_15s_ease-out_forwards]" 
+              {/* Elegant Progress Bar */}
+              <div className="mt-10 w-full h-1.5 bg-white/50 rounded-full overflow-hidden shadow-inner">
+                <div className="h-full bg-gradient-to-r from-indigo-400 via-rose-400 to-orange-400 animate-[progress_15s_ease-out_forwards]" 
                      style={{ width: '85%' }} />
               </div>
             </div>
-            
-            <p className="text-xs text-slate-500 font-medium uppercase tracking-[0.15em] mt-4">
-              Estimated time: ~10 seconds
-            </p>
           </div>
         </div>
       </main>
 
-      <div className="h-20" />
-      
       <style jsx global>{`
         @keyframes progress {
           0% { width: 5%; }

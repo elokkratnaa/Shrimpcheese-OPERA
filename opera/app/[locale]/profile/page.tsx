@@ -2,21 +2,12 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/core/lib/supabase-server'
 import type { Metadata } from 'next'
 import OperaNav from '@/app/components/shared/OperaNav'
-import OperaFooter from '@/app/components/shared/OperaFooter'
-import AvatarInitials from '@/app/components/profile/AvatarInitials'
-import ProfileStats from '@/app/components/profile/ProfileStats'
-import DangerZone from '@/app/components/profile/DangerZone'
-import ProfileNameSaver from '@/app/components/profile/ProfileNameSaver'
-import { getTranslations } from 'next-intl/server'
+// 🧹 Import OperaFooter sudah dihapus dari sini!
+import ProfileClient from './profileclient'
 
-export async function generateMetadata({params}: {params: Promise<{locale: string}>}): Promise<Metadata> {
-  const {locale} = await params;
-  const t = await getTranslations({locale, namespace: 'Profile'});
- 
-  return {
-    title: t('title'),
-    description: t('description')
-  };
+export const metadata: Metadata = {
+  title: 'Profile | OPERA',
+  description: 'Your Thinking Profile and Reflection Journey'
 }
 
 interface ProfileStats {
@@ -86,7 +77,6 @@ export default async function ProfilePage({
   const { locale } = await params;
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const t = await getTranslations('Profile')
 
   if (!user) {
     redirect(`/${locale}/login`)
@@ -98,44 +88,30 @@ export default async function ProfilePage({
   const email: string = user.email ?? ''
 
   return (
-    <div className="min-h-screen flex flex-col bg-canvas">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans relative overflow-hidden selection:bg-[#E0E7FF] selection:text-[#3730A3]">
+      
+      {/* ICY LAVENDER & PEACH FLUID BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(165,224,255,0.4)_0%,transparent_70%)] blur-[120px]" />
+        <div className="absolute bottom-[-20%] left-[-15%] w-[65vw] h-[65vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(224,195,255,0.4)_0%,transparent_65%)] blur-[140px]" />
+        <div className="absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,218,185,0.25)_0%,transparent_70%)] blur-[100px]" />
+      </div>
+
       <OperaNav variant="authed" />
 
-      <main className="flex-1 w-full max-w-[600px] mx-auto px-4 py-12 md:py-16 flex flex-col gap-10">
-
-        {/* Identity block */}
-        <section aria-label={t("identity")} className="flex flex-col items-center gap-4 text-center">
-          <AvatarInitials fullName={fullName} email={email} />
-
-          {/* Inline name editor — client island */}
-          <ProfileNameSaver initialName={fullName} />
-
-          {/* Email — body-md muted */}
-          <p
-            className="text-muted"
-            style={{ fontSize: '16px', fontWeight: 400, lineHeight: 1.55 }}
-          >
-            {email}
-          </p>
-        </section>
-
-        {/* Stats block */}
-        <section aria-label={t("statsLabel")}>
-          <ProfileStats
-            totalSessions={stats.total_sessions}
-            committedCount={stats.committed_count}
-            topTag={stats.top_tag}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-16 md:py-24 relative z-10 flex flex-col gap-12">
+          <ProfileClient 
+             initialName={fullName} 
+             email={email} 
+             stats={{
+                totalSessions: stats.total_sessions,
+                committedCount: stats.committed_count,
+                topTag: stats.top_tag
+             }} 
           />
-        </section>
-
-        {/* Danger zone — client island */}
-        <section aria-label={t("management")}>
-          <DangerZone />
-        </section>
-
       </main>
 
-      <OperaFooter />
+      {/* 🧹 Footer juga sudah dihilangkan dari sini! Halaman profil sekarang 100% melayang dan bebas footer */}
     </div>
   )
 }
