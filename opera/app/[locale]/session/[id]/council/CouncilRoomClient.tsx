@@ -116,7 +116,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           } else if (event.type === "typing") {
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
-            console.log("[UI] Round complete received:", event);
+            console.log("[UI] DEBUG: Received round_complete event for round", event.round, "from total", event.total);
             // Verify if we actually have enough turns for this round before showing the rebuttal box
             const turnCount = debates.filter(d => d.round_number === event.round).length;
             if (turnCount < uniquePersonas.length) {
