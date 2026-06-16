@@ -161,21 +161,36 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() ?? '';
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const payload = line.slice(6).trim();
-        if (payload === '[DONE]') return;
-        try {
-          const parsed = JSON.parse(payload);
-          onEvent(parsed);
-        } catch {}
+    
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        // Split by lines and process
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? ''; // Keep the incomplete last line in buffer
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || !trimmed.startsWith('data: ')) continue;
+          
+          const payload = trimmed.slice(6).trim();
+          if (payload === '[DONE]') return;
+          
+          try {
+            const parsed = JSON.parse(payload);
+            onEvent(parsed);
+          } catch (e) {
+            console.error("[UI] Failed to parse SSE event:", payload, e);
+          }
+        }
       }
+    } catch (e) {
+      console.error("[UI] SSE Stream reading error:", e);
+    } finally {
+      reader.releaseLock();
     }
   }
 
