@@ -36,6 +36,8 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
 
   const [session, setSession] = useState<SessionData>(initialSession);
   const [debates, setDebates] = useState<DebateUtterance[]>([]);
+  const [displayedDebates, setDisplayedDebates] = useState<DebateUtterance[]>([]);
+  const [messageQueue, setMessageQueue] = useState<DebateUtterance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const [roundCompleteEvent, setRoundCompleteEvent] = useState<{ round: number; total: number } | null>(null);
@@ -46,6 +48,18 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamAbortController = useRef<AbortController | null>(null);
+
+  // Effect to process queue for staggered display
+  useEffect(() => {
+    if (messageQueue.length > 0) {
+      const timer = setTimeout(() => {
+        const [nextMsg, ...rest] = messageQueue;
+        setDisplayedDebates(prev => [...prev, nextMsg]);
+        setMessageQueue(rest);
+      }, 800); // 800ms delay per message
+      return () => clearTimeout(timer);
+    }
+  }, [messageQueue]);
 
   const uniquePersonas = useMemo(() => {
     const fromDebates = Array.from(new Set(debates.map((d) => d.persona_name)));
@@ -98,21 +112,21 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           console.log("[UI] DEBUG: Raw SSE event received:", JSON.stringify(event));
 
           if (event.type === "turn") {
+            const newUtterance = {
+              debate_id: `live-${Date.now()}-${Math.random()}`,
+              persona_name: event.persona_name,
+              message_content: event.message_content,
+              turn_sequence: event.turn_sequence,
+              round_number: event.round_number
+            };
+            
             setDebates(prev => {
               if (prev.some(d => d.turn_sequence === event.turn_sequence && d.persona_name === event.persona_name)) {
                 return prev;
               }
-              return [
-                ...prev,
-                {
-                  debate_id: `live-${Date.now()}-${Math.random()}`,
-                  persona_name: event.persona_name,
-                  message_content: event.message_content,
-                  turn_sequence: event.turn_sequence,
-                  round_number: event.round_number
-                }
-              ];
+              return [...prev, newUtterance];
             });
+            setMessageQueue(prev => [...prev, newUtterance]);
           } else if (event.type === "typing") {
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
@@ -267,13 +281,13 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 max-w-2xl mx-auto w-full pb-20"
       >
-        {debates.map((utterance, idx) => {
+        {displayedDebates.map((utterance, idx) => {
           const color = utterance.persona_name === "Kamu" ? "#cc785c" : getPersonaColor(utterance.persona_name);
           const lines = utterance.message_content.split("\n").filter(l => l.trim().length > 0);
           const lastLine = lines.length > 1 ? lines[lines.length - 1] : null;
           const bodyLines = lastLine ? lines.slice(0, -1) : lines;
 
-          const showRoundDivider = idx === 0 || (utterance.round_number && utterance.round_number !== debates[idx - 1].round_number);
+          const showRoundDivider = idx === 0 || (utterance.round_number && utterance.round_number !== displayedDebates[idx - 1].round_number);
 
           return (
             <React.Fragment key={utterance.debate_id}>
