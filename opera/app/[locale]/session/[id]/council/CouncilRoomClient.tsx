@@ -310,6 +310,25 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
           );
         })}
 
+        {messageQueue.length > 0 && (
+          <div className="flex gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+             <div 
+               className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[10px] font-bold"
+               style={{ backgroundColor: getPersonaColor(messageQueue[0].persona_name) }}
+             >
+               {messageQueue[0].persona_name.charAt(0)}
+             </div>
+             <div className="flex flex-col gap-1">
+                <p className="text-xs italic text-slate-500">lagi mikir</p>
+                <div className="flex gap-1 mt-1 px-1">
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.3s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce [animation-delay:-0.15s]" />
+                   <span className="w-1.5 h-1.5 rounded-full bg-slate-500 animate-bounce" />
+                </div>
+             </div>
+          </div>
+        )}
+
         {messageQueue.length > 0 && messageQueue[0].displayedContent && (
              <PersonaBubble
                 persona_name={messageQueue[0].persona_name}
