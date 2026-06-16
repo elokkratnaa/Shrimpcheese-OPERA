@@ -119,7 +119,7 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             console.log("[UI] Round complete received:", event);
             // Verify if we actually have enough turns for this round before showing the rebuttal box
             const turnCount = debates.filter(d => d.round_number === event.round).length;
-            if (turnCount < uniquePersonas.length * 3) {
+            if (turnCount < uniquePersonas.length) {
                 console.log("[UI] Ignoring round_complete; turn count too low", turnCount);
                 return;
             }
