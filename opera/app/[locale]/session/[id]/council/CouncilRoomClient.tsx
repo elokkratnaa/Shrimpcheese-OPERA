@@ -117,7 +117,11 @@ export default function CouncilRoomClient({ initialSession }: { initialSession: 
             console.log(`[UI] ${event.persona_name} is typing...`);
           } else if (event.type === "round_complete") {
             console.log("[UI] Round complete received:", event);
-            setRoundCompleteEvent({ round: event.round, total: event.total });
+            // Only update if we haven't already processed this round, or if it's a higher round
+            setRoundCompleteEvent(prev => {
+              if (prev && prev.round >= event.round) return prev;
+              return { round: event.round, total: event.total };
+            });
           } else if (event.type === "debate_complete") {
             console.log("[UI] Debate complete received");
             setSession(prev => prev ? { ...prev, current_status: "completed" } : prev);
