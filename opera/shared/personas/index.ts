@@ -16,3 +16,10 @@ export const PERSONA_MAP: Record<string, Persona> = {
     [vc.id]: vc,
     [hedonist.id]: hedonist
 };
+
+export const getFriendlyName = (backendName: string) => {
+    if (backendName === "The Pragmatic Stoic") return "Luna";
+    if (backendName === "The Venture Capitalist") return "Sage";
+    if (backendName === "The Creative Hedonist") return "Baz";
+    return backendName;
+};

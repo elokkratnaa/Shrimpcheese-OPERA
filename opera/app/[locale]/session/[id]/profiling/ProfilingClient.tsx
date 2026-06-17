@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { useTranslations, useLocale } from "next-intl";
-import { PERSONA_MAP } from "@/shared/personas";
+import { PERSONA_MAP, getFriendlyName } from "@/shared/personas";
 import { motion } from "framer-motion";
 
 export default function ProfilingClient() {
@@ -23,13 +23,6 @@ export default function ProfilingClient() {
 
   const [dynamicMessages, setDynamicMessages] = useState<string[]>(STATUS_MESSAGES);
   const [messageIndex, setMessageIndex] = useState(0);
-
-  const getFriendlyName = (backendName: string) => {
-    if (backendName === "The Pragmatic Stoic") return "Luna";
-    if (backendName === "The Venture Capitalist") return "Sage";
-    if (backendName === "The Creative Hedonist") return "Baz";
-    return backendName;
-  };
 
   useEffect(() => {
     async function fetchPersonas() {
