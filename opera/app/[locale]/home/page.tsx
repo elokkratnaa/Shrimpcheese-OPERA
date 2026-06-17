@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/core/lib/supabase-server";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { HomeHero } from "./homeclient"; // Pastikan ini mengarah ke file client component
+import AnalysisClient from "@/app/components/shared/AnalysisClient";
 
 export const revalidate = 0;
 
@@ -247,6 +248,10 @@ export default async function HomeDashboard({
                         </Link>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="pt-8">
+                    <AnalysisClient />
                   </div>
                 </div>
               ) : (
