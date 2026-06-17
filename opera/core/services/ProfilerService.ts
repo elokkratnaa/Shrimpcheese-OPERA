@@ -10,12 +10,13 @@ import { PROFILER_SYSTEM_PROMPT, ProfilerOutput } from '@/shared/types'
 export async function runProfiler(
   sessionId: string, 
   accessToken?: string,
-  manualPersonas?: string[]
+  manualPersonas?: string[],
+  locale: string = 'en'
 ): Promise<void> {
   const supabase = createBackgroundClient(accessToken)
 
   try {
-    console.log(`[ProfilerService] Starting profiling for session ${sessionId}`)
+    console.log(`[ProfilerService] Starting profiling for session ${sessionId}, locale: ${locale}`)
     // 1. Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
@@ -31,7 +32,7 @@ export async function runProfiler(
     console.log(`[ProfilerService] Session fetched: ${sessionId}`)
 
     const contextPrefix = `Category: ${session.category || 'Unspecified'}. Emotional state: ${session.emotional_state || 'Unspecified'}.`
-    let rawDump = session.raw_mind_dump
+    const rawDump = session.raw_mind_dump
     let attempts = 0
     let success = false
     let profilerOutput: ProfilerOutput | null = null
@@ -127,7 +128,7 @@ export async function runProfiler(
       : profilerOutput.suggested_persona_archetypes
     console.log(`[ProfilerService] Spawning council for session ${sessionId} with personas:`, personasToSpawn)
 
-    spawnCouncil(sessionId, personasToSpawn, session.rounds, accessToken)
+    spawnCouncil(sessionId, personasToSpawn, session.rounds, accessToken, locale)
       .catch(err => console.error(`[ProfilerService] Background spawnCouncil failed for session ${sessionId}:`, err))
   } catch (err: unknown) {
     console.error(`[ProfilerService] Unexpected error on session ${sessionId}:`, err)

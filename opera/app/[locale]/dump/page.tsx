@@ -35,6 +35,7 @@ const dict = {
     emotionLabel: "How are you feeling?",
     roundsLabel: "Depth of Reflection",
     roundsSelect: "Rounds",
+    roundsHelper: "Choose how deep you want the debate to go. More rounds yield more nuance.",
     councilSection: "Select Your Council",
     gacha: "Surprise Me",
     racik: "Handpick",
@@ -94,6 +95,7 @@ const dict = {
     emotionLabel: "Perasaanmu Saat Ini",
     roundsLabel: "Kedalaman Refleksi",
     roundsSelect: "Ronde",
+    roundsHelper: "Pilih seberapa dalam diskusi yang kamu inginkan. Lebih banyak ronde berarti lebih banyak nuansa.",
     councilSection: "Pilih Dewan Penasihat",
     gacha: "Kejutkan Aku",
     racik: "Pilih Sendiri",
@@ -192,7 +194,7 @@ export default function UnifiedDumpPage() {
   // Overthinking Bar calculation (Dynamic based on typing length)
   const getOverthinkingValue = () => {
     if (mindDump.length === 0) return 0;
-    let base = Math.min((mindDump.length / 1000) * 80, 80);
+    const base = Math.min((mindDump.length / 1000) * 80, 80);
     let bonus = 0;
     if (emotion === "anxious" || emotion === "fatigued") bonus = 20;
     else if (emotion === "bingung" || emotion === "avoidant") bonus = 10;
@@ -265,7 +267,10 @@ export default function UnifiedDumpPage() {
     try {
       const response = await fetch("/api/sessions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "x-locale": locale 
+        },
         body: JSON.stringify({
           dump_text: mindDump,
           debate_rounds: rounds,
@@ -282,7 +287,7 @@ export default function UnifiedDumpPage() {
 
       const session = await response.json();
       localStorage.removeItem("opera_draft");
-      router.push(`/${locale}/session/${session.session_id}/council`);
+      router.push(`/session/${session.session_id}/council`);
     } catch (err: unknown) {
       setErrorMessage(sanitizeApiError(err));
       console.error(err);
@@ -466,16 +471,21 @@ export default function UnifiedDumpPage() {
           </div>
 
           {/* Rounds */}
-          <div className="flex flex-col gap-4 items-center mt-4">
-            <SectionLabel>{t.roundsLabel}</SectionLabel>
-            <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-full border border-white/80 shadow-sm">
+          <div className="flex flex-col gap-2 items-center mt-8 p-6 bg-white/30 backdrop-blur-sm rounded-3xl border border-white/50 shadow-inner">
+            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-widest">
+              {t.roundsLabel}
+            </h3>
+            <p className="text-xs text-slate-500 mb-2 max-w-xs text-center">
+              {t.roundsHelper}
+            </p>
+            <div className="flex bg-white/60 backdrop-blur-md p-1.5 rounded-full border border-white/80 shadow-sm">
               {[1, 2, 3].map((r) => (
                 <button
                   key={r}
                   onClick={() => setRounds(r)}
                   className={`px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-300 ease-out ${
                     rounds === r
-                      ? "bg-slate-900 text-white shadow-md"
+                      ? "bg-slate-900 text-white shadow-md shadow-slate-900/20"
                       : "text-slate-500 hover:text-slate-900 hover:bg-white/60"
                   }`}
                 >

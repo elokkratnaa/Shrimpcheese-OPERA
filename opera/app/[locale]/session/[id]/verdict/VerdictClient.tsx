@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import OperaNav from "@/app/components/shared/OperaNav";
@@ -46,6 +47,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
+  const t = useTranslations("Verdict");
   
   // BULLETPROOF LOCALE DETECTION: 
   // We read directly from the URL route (e.g. /id/session/...) instead of next-intl context.
@@ -427,7 +429,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                 {hasCopied ? t("copied") : t("copyToClipboard")}
               </Button>
               
-              {typeof navigator !== 'undefined' && navigator.share && (
+              {typeof navigator !== 'undefined' && (navigator as any).share && (
                 <Button
                   variant="outline"
                   onClick={handleNativeShare}

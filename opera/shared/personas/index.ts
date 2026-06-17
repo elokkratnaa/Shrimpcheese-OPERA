@@ -17,16 +17,32 @@ export const PERSONA_MAP: Record<string, Persona> = {
     [hedonist.id]: hedonist
 };
 
-export const getFriendlyName = (backendName: string) => {
+const FRIENDLY_NAME_MAP: Record<string, string> = {
+    "pragmatic stoic": "Luna",
+    "stoic": "Luna",
+    "venture capitalist": "Sage",
+    "capitalist": "Sage",
+    "vc": "Sage",
+    "creative hedonist": "Baz",
+    "hedonist": "Baz"
+};
+
+export const getFriendlyName = (backendName: string): string => {
     if (!backendName) return "AI";
-    const lower = backendName.toLowerCase();
-    if (lower.includes("pragmatic") || lower.includes("stoic")) return "Luna";
-    if (
-      lower.includes("venture") ||
-      lower.includes("capitalist") ||
-      lower.includes("vc")
-    )
-      return "Sage";
-    if (lower.includes("creative") || lower.includes("hedonist")) return "Baz";
+    
+    const lowerName = backendName.toLowerCase();
+    
+    // Check if the exact lower-cased name exists in our map
+    if (FRIENDLY_NAME_MAP[lowerName]) {
+        return FRIENDLY_NAME_MAP[lowerName];
+    }
+
+    // Check if any key in map is contained within the name
+    for (const key in FRIENDLY_NAME_MAP) {
+        if (lowerName.includes(key)) {
+            return FRIENDLY_NAME_MAP[key];
+        }
+    }
+    
     return backendName;
 };

@@ -66,7 +66,7 @@ export async function getPersonalityAnalysis(userId: string): Promise<Personalit
       .map(([persona, count]) => ({ persona, count }))
       .sort((a, b) => b.count - a.count),
     key_themes: Object.entries(themeCounts)
-      .sort((a, b) => b.count - a.count)
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([theme]) => theme),
   }

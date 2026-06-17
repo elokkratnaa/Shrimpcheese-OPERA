@@ -12,18 +12,17 @@ export async function spawnCouncil(
   sessionId: string,
   archetypes: string[],
   rounds: number = 1,
-  accessToken?: string
+  accessToken?: string,
+  locale: string = 'en'
 ): Promise<void> {
-  logger.info(`spawnCouncil called for session ${sessionId} with archetypes: ${JSON.stringify(archetypes)}, rounds: ${rounds}`);
+  logger.info(`spawnCouncil called for session ${sessionId} with archetypes: ${JSON.stringify(archetypes)}, rounds: ${rounds}, locale: ${locale}`);
   const supabase = createBackgroundClient(accessToken)
-  
-  const locale = 'en';
 
   try {
     const ARCHETYPE_MAP: Record<string, string> = {
-        'venture-capitalist': 'vc',
-        'creative-hedonist': 'hedonist',
-        'pragmatic-stoic': 'stoic'
+        'venture-capitalist': 'sage',
+        'creative-hedonist': 'baz',
+        'pragmatic-stoic': 'luna'
     };
 
     const chosenConfigs = archetypes.map(key => {
