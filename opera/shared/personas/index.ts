@@ -18,8 +18,15 @@ export const PERSONA_MAP: Record<string, Persona> = {
 };
 
 export const getFriendlyName = (backendName: string) => {
-    if (backendName === "The Pragmatic Stoic") return "Luna";
-    if (backendName === "The Venture Capitalist") return "Sage";
-    if (backendName === "The Creative Hedonist") return "Baz";
+    if (!backendName) return "AI";
+    const lower = backendName.toLowerCase();
+    if (lower.includes("pragmatic") || lower.includes("stoic")) return "Luna";
+    if (
+      lower.includes("venture") ||
+      lower.includes("capitalist") ||
+      lower.includes("vc")
+    )
+      return "Sage";
+    if (lower.includes("creative") || lower.includes("hedonist")) return "Baz";
     return backendName;
 };

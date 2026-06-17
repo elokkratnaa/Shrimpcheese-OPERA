@@ -283,9 +283,16 @@
       "saveFailed": "Could not save — try again.",
       "deleteFailed": "Account deletion failed.",
       "unexpected": "Something went wrong. Try again."
+    },
+    "analysis": {
+      "title": "Personality Analysis",
+      "emotionalCore": "Emotional Core",
+      "personaAffinity": "Council Affinity",
+      "keyThemes": "Core Decision Themes",
+      "noData": "Not enough session data for analysis yet."
     }
-  },
-  "Chat": {
+    },
+    "Council": {
     "title": "Choose your advisor",
     "consult": "Consult {name}",
     "intro": "Start typing to test ideas, analyze risk, or map fulfillment options directly.",

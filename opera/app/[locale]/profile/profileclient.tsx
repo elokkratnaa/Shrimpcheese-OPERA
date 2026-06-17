@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import AnalysisClient from "@/app/components/shared/AnalysisClient";
 
 // ============================================================================
 // BUILT-IN LOCALIZATION DICTIONARY
@@ -440,13 +441,19 @@ export default function ProfileClient({ initialName, email, provider, stats }: P
               </div>
             </div>
           </motion.div>
+          </div>
+          </div>
 
-        </div>
-      </div>
+          {/* ================================================================= */}
+          {/* PERSONALITY ANALYSIS */}
+          {/* ================================================================= */}
+          <div className="pt-10 border-t border-slate-200/50">
+          <AnalysisClient />
+          </div>
 
-      {/* ================================================================= */}
-      {/* DANGER ZONE (Moved to bottom) */}
-      {/* ================================================================= */}
+          {/* ================================================================= */}
+          {/* DANGER ZONE (Moved to bottom) */}
+          {/* ================================================================= */}
       <motion.div 
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
         className="pt-16 mt-8 border-t border-slate-200/50 flex flex-col items-center gap-6"

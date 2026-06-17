@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
+import AnalysisClient from "@/app/components/shared/AnalysisClient";
 
 const dict = {
   en: {
@@ -136,6 +137,10 @@ export function HomeHero({ displayName }: { displayName: string }) {
           {t.soloChat}
         </button>
       </motion.div>
+
+      <div className="mt-16 w-full max-w-2xl">
+        <AnalysisClient />
+      </div>
     </div>
   );
 }

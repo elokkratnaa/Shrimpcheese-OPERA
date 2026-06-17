@@ -282,6 +282,13 @@
       "saveFailed": "Gagal menyimpan — coba lagi.",
       "deleteFailed": "Gagal menghapus akun.",
       "unexpected": "Terjadi kesalahan. Coba lagi."
+    },
+    "analysis": {
+      "title": "Analisis Kepribadian",
+      "emotionalCore": "Inti Emosional",
+      "personaAffinity": "Afinitas Dewan",
+      "keyThemes": "Tema Keputusan Utama",
+      "noData": "Belum ada cukup data sesi untuk analisis."
     }
   },
   "Chat": {
