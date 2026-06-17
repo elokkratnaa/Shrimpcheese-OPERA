@@ -17,6 +17,7 @@ import { useLocale } from "next-intl";
 import { extractMessageText } from "@/shared/extractMessageText";
 import { PERSONAS } from "@/shared/personas";
 import { motion } from "framer-motion";
+import { sanitizeApiError } from "@/client/services/error";
 
 // ============================================================================
 // BUILT-IN LOCALIZATION DICTIONARY
@@ -247,7 +248,8 @@ export default function SoloChatPage() {
       });
 
       if (!response.ok) {
-        throw new Error(t.errors.failed);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || t.errors.failed);
       }
 
       const contentType = response.headers.get("content-type");
@@ -277,7 +279,7 @@ export default function SoloChatPage() {
         ...prev,
         {
           role: "assistant",
-          content: t.errors.connectionLost,
+          content: sanitizeApiError(err),
         },
       ]);
     } finally {

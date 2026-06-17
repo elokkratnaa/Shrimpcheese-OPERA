@@ -1,3 +1,5 @@
+import { sanitizeApiError } from "@/client/services/error";
+
 /**
  * Frontend Service for interacting with the Sessions API.
  * This abstracts the fetch calls and provides a clean interface for UI components.
@@ -9,7 +11,10 @@ export const SessionClientService = {
    */
   async getSessions(page: number = 1, limit: number = 20) {
     const response = await fetch(`/api/sessions?page=${page}&limit=${limit}`);
-    if (!response.ok) throw new Error('Failed to fetch sessions');
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(sanitizeApiError(errorData.error || 'Failed to fetch sessions'));
+    }
     return response.json();
   },
 
@@ -18,7 +23,10 @@ export const SessionClientService = {
    */
   async getSession(id: string) {
     const response = await fetch(`/api/sessions/${id}`);
-    if (!response.ok) throw new Error('Failed to fetch session');
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(sanitizeApiError(errorData.error || 'Failed to fetch session'));
+    }
     return response.json();
   },
 
@@ -38,8 +46,8 @@ export const SessionClientService = {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create session');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(sanitizeApiError(errorData.error || 'Failed to create session'));
     }
     return response.json();
   },
@@ -53,7 +61,10 @@ export const SessionClientService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content, target }),
     });
-    if (!response.ok) throw new Error('Failed to send rebuttal');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(sanitizeApiError(errorData.error || 'Failed to send rebuttal'));
+    }
     return response.json();
   }
 };

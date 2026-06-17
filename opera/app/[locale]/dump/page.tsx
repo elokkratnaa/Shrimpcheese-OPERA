@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { createClient } from "@/client/services/supabase";
 import { useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
+import { sanitizeApiError } from "@/client/services/error";
 
 import { PERSONAS, PERSONA_MAP } from "@/shared/personas";
 
@@ -244,7 +245,7 @@ export default function UnifiedDumpPage() {
       localStorage.removeItem("opera_draft");
       router.push(`/${locale}/session/${session.session_id}/council`);
     } catch (err: unknown) {
-      setErrorMessage(err instanceof Error ? err.message : t.errors.unexpected);
+      setErrorMessage(sanitizeApiError(err));
       console.error(err);
     } finally {
       setIsLoading(false);
