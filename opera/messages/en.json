@@ -126,6 +126,7 @@
       "passwordRequired": "Password is required.",
       "passwordLength": "Password must be at least 8 characters.",
       "alreadyExists": "An account with this email address already exists.",
+      "differentProvider": "An account with this email address already exists with a different sign-in method.",
       "unexpected": "An unexpected error occurred. Please try again.",
       "googleFailed": "Failed to initiate Google registration."
     }

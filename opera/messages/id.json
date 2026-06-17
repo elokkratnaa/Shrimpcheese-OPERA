@@ -126,6 +126,7 @@
       "passwordRequired": "Kata sandi wajib diisi.",
       "passwordLength": "Kata sandi minimal 8 karakter.",
       "alreadyExists": "Akun dengan email ini sudah terdaftar.",
+      "differentProvider": "Akun dengan email ini sudah terdaftar dengan metode masuk yang berbeda.",
       "unexpected": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
       "googleFailed": "Gagal memulai pendaftaran dengan Google."
     }
