@@ -383,14 +383,14 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
           <div className="flex gap-2 md:gap-3">
             <button onClick={handleNewDilemma} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
-              {isId ? "Dilema Baru" : "New Dilemma"}
+              {t("newDilemma")}
             </button>
             <button onClick={handleCopy} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] flex items-center justify-center gap-2">
               {hasCopied ? <Check className="w-3 h-3 text-emerald-500" /> : null}
-              {isId ? (hasCopied ? "Tersalin" : "Salin Hasil") : (hasCopied ? "Copied" : "Copy Result")}
+              {hasCopied ? t("copied") : t("copyResult")}
             </button>
             <button onClick={() => setIsShareOpen(true)} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
-              {isId ? "Bagikan" : "Share"}
+              {t("shareResults")}
             </button>
           </div>
         </div>
@@ -401,12 +401,10 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
         <DialogContent className="sm:max-w-[460px] border-none bg-white/80 backdrop-blur-2xl rounded-[2rem] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.1)]">
           <DialogHeader className="gap-3">
             <DialogTitle className="text-2xl font-serif font-light text-slate-900">
-              {isId ? "Bagikan Kesimpulan" : "Share Verdict"}
+              {t("shareResults")}
             </DialogTitle>
             <DialogDescription className="text-sm text-slate-500 font-medium leading-relaxed">
-              {isId 
-                ? "Simpan hasil diskusi ini atau bagikan kepada orang lain untuk perspektif tambahan." 
-                : "Save the result of this discussion or share it with others for additional perspective."}
+              {t("shareDescription")}
             </DialogDescription>
           </DialogHeader>
 
@@ -426,7 +424,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                 )}
               >
                 {hasCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {isId ? (hasCopied ? "Tersalin" : "Salin ke Papan Klip") : (hasCopied ? "Copied" : "Copy to Clipboard")}
+                {hasCopied ? t("copied") : t("copyToClipboard")}
               </Button>
               
               {typeof navigator !== 'undefined' && navigator.share && (
@@ -436,7 +434,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
                   className="flex-1 rounded-full py-6 border-slate-200 text-slate-600 font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 shadow-sm flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-4 h-4" />
-                  {isId ? "Bagikan via Sistem" : "Share via System"}
+                  {t("shareViaSystem")}
                 </Button>
               )}
             </div>

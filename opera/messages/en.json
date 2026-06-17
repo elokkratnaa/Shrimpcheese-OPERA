@@ -347,18 +347,19 @@
     "closingMessage": "CLOSING MESSAGE",
     "typing": "typing...",
     "copied": "Copied!",
-    "dilemmaPlaceholder": "Write your new dilemma",
-    "startGibah": "Start Gibah",
     "newDilemma": "New Dilemma",
     "copyResult": "Copy Result",
     "shareResults": "Share Results",
+    "shareDescription": "Save the result of this discussion or share it with others for additional perspective.",
+    "copyToClipboard": "Copy to Clipboard",
+    "shareViaSystem": "Share via System",
+    "copied": "Copied!",
     "errors": {
       "stream": "Failed to stream verdict. Please refresh or try again.",
       "commit": "Failed to commit decision. Please try again.",
       "unexpected": "An error occurred."
     }
-  },
-  "OverthinkingBar": {
+    },
     "label": "Overthinking level",
     "complete": "Analysis complete"
   }
