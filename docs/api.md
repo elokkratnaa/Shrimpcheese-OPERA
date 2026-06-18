@@ -12,7 +12,7 @@ OPERA uses Next.js Route Handlers in `app/api/`.
 | PATCH | `/api/verdicts/[id]` | Commit a verdict/update favourite persona |
 | POST | `/api/chat` | Persona-based chat |
 | PATCH | `/api/profile` | Update user profile |
-| DELETE | `/api/profile` | Delete user account |
+| DELETE | `/api/profile` | Delete user account (requires SUPABASE_SERVICE_ROLE_KEY) |
 
 ## Implementation Notes
 
