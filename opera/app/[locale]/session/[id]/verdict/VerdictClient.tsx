@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { Loader2, CheckCircle2, Share2, Copy, Check } from "lucide-react";
 import { getFriendlyName } from "@/shared/personas";
@@ -105,7 +106,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
   const handleNewDilemma = async () => {
     localStorage.setItem("opera_draft", newDilema);
-    router.push(`/${locale}/dump`);
+    router.push(`/dump`);
   };
 
   const handleSelectPersona = async (name: string) => {

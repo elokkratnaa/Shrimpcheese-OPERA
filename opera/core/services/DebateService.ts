@@ -69,11 +69,11 @@ export async function spawnCouncil(
             try {
               let userPrompt = "";
               if (turn === 1) {
-                userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: Give your initial reaction/strategy.`;
+                userPrompt = `Context: ${globalTranscript}\n\nDecision: "${coreDecision}". Constraints: ${constraints}. Round ${round}: What's your initial take on this? Keep it punchy.`;
               } else if (turn === 3) {
-                 userPrompt = `Round ${round}: Deliver final strategic advice based on previous arguments: ${roundTranscript}`;
+                 userPrompt = `Round ${round}: Drop your final verdict/advice based on what's been said: ${roundTranscript}`;
               } else {
-                 userPrompt = `Round ${round}: Challenge/refine previous arguments: ${roundTranscript}`;
+                 userPrompt = `Round ${round}: Call out or refine what the others just said: ${roundTranscript}`;
               }
 
               const text = await runUtterance(config.name, config.systemPrompt, userPrompt, round, round * 100 + turn * 10 + idx);
@@ -104,18 +104,27 @@ export async function spawnCouncil(
       if (round < rounds) {
         await new Promise<void>((resolve) => {
           const timer = setTimeout(() => {
+            clearInterval(interval);
             logger.warn(`Rebuttal timeout reached for session ${sessionId}, proceeding...`);
-            sessionEvents.off(`rebuttal:${sessionId}`, onRebuttal);
             resolve();
-          }, 5 * 60 * 1000); 
+          }, 5 * 60 * 1000);
 
-          const onRebuttal = (data: { content: string, target?: string }) => {
-            clearTimeout(timer);
-            globalTranscript += `\n[User Rebuttal]: ${data.content} (Targeting: ${data.target || 'Squad'})`;
-            sessionEvents.off(`rebuttal:${sessionId}`, onRebuttal);
-            resolve();
-          };
-          sessionEvents.on(`rebuttal:${sessionId}`, onRebuttal);
+          const interval = setInterval(async () => {
+            const { data } = await supabase
+              .from('council_debates')
+              .select('message_content')
+              .eq('session_id', sessionId)
+              .eq('round_number', round)
+              .eq('persona_name', 'Kamu')
+              .maybeSingle();
+            
+            if (data) {
+              clearInterval(interval);
+              clearTimeout(timer);
+              globalTranscript += `\n[User Rebuttal]: ${data.message_content}`;
+              resolve();
+            }
+          }, 2000); 
         });
       }
     }
@@ -165,10 +174,14 @@ export async function spawnCouncil(
       const responsePromise = completeGroq({
         system: `${systemPrompt} Rules:
                 - Output ONLY the response text.
-                - Max 2 sentences. Be extremely concise.
+                - Use a "groupchat" style: punchy, informal, and very direct.
+                - Max 2 short sentences.
                 - No formal openers/closers.
+                - Use lowercase where natural and avoid excessive punctuation.
                 - No markdown, lists, or headers.
-                - DO NOT use <think> tags.`,
+                - DO NOT use <think> tags.
+                - STRICTLY PROHIBITED: No code, no work-related tasks, no creative project plans (GDDs), no technical output.
+                - Focus EXCLUSIVELY on psychological/emotional support, analyzing personal dilemmas, and helping the user navigate overthinking.`,
         messages: [{ role: 'user', content: userPrompt }],
         modelChain: DEBATE_MODEL_CHAIN
       });

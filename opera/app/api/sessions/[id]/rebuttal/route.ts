@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/core/lib/supabase-server'
-import { sessionEvents } from '@/shared/events'
 import { checkInputSafety } from '@/core/services/SafetyService'
 
 export async function POST(
@@ -67,8 +66,8 @@ export async function POST(
       return NextResponse.json({ error: insertError.message }, { status: 500 })
     }
 
-    // Emit event to wake up DebateService
-    sessionEvents.emit(`rebuttal:${id}`, { content, target });
+    // Rebuttal is already persisted to council_debates in the insertion step above.
+    // DebateService will poll for this new row to detect the rebuttal.
 
     return NextResponse.json({ success: true })
   } catch (err: unknown) {

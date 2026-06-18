@@ -142,6 +142,7 @@
     "profiler_failed": "OPERA couldn't read your dump. Try again with more detail.",
     "timeout": "This took too long. The council may be stuck.",
     "not_found": "This session doesn't exist or isn't yours.",
+    "session_failed": "This session could not be retrieved.",
     "rateLimit": "Please wait an hour to chat again.",
     "verdictUnavailable": "Sorry, a verdict couldn't be reached within the allotted time. You can try again in the next hour.",
     "default": "Something broke backstage.",

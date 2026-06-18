@@ -44,7 +44,8 @@ export async function runProfiler(
         console.log(`[ProfilerService] Attempt ${attempts} calling completeGroq for session ${sessionId}`)
         const resultString = await completeGroq({
           system: `${contextPrefix}\n\n${PROFILER_SYSTEM_PROMPT}`,
-          messages: [{ role: 'user', content: rawDump }]
+          messages: [{ role: 'user', content: rawDump }],
+          responseFormat: { type: 'json_object' }
         })
         console.log(`[ProfilerService] Received Groq response for session ${sessionId}`)
 
@@ -68,22 +69,25 @@ export async function runProfiler(
 
         try {
           const parsed = JSON.parse(cleanJsonString) as ProfilerOutput
-          // Validation checks
-          if (
-            typeof parsed.core_decision_node === 'string' &&
-            Array.isArray(parsed.constraints) &&
-            Array.isArray(parsed.dependencies) &&
-            Array.isArray(parsed.contradictions) &&
-            parsed.emotional_vector &&
-            ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector.state) &&
-            [1, 2, 3].includes(parsed.emotional_vector.intensity) &&
-            Array.isArray(parsed.suggested_persona_archetypes) &&
-            parsed.suggested_persona_archetypes.length >= 2
-          ) {
+          
+          // Debugging validation
+          const checks = {
+            hasDecisionNode: typeof parsed.core_decision_node === 'string',
+            hasConstraints: Array.isArray(parsed.constraints),
+            hasDependencies: Array.isArray(parsed.dependencies),
+            hasContradictions: Array.isArray(parsed.contradictions),
+            hasEmotionalVector: !!parsed.emotional_vector,
+            validEmotionState: ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector?.state || ''),
+            validEmotionIntensity: [1, 2, 3].includes(parsed.emotional_vector?.intensity || 0),
+            hasArchetypes: Array.isArray(parsed.suggested_persona_archetypes) && parsed.suggested_persona_archetypes.length >= 1
+          };
+
+          if (Object.values(checks).every(Boolean)) {
             profilerOutput = parsed
             success = true
           } else {
-            console.error(`[ProfilerService] JSON structure validation failed. Raw response: ${cleanJsonString}`)
+            console.error(`[ProfilerService] JSON structure validation failed. Checks:`, checks)
+            console.error(`[ProfilerService] Raw response: ${cleanJsonString}`)
             throw new Error('JSON structure validation failed')
           }
         } catch (parseErr) {

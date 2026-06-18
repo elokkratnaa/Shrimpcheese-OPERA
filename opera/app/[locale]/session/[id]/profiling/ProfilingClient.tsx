@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { useTranslations, useLocale } from "next-intl";
 import { PERSONA_MAP, getFriendlyName } from "@/shared/personas";
@@ -67,7 +68,7 @@ export default function ProfilingClient() {
       if (Date.now() - startTime > 45000) {
         clearInterval(pollInterval);
         if (isSubscribed) {
-          router.push(`/${locale}/error?reason=timeout`);
+          router.push(`/error?reason=timeout`);
         }
         return;
       }
@@ -86,10 +87,10 @@ export default function ProfilingClient() {
         if (isSubscribed) {
           if (session.current_status === "completed" || session.current_status === "council_ready") {
             clearInterval(pollInterval);
-            router.push(`/${locale}/session/${id}/council`);
+            router.push(`/session/${id}/council`);
           } else if (session.current_status === "failed") {
             clearInterval(pollInterval);
-            router.push(`/${locale}/error?reason=profiler_failed`);
+            router.push(`/error?reason=profiler_failed`);
           }
         }
       } catch (err: unknown) {

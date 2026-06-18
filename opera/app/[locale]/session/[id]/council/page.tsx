@@ -1,9 +1,13 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/core/lib/supabase-server';
+import { redirect } from 'next/navigation';
 import CouncilRoomClient from './CouncilRoomClient';
 
-export default async function CouncilPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default async function CouncilPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string, locale: string }> 
+}) {
+  const { id, locale } = await params;
   const supabase = await createClient();
 
   const { data: session, error } = await supabase
@@ -12,9 +16,10 @@ export default async function CouncilPage({ params }: { params: Promise<{ id: st
     .eq('session_id', id)
     .single();
 
-  if (error || !session) redirect('/error');
-  if (session.current_status === 'failed') redirect('/error');
-  if (session.current_status === 'ingested') redirect(`/session/${id}/profiling`);
+  if (error || !session) redirect(`/${locale}/error`);
+  if (session.current_status === 'failed') redirect(`/${locale}/error`);
+  if (session.current_status === 'ingested') redirect(`/${locale}/session/${id}/profiling`);
+
   
   // Allow verdict access even if stuck if marked completed in logic,
   // or allow council access.

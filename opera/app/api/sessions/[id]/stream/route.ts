@@ -50,16 +50,20 @@ export async function GET(
 
         // Listen for debate events
         const onEvent = async (data: any) => {
+          console.log(`[StreamRoute] Emitting SSE event for session ${id}:`, JSON.stringify(data))
           try {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`))
+            const formatted = `data: ${JSON.stringify(data)}\n\n`;
+            controller.enqueue(encoder.encode(formatted));
           } catch (e) {
-            // Stream already closed or errored, ignore
+            console.error(`[StreamRoute] Controller enqueue failed for ${id}:`, e)
             return;
           }
-          
+
           if (data.type === 'debate_complete') {
+            console.log(`[StreamRoute] Debate complete for session ${id}. Starting verdict synthesis...`)
             sessionEvents.off(`session:${id}`, onEvent)
-            // Start verdict synthesis
+            // ... (rest of verdict logic)
+
             try {
               const verdictStream = await synthesizeVerdict(id)
               const reader = verdictStream.getReader()
@@ -69,12 +73,13 @@ export async function GET(
                 try {
                     controller.enqueue(value)
                 } catch (e) {
-                    // Stream already closed, stop reading
+                    console.error(`[StreamRoute] Controller enqueue failed during verdict for ${id}:`, e)
                     break;
                 }
               }
+              console.log(`[StreamRoute] Verdict stream completed for session ${id}`)
             } catch (err) {
-              console.error('Error during automatic verdict synthesis:', err)
+              console.error(`[StreamRoute] Error during automatic verdict synthesis for ${id}:`, err)
             } finally {
               try {
                 controller.close()

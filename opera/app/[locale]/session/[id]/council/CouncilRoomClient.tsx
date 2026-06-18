@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
 import { Loader2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
-import { PERSONAS, PERSONA_MAP, getFriendlyName } from "@/shared/personas";
+import { PERSONA_MAP, getFriendlyName } from "@/shared/personas";
 
 interface DebateUtterance {
   debate_id: string;
@@ -48,10 +49,23 @@ export default function CouncilRoomClient({
   const [messageQueue, setMessageQueue] = useState<DebateUtterance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isVerdictReady, setIsVerdictReady] = useState(false);
   const [roundCompleteEvent, setRoundCompleteEvent] = useState<{
     round: number;
     total: number;
-  } | null>(null);
+    isRoundDone: boolean;
+  } | null>(() => {
+      if (typeof window !== 'undefined') {
+          const cached = sessionStorage.getItem(`round_${id}`);
+          return cached ? JSON.parse(cached) : null;
+      }
+      return null;
+  });
+
+  // Persist only round progress metadata
+  useEffect(() => {
+    sessionStorage.setItem(`round_${id}`, JSON.stringify(roundCompleteEvent));
+  }, [roundCompleteEvent, id]);
 
   const squadLabel = isId ? "Semua (Squad)" : "All (Squad)";
   const [rebuttalTarget, setRebuttalTarget] = useState(squadLabel);
@@ -61,6 +75,40 @@ export default function CouncilRoomClient({
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamAbortController = useRef<AbortController | null>(null);
+
+  async function consumeSSE(
+    response: Response,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    onEvent: (data: any) => void,
+  ) {
+    console.log(`[CouncilRoomClient] consumeSSE started, body:`, !!response.body);
+    if (!response.body) return;
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    console.log(`[CouncilRoomClient] SSE reader initialized`);
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        console.log(`[CouncilRoomClient] SSE reader done`);
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (!line.trim().startsWith("data: ")) continue;
+        const payload = line.slice(6).trim();
+        console.log(`[CouncilRoomClient] SSE payload received:`, payload);
+        if (payload === "[DONE]") return;
+        try {
+          onEvent(JSON.parse(payload));
+        } catch (e) {
+            console.error(`[CouncilRoomClient] SSE Parse Error:`, e);
+        }
+      }
+    }
+  }
 
   // Extract unique friendly names to avoid duplicates in the UI
   const uniqueFriendlyPersonas = useMemo(() => {
@@ -140,6 +188,32 @@ export default function CouncilRoomClient({
           const debatesData = await debatesRes.json();
           setDebates(debatesData);
           setDisplayedDebates(debatesData);
+          setMessageQueue([]);
+
+          if (debatesData.length > 0) {
+            // Infer round progress
+            const maxRound = Math.max(...debatesData.map((d: DebateUtterance) => d.round_number || 1));
+            const maxTurnSequence = Math.max(...debatesData.map((d: DebateUtterance) => d.turn_sequence));
+            const lastTurn = Math.floor((maxTurnSequence % 100) / 10);
+
+            setRoundCompleteEvent({ 
+              round: maxRound, 
+              total: session.rounds || 1, 
+              isRoundDone: lastTurn === 3 
+            });
+          }
+        }
+
+        // Check if verdict already exists
+        const sessionRes = await fetch(`/api/sessions/${id}`);
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.current_status === "completed") {
+            const verdictRes = await fetch(`/api/verdicts/${id}`);
+            if (verdictRes.ok) {
+              setIsVerdictReady(true);
+            }
+          }
         }
       } catch (err) {
         console.error("Failed to load council data:", err);
@@ -154,7 +228,7 @@ export default function CouncilRoomClient({
     if (
       !id ||
       !session ||
-      session.current_status === "completed" ||
+      (session.current_status === "completed" && isVerdictReady) ||
       streamAbortController.current
     )
       return;
@@ -162,16 +236,29 @@ export default function CouncilRoomClient({
     const controller = new AbortController();
     streamAbortController.current = controller;
 
+    // Flag to prevent double-firing
+    let isMounted = true;
+
     async function startStream() {
-      setIsStreaming(true);
+      // Don't mark as streaming until we actually open the connection
+      console.log(`[CouncilRoomClient] Starting stream for session: ${id}`);
       try {
         const response = await fetch(`/api/sessions/${id}/stream`, {
           signal: controller.signal,
         });
-        if (!response.body) return;
+        
+        if (!isMounted) return; // Cleanup check
+        
+        setIsStreaming(true); // Now we are actively receiving
+        console.log(`[CouncilRoomClient] Stream response status: ${response.status}`);
+        if (!response.body) {
+            console.error(`[CouncilRoomClient] No response body`);
+            return;
+        }
 
         await consumeSSE(response, (event) => {
-          if (controller.signal.aborted) return;
+          if (!isMounted || controller.signal.aborted) return;
+          // ... (sse handling logic remains same)
 
           if (event.type === "turn") {
             const newUtterance = {
@@ -182,20 +269,25 @@ export default function CouncilRoomClient({
               round_number: event.round_number,
             };
 
+            console.log(`[CouncilRoomClient] Adding to queue:`, newUtterance);
             setDebates((prev) => [...prev, newUtterance]);
             setMessageQueue((prev) => [...prev, newUtterance]);
-          } else if (event.type === "typing") {
+          }
+ else if (event.type === "typing") {
             // Typing indicator handled visually when queue is processing
           } else if (event.type === "round_complete") {
             setIsStreaming(false);
             setRoundCompleteEvent((prev) => {
-              if (prev && prev.round >= event.round) return prev;
-              return { round: event.round, total: event.total };
+              // We want to know if the round IS done.
+              return { round: event.round, total: event.total, isRoundDone: true };
             });
           } else if (event.type === "debate_complete") {
             setSession((prev) =>
               prev ? { ...prev, current_status: "completed" } : prev,
             );
+          } else if (event.verdict) {
+            setIsVerdictReady(true);
+            setIsStreaming(false);
           }
         });
       } catch (err) {
@@ -206,7 +298,15 @@ export default function CouncilRoomClient({
     }
 
     startStream();
-  }, [id, session?.current_status]);
+
+    return () => {
+      isMounted = false; // Mark unmounted
+      if (streamAbortController.current) {
+        streamAbortController.current.abort();
+        streamAbortController.current = null;
+      }
+    };
+  }, [id, session?.current_status, isVerdictReady]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -224,31 +324,10 @@ export default function CouncilRoomClient({
     return () => clearTimeout(timer);
   }, [isStreaming]);
 
-  async function consumeSSE(response: Response, onEvent: (data: any) => void) {
-    if (!response.body) return;
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        if (!line.trim().startsWith("data: ")) continue;
-        const payload = line.slice(6).trim();
-        if (payload === "[DONE]") return;
-        try {
-          onEvent(JSON.parse(payload));
-        } catch {}
-      }
-    }
-  }
-
   const handleSendRebuttal = async (skip = false) => {
     setIsSubmittingRebuttal(true);
     try {
+      const roundNumber = roundCompleteEvent?.round || 1;
       if (!skip) {
         const res = await fetch(`/api/sessions/${id}/rebuttal`, {
           method: "POST",
@@ -256,7 +335,7 @@ export default function CouncilRoomClient({
           body: JSON.stringify({
             content: rebuttalContent,
             target: rebuttalTarget,
-            round_number: roundCompleteEvent?.round,
+            round_number: roundNumber,
           }),
         });
         if (!res.ok) throw new Error("Failed to send rebuttal");
@@ -265,8 +344,8 @@ export default function CouncilRoomClient({
           debate_id: `user-${Date.now()}`,
           persona_name: YOU_NAME,
           message_content: rebuttalContent,
-          turn_sequence: (roundCompleteEvent?.round || 0) * 100 + 99,
-          round_number: roundCompleteEvent?.round,
+          turn_sequence: roundNumber * 100 + 99,
+          round_number: roundNumber,
         };
         setDebates((prev) => [...prev, userUtterance]);
         setDisplayedDebates((prev) => [...prev, userUtterance]);
@@ -279,7 +358,7 @@ export default function CouncilRoomClient({
               ? "(Lanjut tanpa membalas)"
               : "(Continue without replying)",
             target: "Semua (Squad)",
-            round_number: roundCompleteEvent?.round,
+            round_number: roundNumber,
           }),
         });
       }
@@ -303,6 +382,7 @@ export default function CouncilRoomClient({
 
   const totalRounds = session?.rounds || 1;
   const isComplete = session?.current_status === "completed";
+
   const categoryLabel = session?.category || "Analisis";
   const currentRound = roundCompleteEvent ? roundCompleteEvent.round : 1;
   const displayRound = Math.min(Math.max(currentRound, 1), totalRounds);
@@ -325,7 +405,7 @@ export default function CouncilRoomClient({
         <div className="absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,218,185,0.25)_0%,transparent_70%)] blur-[100px]" />
       </div>
 
-      <OperaNav variant="authed" showHomeButton={true} />
+      <OperaNav variant="authed" showHomeButton={false} />
 
       <main
         ref={scrollRef}
@@ -463,8 +543,8 @@ export default function CouncilRoomClient({
         {/* REBUTTAL FORM */}
         {roundCompleteEvent &&
           !isComplete &&
-          messageQueue.length === 0 &&
-          !isStreaming && (
+          !isStreaming &&
+          messageQueue.length === 0 && (
             <div className="bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] p-8 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_80px_rgba(0,0,0,0.05)] mt-4">
               <div className="flex flex-col gap-4">
                 <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
@@ -518,14 +598,26 @@ export default function CouncilRoomClient({
             </div>
           )}
 
-        {isComplete && messageQueue.length === 0 && !isStreaming && (
+        {isComplete && messageQueue.length === 0 && (
           <div className="flex justify-center mt-12 mb-12">
-            <button
-              onClick={() => router.push(`/${locale}/session/${id}/verdict`)}
-              className="px-12 h-14 bg-emerald-500 text-white font-bold text-xs tracking-[0.2em] uppercase rounded-full hover:scale-[1.02] transition-all shadow-[0_10px_30px_rgba(16,185,129,0.2)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] flex items-center gap-3"
-            >
-              {isId ? "Lihat Kesimpulan" : "See Verdict"}
-            </button>
+            {isVerdictReady ? (
+              <button
+                onClick={() => router.push(`/session/${id}/verdict`)}
+                className="px-12 h-14 bg-emerald-500 text-white font-bold text-xs tracking-[0.2em] uppercase rounded-full hover:scale-[1.02] transition-all shadow-[0_10px_30px_rgba(16,185,129,0.2)] hover:shadow-[0_20px_50px_rgba(16,185,129,0.4)] flex items-center gap-3"
+              >
+                {isId ? "Lihat Kesimpulan" : "See Verdict"}
+              </button>
+            ) : (
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex items-center gap-3 text-emerald-600 font-bold text-xs tracking-[0.2em] uppercase animate-pulse">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  {isId ? "Menyusun Kesimpulan..." : "Synthesizing Verdict..."}
+                </div>
+                <p className="text-[10px] text-slate-400 uppercase tracking-widest">
+                  {isId ? "Hampir Selesai" : "Almost there"}
+                </p>
+              </div>
+            )}
           </div>
         )}
       </main>

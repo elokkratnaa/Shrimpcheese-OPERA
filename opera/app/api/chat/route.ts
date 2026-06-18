@@ -4,9 +4,10 @@ import { streamGroq } from '@/core/lib/groq'
 import { PERSONA_MAP } from '@/shared/personas'
 import { checkInputSafety } from '@/core/services/SafetyService'
 import { getTranslations } from 'next-intl/server'
+import { logger } from '@/shared/logger'
 
 export async function POST(request: NextRequest) {
-  try { console.log("[ChatAPI] POST request received");
+  try { logger.info("[ChatAPI] POST request received");
     const t = await getTranslations('Error')
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -16,22 +17,22 @@ export async function POST(request: NextRequest) {
     }
 
     let body
-    try { console.log("[ChatAPI] POST request received");
+    try { logger.info("[ChatAPI] POST request received");
       body = await request.json()
     } catch {
       return new Response('Invalid JSON body', { status: 400 })
     }
 
     const { persona, message, history } = body
-    console.log('[ChatAPI] Request:', { persona, message, historyLength: history?.length });
+    logger.info('[ChatAPI] Request:' + JSON.stringify({ persona, message, historyLength: history?.length }));
 
     if (!persona || typeof persona !== 'string' || persona.trim().length === 0) {
-      console.error('[ChatAPI] Missing or invalid persona:', persona);
+      logger.error('[ChatAPI] Missing or invalid persona:', persona);
       return new Response('persona is required', { status: 400 })
     }
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      console.error('[ChatAPI] Missing or invalid message:', message);
+      logger.error('[ChatAPI] Missing or invalid message:', message);
       return new Response('message is required', { status: 400 })
     }
 
@@ -41,7 +42,13 @@ export async function POST(request: NextRequest) {
       return new Response(safety.error || t('profiler_failed'), { status: 400 })
     }
 
-    const systemPrompt = PERSONA_MAP[persona]?.systemPrompt || `You are ${persona}, a helpful advisor.`
+    const systemPrompt = `${PERSONA_MAP[persona]?.systemPrompt || `You are ${persona}, a helpful advisor.`} 
+    Rules:
+    - Use a "groupchat" style: punchy, informal, and direct.
+    - Max 2 short sentences.
+    - No markdown, lists, or headers.
+    - STRICTLY PROHIBITED: No code, no work-related tasks, no creative project plans (GDDs), no technical output.
+    - Focus EXCLUSIVELY on psychological/emotional support, analyzing personal dilemmas, and helping the user navigate overthinking.`
 
     const chatHistory = (history as Array<{ role: string; content: string }> || []).map((msg) => ({
       role: msg.role === 'assistant' ? 'assistant' as const : 'user' as const,
@@ -49,20 +56,20 @@ export async function POST(request: NextRequest) {
     }))
 
     let stream;
-    try { console.log("[ChatAPI] POST request received");
+    try { logger.info("[ChatAPI] POST request received");
       stream = await streamGroq({
         system: systemPrompt,
         messages: [...chatHistory, { role: 'user', content: message }]
       })
     } catch (err) {
-      console.error('[ChatAPI] Streaming failed after all fallbacks:', err);
+      logger.error('[ChatAPI] Streaming failed after all fallbacks:', err);
       return new Response('AI_FAILED', { status: 503 });
     }
 
     const encoder = new TextEncoder()
     const customReadable = new ReadableStream({
       async start(controller) {
-        try { console.log("[ChatAPI] POST request received");
+        try { logger.info("[ChatAPI] POST request received");
           for await (const chunk of stream) {
             const token = chunk.choices[0]?.delta?.content || ''
             if (token) {

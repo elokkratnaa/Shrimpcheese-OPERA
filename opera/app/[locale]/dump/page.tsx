@@ -215,7 +215,7 @@ export default function UnifiedDumpPage() {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) router.push(`/${locale}/login`);
+      if (!user) router.push(`/login`);
       else setAuthChecking(false);
     }
     checkAuth();

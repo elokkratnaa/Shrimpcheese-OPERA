@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import { createClient } from "@/client/services/supabase";
 import { useLocale } from "next-intl";
 import { motion } from "framer-motion";
@@ -210,7 +210,7 @@ export default function ProfileClient({
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push(`/${locale}/login`);
+    router.push(`/login`);
   };
 
   const handleDelete = async () => {

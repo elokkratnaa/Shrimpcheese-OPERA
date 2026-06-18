@@ -142,6 +142,7 @@
     "profiler_failed": "OPERA tidak bisa membaca mind dump Anda. Coba lagi dengan lebih detail.",
     "timeout": "Ini memakan waktu terlalu lama. Dewan mungkin macet.",
     "not_found": "Sesi ini tidak ada atau bukan milik Anda.",
+    "session_failed": "Sesi ini tidak dapat ditemukan.",
     "rateLimit": "Mohon tunggu satu jam untuk chat lagi.",
     "verdictUnavailable": "Maaf, verdict tidak dapat dicapai dalam waktu yang ditentukan. Anda bisa mencoba lagi dalam satu jam ke depan.",
     "default": "Ada yang rusak di balik layar.",

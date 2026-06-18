@@ -1,5 +1,6 @@
 import { createBackgroundClient } from '@/core/lib/supabase-background'
 import { ProfilerOutput } from '@/shared/types'
+import { getFriendlyName } from '@/shared/personas'
 
 export interface PersonalityAnalysis {
   emotional_core: {
@@ -44,7 +45,8 @@ export async function getPersonalityAnalysis(userId: string): Promise<Personalit
     // Persona affinity
     if (biases.suggested_persona_archetypes) {
       biases.suggested_persona_archetypes.forEach((persona) => {
-        personaCounts[persona] = (personaCounts[persona] || 0) + 1
+        const friendlyName = getFriendlyName(persona)
+        personaCounts[friendlyName] = (personaCounts[friendlyName] || 0) + 1
       })
     }
 
