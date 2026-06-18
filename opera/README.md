@@ -36,7 +36,23 @@ OPERA supports English and Indonesian.
    npm install
    ```
 
-2. Run the development server:
+2. Configure Environment Variables:
+
+   Create a `.env.local` file in the `opera/` directory based on the provided example:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   Edit `.env.local` and fill in the required keys:
+
+   - **`NEXT_PUBLIC_SUPABASE_URL`**: Your Supabase project URL.
+   - **`NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`**: Your Supabase project API (anon) key.
+   - **`NEXT_PUBLIC_SUPABASE_ANON_KEY`**: Same as the publishable key.
+   - **`SUPABASE_SERVICE_ROLE_KEY`**: Your Supabase project service role key (found in Project Settings -> API). **Keep this secret and DO NOT prefix with `NEXT_PUBLIC_`.**
+   - **`GROQ_API_KEY`**: Your Groq API key.
+
+3. Run the development server:
 
    ```bash
    npm run dev
