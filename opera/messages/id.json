@@ -105,6 +105,13 @@
     "password": "Kata Sandi",
     "fullName": "Nama Lengkap",
     "forgot": "Lupa kata sandi?",
+    "forgotTitle": "Atur ulang kata sandi",
+    "forgotSubtitle": "Kami akan mengirimkan tautan untuk masuk kembali ke akun Anda.",
+    "sendResetLink": "Kirim tautan atur ulang",
+    "backToLogin": "Kembali ke masuk",
+    "resetEmailSent": "Periksa email Anda untuk tautan atur ulang kata sandi.",
+    "resetSuccessTitle": "Periksa kotak masuk Anda",
+    "resetSuccessSubtitle": "Kami telah mengirimkan tautan atur ulang kata sandi ke email Anda.",
     "signIn": "Masuk ke OPERA",
     "noAccount": "Belum punya akun?",
     "alreadyAccount": "Sudah punya akun?",
@@ -119,6 +126,7 @@
       "passwordRequired": "Kata sandi wajib diisi.",
       "passwordLength": "Kata sandi minimal 8 karakter.",
       "alreadyExists": "Akun dengan email ini sudah terdaftar.",
+      "differentProvider": "Akun dengan email ini sudah terdaftar dengan metode masuk yang berbeda.",
       "unexpected": "Terjadi kesalahan yang tidak terduga. Silakan coba lagi.",
       "googleFailed": "Gagal memulai pendaftaran dengan Google."
     }
@@ -134,6 +142,7 @@
     "profiler_failed": "OPERA tidak bisa membaca mind dump Anda. Coba lagi dengan lebih detail.",
     "timeout": "Ini memakan waktu terlalu lama. Dewan mungkin macet.",
     "not_found": "Sesi ini tidak ada atau bukan milik Anda.",
+    "session_failed": "Sesi ini tidak dapat ditemukan.",
     "rateLimit": "Mohon tunggu satu jam untuk chat lagi.",
     "verdictUnavailable": "Maaf, verdict tidak dapat dicapai dalam waktu yang ditentukan. Anda bisa mencoba lagi dalam satu jam ke depan.",
     "default": "Ada yang rusak di balik layar.",
@@ -275,6 +284,13 @@
       "saveFailed": "Gagal menyimpan — coba lagi.",
       "deleteFailed": "Gagal menghapus akun.",
       "unexpected": "Terjadi kesalahan. Coba lagi."
+    },
+    "analysis": {
+      "title": "Analisis Kepribadian",
+      "emotionalCore": "Inti Emosional",
+      "personaAffinity": "Afinitas Dewan",
+      "keyThemes": "Tema Keputusan Utama",
+      "noData": "Belum ada cukup data sesi untuk analisis."
     }
   },
   "Chat": {
@@ -332,12 +348,13 @@
     "closingMessage": "PESAN PENUTUP",
     "typing": "mengetik...",
     "copied": "Tersalin",
-    "dilemmaPlaceholder": "Tulis dilema baru lo",
-    "startGibah": "Mulai Gibah",
     "newDilemma": "Dilema Baru",
     "copyResult": "Salin Hasil",
     "shareResults": "Bagikan Hasil",
-    "soon": "Segera hadir",
+    "shareDescription": "Simpan hasil diskusi ini atau bagikan kepada orang lain untuk perspektif tambahan.",
+    "copyToClipboard": "Salin ke Papan Klip",
+    "shareViaSystem": "Bagikan via Sistem",
+    "copied": "Tersalin",
     "errors": {
       "stream": "Gagal mengalirkan verdict. Silakan refresh atau coba lagi.",
       "commit": "Gagal berkomitmen pada keputusan. Silakan coba lagi.",

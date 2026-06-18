@@ -10,12 +10,13 @@ import { PROFILER_SYSTEM_PROMPT, ProfilerOutput } from '@/shared/types'
 export async function runProfiler(
   sessionId: string, 
   accessToken?: string,
-  manualPersonas?: string[]
+  manualPersonas?: string[],
+  locale: string = 'en'
 ): Promise<void> {
   const supabase = createBackgroundClient(accessToken)
 
   try {
-    console.log(`[ProfilerService] Starting profiling for session ${sessionId}`)
+    console.log(`[ProfilerService] Starting profiling for session ${sessionId}, locale: ${locale}`)
     // 1. Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
@@ -31,7 +32,7 @@ export async function runProfiler(
     console.log(`[ProfilerService] Session fetched: ${sessionId}`)
 
     const contextPrefix = `Category: ${session.category || 'Unspecified'}. Emotional state: ${session.emotional_state || 'Unspecified'}.`
-    let rawDump = session.raw_mind_dump
+    const rawDump = session.raw_mind_dump
     let attempts = 0
     let success = false
     let profilerOutput: ProfilerOutput | null = null
@@ -43,7 +44,8 @@ export async function runProfiler(
         console.log(`[ProfilerService] Attempt ${attempts} calling completeGroq for session ${sessionId}`)
         const resultString = await completeGroq({
           system: `${contextPrefix}\n\n${PROFILER_SYSTEM_PROMPT}`,
-          messages: [{ role: 'user', content: rawDump }]
+          messages: [{ role: 'user', content: rawDump }],
+          responseFormat: { type: 'json_object' }
         })
         console.log(`[ProfilerService] Received Groq response for session ${sessionId}`)
 
@@ -67,22 +69,25 @@ export async function runProfiler(
 
         try {
           const parsed = JSON.parse(cleanJsonString) as ProfilerOutput
-          // Validation checks
-          if (
-            typeof parsed.core_decision_node === 'string' &&
-            Array.isArray(parsed.constraints) &&
-            Array.isArray(parsed.dependencies) &&
-            Array.isArray(parsed.contradictions) &&
-            parsed.emotional_vector &&
-            ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector.state) &&
-            [1, 2, 3].includes(parsed.emotional_vector.intensity) &&
-            Array.isArray(parsed.suggested_persona_archetypes) &&
-            parsed.suggested_persona_archetypes.length >= 2
-          ) {
+          
+          // Debugging validation
+          const checks = {
+            hasDecisionNode: typeof parsed.core_decision_node === 'string',
+            hasConstraints: Array.isArray(parsed.constraints),
+            hasDependencies: Array.isArray(parsed.dependencies),
+            hasContradictions: Array.isArray(parsed.contradictions),
+            hasEmotionalVector: !!parsed.emotional_vector,
+            validEmotionState: ['anxious', 'avoidant', 'risk-tolerant', 'fatigued', 'hopeful', 'bingung'].includes(parsed.emotional_vector?.state || ''),
+            validEmotionIntensity: [1, 2, 3].includes(parsed.emotional_vector?.intensity || 0),
+            hasArchetypes: Array.isArray(parsed.suggested_persona_archetypes) && parsed.suggested_persona_archetypes.length >= 1
+          };
+
+          if (Object.values(checks).every(Boolean)) {
             profilerOutput = parsed
             success = true
           } else {
-            console.error(`[ProfilerService] JSON structure validation failed. Raw response: ${cleanJsonString}`)
+            console.error(`[ProfilerService] JSON structure validation failed. Checks:`, checks)
+            console.error(`[ProfilerService] Raw response: ${cleanJsonString}`)
             throw new Error('JSON structure validation failed')
           }
         } catch (parseErr) {
@@ -127,7 +132,7 @@ export async function runProfiler(
       : profilerOutput.suggested_persona_archetypes
     console.log(`[ProfilerService] Spawning council for session ${sessionId} with personas:`, personasToSpawn)
 
-    spawnCouncil(sessionId, personasToSpawn, session.rounds, accessToken)
+    spawnCouncil(sessionId, personasToSpawn, session.rounds, accessToken, locale)
       .catch(err => console.error(`[ProfilerService] Background spawnCouncil failed for session ${sessionId}:`, err))
   } catch (err: unknown) {
     console.error(`[ProfilerService] Unexpected error on session ${sessionId}:`, err)

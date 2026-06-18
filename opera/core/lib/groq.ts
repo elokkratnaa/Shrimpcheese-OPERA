@@ -30,11 +30,13 @@ export async function completeGroq({
   messages,
   modelChain = DEFAULT_MODEL_CHAIN,
   maxTokens = 2048,
+  responseFormat,
 }: {
   system: string
   messages: ChatMessage[]
   modelChain?: string[]
   maxTokens?: number
+  responseFormat?: { type: 'json_object' }
 }): Promise<string> {
   for (const model of modelChain) {
     let retries = 0;
@@ -46,12 +48,18 @@ export async function completeGroq({
         
         const formattedMessages = [{ role: 'system', content: system }, ...messages].filter(msg => msg.role !== 'system' || msg.content.trim() !== '');
 
-        const completionPromise = groqClient.chat.completions.create({
-            model,
-            max_tokens: maxTokens,
-            stream: false,
-            messages: formattedMessages as any,
-        });
+        const options: any = {
+          model,
+          max_tokens: maxTokens,
+          stream: false,
+          messages: formattedMessages as any,
+        };
+
+        if (responseFormat) {
+          options.response_format = responseFormat;
+        }
+
+        const completionPromise = groqClient.chat.completions.create(options);
 
         const timeoutPromise = new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('TIMEOUT')), 20000)
@@ -85,19 +93,27 @@ export async function streamGroq({
   system,
   messages,
   modelChain = DEFAULT_MODEL_CHAIN,
+  responseFormat,
 }: {
   system: string
   messages: ChatMessage[]
   modelChain?: string[]
-}) {
+  responseFormat?: { type: 'json_object' }
+}): Promise<AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>> {
   for (const model of modelChain) {
     try {
-      return await groqClient.chat.completions.create({
+      const options: any = {
         model,
         max_tokens: 2048,
         stream: true,
         messages: [{ role: 'system', content: system }, ...messages],
-      });
+      };
+      
+      if (responseFormat) {
+        options.response_format = responseFormat;
+      }
+
+      return await groqClient.chat.completions.create(options) as unknown as AsyncIterable<Groq.Chat.Completions.ChatCompletionChunk>;
     } catch (err: any) {
       console.warn(`[Groq] Stream model ${model} failed. Error: ${err.message}`);
     }

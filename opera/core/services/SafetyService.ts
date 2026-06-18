@@ -1,4 +1,5 @@
 import { completeGroq, DEBATE_MODEL_CHAIN } from '@/core/lib/groq';
+import { logger } from '@/shared/logger';
 
 const SAFETY_SYSTEM_PROMPT = `Analyze the text below. 
 
@@ -35,7 +36,7 @@ export async function checkInputSafety(content: string): Promise<{ isSafe: boole
       
       return { isSafe, error: isSafe ? undefined : 'UNSAFE' };
     } catch (err) {
-      console.error('[SafetyService] Safety check failed:', err);
+      logger.error('[SafetyService] Safety check failed:', err);
       // Fallback to safe if the safety service itself fails to avoid blocking users
       return { isSafe: true };
     }

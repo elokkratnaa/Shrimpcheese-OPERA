@@ -21,24 +21,39 @@ export async function GET(
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
+      console.warn(`[VerdictAPI] Unauthorized access attempt for session: ${id}`)
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    console.log(`[VerdictAPI] Fetching verdict for session: ${id} by user: ${user.id}`)
+
     // Verify session ownership and fetch verdict in one join
+    // We use order + limit + maybeSingle to handle potential (though now prevented) duplicate rows gracefully
     const { data: verdict, error } = await supabase
       .from('verdicts')
       .select('verdict_id, verdict_summary, action_steps, is_committed, favourite_persona, sessions!inner(user_id)')
       .eq('session_id', id)
-      .single()
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    if (error || !verdict) {
+    if (error) {
+      console.error(`[VerdictAPI] Database error fetching verdict for session ${id}:`, error)
+      return NextResponse.json({ error: 'Verdict not found' }, { status: 404 })
+    }
+
+    if (!verdict) {
+      console.warn(`[VerdictAPI] No verdict found in DB for session: ${id}`)
       return NextResponse.json({ error: 'Verdict not found' }, { status: 404 })
     }
 
     const sessionObj = Array.isArray(verdict.sessions) ? verdict.sessions[0] : verdict.sessions
     if (sessionObj?.user_id !== user.id) {
+      console.error(`[VerdictAPI] Ownership mismatch. Verdict belongs to ${sessionObj?.user_id}, but requested by ${user.id}`)
       return NextResponse.json({ error: 'Verdict not found' }, { status: 404 })
     }
+
+    console.log(`[VerdictAPI] Successfully retrieved verdict for session: ${id}`)
 
     const flattened = {
       verdict_id: verdict.verdict_id,

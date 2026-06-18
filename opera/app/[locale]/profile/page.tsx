@@ -86,6 +86,7 @@ export default async function ProfilePage({
 
   const fullName: string = (user.user_metadata?.full_name as string) ?? ''
   const email: string = user.email ?? ''
+  const provider: string = user.app_metadata?.provider || 'email'
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans relative overflow-hidden selection:bg-[#E0E7FF] selection:text-[#3730A3]">
@@ -102,7 +103,8 @@ export default async function ProfilePage({
       <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-16 md:py-24 relative z-10 flex flex-col gap-12">
           <ProfileClient 
              initialName={fullName} 
-             email={email} 
+             email={email}
+             provider={provider}
              stats={{
                 totalSessions: stats.total_sessions,
                 committedCount: stats.committed_count,

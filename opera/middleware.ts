@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 const intlMiddleware = createMiddleware(routing)
 
 const PROTECTED_ROUTES = ['/home', '/dump', '/session', '/chat', '/history', '/profile']
-const AUTH_ROUTES = ['/login', '/register']
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password']
 
 export async function middleware(request: NextRequest) {
   // 1. Run next-intl middleware

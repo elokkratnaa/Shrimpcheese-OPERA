@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/routing'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
+import { logger } from '@/shared/logger'
 function ErrorContent({
   error,
   reset,
@@ -21,7 +22,7 @@ function ErrorContent({
   }
   const displayMessage = errorMessages[reason] || t("default")
   useEffect(() => {
-    console.error('[ErrorPage]', error)
+    logger.error('[ErrorPage]', error)
   }, [error])
   return (
     <main className="flex-1 flex flex-col items-center justify-center px-4 py-24 relative z-10">

@@ -1,9 +1,21 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useRouter } from "@/i18n/routing";
 import OperaNav from "@/app/components/shared/OperaNav";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, Share2, Copy, Check } from "lucide-react";
+import { getFriendlyName } from "@/shared/personas";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/shared/utils";
 
 interface ProConOption {
   option: string;
@@ -36,6 +48,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
+  const t = useTranslations("Verdict");
   
   // BULLETPROOF LOCALE DETECTION: 
   // We read directly from the URL route (e.g. /id/session/...) instead of next-intl context.
@@ -51,14 +64,10 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
   const [fetchingClosing, setFetchingClosing] = useState(false);
   const [newDilema, setNewDilema] = useState("");
 
-  const undecidedLabel = isId ? "Belum Yakin" : "Undecided";
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
 
-  const getFriendlyName = (backendName: string) => {
-    if (backendName === "The Pragmatic Stoic") return "Luna";
-    if (backendName === "The Venture Capitalist") return "Sage";
-    if (backendName === "The Creative Hedonist") return "Baz";
-    return backendName;
-  };
+  const undecidedLabel = isId ? "Belum Yakin" : "Undecided";
 
   // Heavy-duty regex replacement to catch all possible AI variations of the persona names in the text
   const replacePersonaNames = (text: string | undefined | null) => {
@@ -78,18 +87,17 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
   const handleCopy = () => {
     navigator.clipboard.writeText(replacePersonaNames(summaryText));
-    alert(isId ? "Teks berhasil disalin!" : "Copied to clipboard!");
+    setHasCopied(true);
+    setTimeout(() => setHasCopied(false), 2000);
   };
 
-  const handleShare = async () => {
+  const handleNativeShare = async () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "OPERA Verdict",
+          title: isId ? "Hasil OPERA" : "OPERA Verdict",
           text: replacePersonaNames(summaryText),
         });
-      } else {
-        handleCopy();
       }
     } catch (err) {
       console.error("Share failed", err);
@@ -98,7 +106,7 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
   const handleNewDilemma = async () => {
     localStorage.setItem("opera_draft", newDilema);
-    router.push(`/${locale}/dump`);
+    router.push(`/dump`);
   };
 
   const handleSelectPersona = async (name: string) => {
@@ -378,17 +386,64 @@ export default function VerdictClient({ initialVerdict, initialUniquePersonas }:
 
           <div className="flex gap-2 md:gap-3">
             <button onClick={handleNewDilemma} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
-              {isId ? "Dilema Baru" : "New Dilemma"}
+              {t("newDilemma")}
             </button>
-            <button onClick={handleCopy} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
-              {isId ? "Salin Hasil" : "Copy Result"}
+            <button onClick={handleCopy} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98] flex items-center justify-center gap-2">
+              {hasCopied ? <Check className="w-3 h-3 text-emerald-500" /> : null}
+              {hasCopied ? t("copied") : t("copyResult")}
             </button>
-            <button onClick={handleShare} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
-              {isId ? "Bagikan" : "Share"}
+            <button onClick={() => setIsShareOpen(true)} className="flex-1 bg-white border border-slate-200 text-slate-600 font-bold text-[10px] md:text-xs uppercase tracking-widest py-3 rounded-full transition-all duration-300 ease-out hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]">
+              {t("shareResults")}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Share Verdict Dialog */}
+      <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
+        <DialogContent className="sm:max-w-[460px] border-none bg-white/80 backdrop-blur-2xl rounded-[2rem] p-8 shadow-[0_20px_60px_rgba(0,0,0,0.1)]">
+          <DialogHeader className="gap-3">
+            <DialogTitle className="text-2xl font-serif font-light text-slate-900">
+              {t("shareResults")}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-500 font-medium leading-relaxed">
+              {t("shareDescription")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-6 mt-6">
+            <div className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 max-h-[160px] overflow-y-auto">
+              <p className="text-sm text-slate-600 leading-relaxed italic font-serif">
+                "{replacePersonaNames(summaryText)}"
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={handleCopy}
+                className={cn(
+                  "flex-1 rounded-full py-6 font-bold uppercase tracking-widest text-[10px] transition-all shadow-md flex items-center justify-center gap-2",
+                  hasCopied ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-slate-900 hover:bg-[#6366F1] text-white"
+                )}
+              >
+                {hasCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {hasCopied ? t("copied") : t("copyToClipboard")}
+              </Button>
+              
+              {typeof navigator !== 'undefined' && (navigator as any).share && (
+                <Button
+                  variant="outline"
+                  onClick={handleNativeShare}
+                  className="flex-1 rounded-full py-6 border-slate-200 text-slate-600 font-bold uppercase tracking-widest text-[10px] hover:bg-slate-50 shadow-sm flex items-center justify-center gap-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  {t("shareViaSystem")}
+                </Button>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

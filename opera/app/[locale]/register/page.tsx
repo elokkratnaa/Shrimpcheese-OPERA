@@ -95,7 +95,11 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        setAuthError(error.message);
+        if (error.message.includes("different provider")) {
+          setAuthError(t("errors.differentProvider"));
+        } else {
+          setAuthError(error.message);
+        }
       } else if (data?.user?.identities && data.user.identities.length === 0) {
         setAuthError(t("errors.alreadyExists"));
       } else {

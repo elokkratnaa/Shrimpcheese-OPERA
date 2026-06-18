@@ -77,7 +77,11 @@ export default function LoginPage() {
       });
 
       if (error) {
-        setAuthError(error.message);
+        if (error.message.includes("different provider")) {
+          setAuthError(t("errors.differentProvider"));
+        } else {
+          setAuthError(error.message);
+        }
       } else {
         router.push("/home");
         router.refresh();

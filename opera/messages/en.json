@@ -105,6 +105,13 @@
     "password": "Password",
     "fullName": "Full Name",
     "forgot": "Forgot password?",
+    "forgotTitle": "Reset your password",
+    "forgotSubtitle": "We'll send you a link to get back into your account.",
+    "sendResetLink": "Send reset link",
+    "backToLogin": "Back to sign in",
+    "resetEmailSent": "Check your email for a password reset link.",
+    "resetSuccessTitle": "Check your inbox",
+    "resetSuccessSubtitle": "We've sent a password reset link to your email.",
     "signIn": "Sign in to OPERA",
     "noAccount": "Don't have an account?",
     "alreadyAccount": "Already have an account?",
@@ -119,6 +126,7 @@
       "passwordRequired": "Password is required.",
       "passwordLength": "Password must be at least 8 characters.",
       "alreadyExists": "An account with this email address already exists.",
+      "differentProvider": "An account with this email address already exists with a different sign-in method.",
       "unexpected": "An unexpected error occurred. Please try again.",
       "googleFailed": "Failed to initiate Google registration."
     }
@@ -134,6 +142,7 @@
     "profiler_failed": "OPERA couldn't read your dump. Try again with more detail.",
     "timeout": "This took too long. The council may be stuck.",
     "not_found": "This session doesn't exist or isn't yours.",
+    "session_failed": "This session could not be retrieved.",
     "rateLimit": "Please wait an hour to chat again.",
     "verdictUnavailable": "Sorry, a verdict couldn't be reached within the allotted time. You can try again in the next hour.",
     "default": "Something broke backstage.",
@@ -276,9 +285,16 @@
       "saveFailed": "Could not save — try again.",
       "deleteFailed": "Account deletion failed.",
       "unexpected": "Something went wrong. Try again."
+    },
+    "analysis": {
+      "title": "Personality Analysis",
+      "emotionalCore": "Emotional Core",
+      "personaAffinity": "Council Affinity",
+      "keyThemes": "Core Decision Themes",
+      "noData": "Not enough session data for analysis yet."
     }
-  },
-  "Chat": {
+    },
+    "Council": {
     "title": "Choose your advisor",
     "consult": "Consult {name}",
     "intro": "Start typing to test ideas, analyze risk, or map fulfillment options directly.",
@@ -333,18 +349,19 @@
     "closingMessage": "CLOSING MESSAGE",
     "typing": "typing...",
     "copied": "Copied!",
-    "dilemmaPlaceholder": "Write your new dilemma",
-    "startGibah": "Start Gibah",
     "newDilemma": "New Dilemma",
     "copyResult": "Copy Result",
     "shareResults": "Share Results",
+    "shareDescription": "Save the result of this discussion or share it with others for additional perspective.",
+    "copyToClipboard": "Copy to Clipboard",
+    "shareViaSystem": "Share via System",
+    "copied": "Copied!",
     "errors": {
       "stream": "Failed to stream verdict. Please refresh or try again.",
       "commit": "Failed to commit decision. Please try again.",
       "unexpected": "An error occurred."
     }
-  },
-  "OverthinkingBar": {
+    },
     "label": "Overthinking level",
     "complete": "Analysis complete"
   }

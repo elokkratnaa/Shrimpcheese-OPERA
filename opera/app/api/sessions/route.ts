@@ -54,8 +54,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error?.message || 'Failed to create session' }, { status: 500 })
     }
 
+    // Determine locale from URL:
+    // When called from the frontend, the middleware usually handles locale-based routing.
+    // For API calls, the locale can be passed in a header.
+    const locale = request.headers.get('x-locale') || 'en';
+
     // Fire-and-forget — don't block response on profiler
-    runProfiler(newSession.session_id, accessToken, personas).catch(async (err) => {
+    runProfiler(newSession.session_id, accessToken, personas, locale).catch(async (err) => {
       console.error('[ProfilerService] failed:', err)
       await supabase
         .from('sessions')
