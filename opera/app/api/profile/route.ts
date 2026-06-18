@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/core/lib/supabase-server'
+import { createBackgroundClient } from '@/core/lib/supabase-background'
 
 export async function GET(request: NextRequest) {
   try {
@@ -134,7 +135,8 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: deleteSessionsError.message }, { status: 500 })
     }
 
-    const { error: deleteUserError } = await supabase.auth.admin.deleteUser(user.id)
+    const adminSupabase = createBackgroundClient()
+    const { error: deleteUserError } = await adminSupabase.auth.admin.deleteUser(user.id)
 
     if (deleteUserError) {
       return NextResponse.json({ error: deleteUserError.message }, { status: 500 })

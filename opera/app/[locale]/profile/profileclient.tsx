@@ -66,6 +66,7 @@ const dict = {
     confirm: "Confirm",
     logoutTitle: "Ready to leave?",
     deleteTitle: "Permanently delete account?",
+    deleteFailed: "Account deletion failed.",
   },
   id: {
     headerTitle: "Profil Pemikiranmu",
@@ -94,6 +95,7 @@ const dict = {
     logoutConfirm: "Apakah kamu yakin ingin keluar?",
     deleteConfirm:
       "Penghapusan akun saat ini memerlukan proses admin. Silakan logout atau hubungi dukungan.",
+    deleteFailed: "Gagal menghapus akun.",
     editName: "Klik nama untuk mengubah",
     lunaDesc:
       "Kamu cenderung menghargai kesadaran emosional saat mengambil keputusan.",
@@ -214,10 +216,23 @@ export default function ProfileClient({
   };
 
   const handleDelete = async () => {
-    // Account deletion is currently not implemented on the client side
-    // Just closing the dialog for now as per previous behavior
-    setIsDeleteOpen(false);
-    alert(t.deleteConfirm);
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete account');
+      }
+
+      await supabase.auth.signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error(error);
+      alert(t.deleteFailed || 'Account deletion failed.');
+    } finally {
+      setIsDeleteOpen(false);
+    }
   };
 
   return (

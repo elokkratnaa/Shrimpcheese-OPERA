@@ -103,6 +103,7 @@ export function HomeHero({ displayName }: { displayName: string }) {
       </motion.p>
 
       {/* LARGE INPUT AREA */}
+      {/* DEPRECATED
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -123,6 +124,7 @@ export function HomeHero({ displayName }: { displayName: string }) {
           placeholder={t.placeholder}
         />
       </motion.div>
+       */}
 
       {/* CALL TO ACTIONS */}
       <motion.div

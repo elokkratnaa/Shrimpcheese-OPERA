@@ -543,9 +543,11 @@ export default function CouncilRoomClient({
         {/* REBUTTAL FORM */}
         {roundCompleteEvent &&
           !isComplete &&
+          roundCompleteEvent.isRoundDone &&
           !isStreaming &&
           messageQueue.length === 0 && (
             <div className="bg-white/60 backdrop-blur-xl border border-white/80 rounded-[2rem] p-8 flex flex-col gap-6 animate-in fade-in zoom-in-95 duration-300 shadow-[0_20px_80px_rgba(0,0,0,0.05)] mt-4">
+
               <div className="flex flex-col gap-4">
                 <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                   {isId ? "Tujukan Balasan Kepada:" : "Direct response to:"}
