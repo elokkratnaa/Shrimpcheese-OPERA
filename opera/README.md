@@ -52,7 +52,15 @@ OPERA supports English and Indonesian.
    - **`SUPABASE_SERVICE_ROLE_KEY`**: Your Supabase project service role key (found in Project Settings -> API). **Keep this secret and DO NOT prefix with `NEXT_PUBLIC_`.**
    - **`GROQ_API_KEY`**: Your Groq API key.
 
-3. Run the development server:
+3. Initialize Database:
+
+   The database schema needs to be initialized. Follow these steps:
+   - Log in to your Supabase project dashboard.
+   - Go to the **SQL Editor** in the left sidebar.
+   - Create a new query.
+   - Copy the contents of `supabase/migrations/00_init_schema.sql` and run it.
+
+4. Run the development server:
 
    ```bash
    npm run dev

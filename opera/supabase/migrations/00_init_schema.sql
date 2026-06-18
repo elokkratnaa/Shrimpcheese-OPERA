@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS public.verdicts (
     verdict_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     session_id UUID REFERENCES public.sessions(session_id) ON DELETE CASCADE NOT NULL,
     verdict_summary TEXT NOT NULL,
+    action_steps JSONB,
+    tags JSONB,
     is_committed BOOLEAN DEFAULT FALSE,
     favourite_persona TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
